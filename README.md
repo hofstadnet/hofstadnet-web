@@ -110,6 +110,17 @@ ingen spor, koordinater eller startsteder.
 - Forsiden og innleggene har strukturert data (schema.org, JSON-LD) fra `src/lib/strukturert.ts`. Det er data,
   ikke skript, så CSP-en og `sjekk-csp` slipper det gjennom.
 
+### Kvalitetssjekker
+
+`.github/workflows/kvalitet.yml` kjører på hver pull request:
+
+- **Lighthouse CI** (`lighthouserc.json`): stopper ved tilgjengelighet eller SEO under 95. Ytelse og beste praksis
+  under 90 gir advarsel. Lokalt: `npm run build`, og deretter `npm run test:lighthouse`.
+- **Tilgjengelighet** (`tests/tilgjengelighet.spec.ts`): axe sjekker alle sidene i nettstedskartet mot WCAG 2.2 AA,
+  i mørk og lys visning og i 320 og 1280 px. Testen stopper også hvis siden blir bredere enn skjermen, eller ved
+  CSP-brudd og JavaScript-feil. Lokalt: `npx playwright install chromium` én gang, og deretter
+  `npm run test:tilgjengelighet`.
+
 ### Lenkesjekk
 
 `.github/workflows/lenkesjekk.yml` kjører lychee. På pull requests sjekkes bare lenker innad på siden. Hver mandag

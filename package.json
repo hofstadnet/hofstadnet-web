@@ -10,6 +10,8 @@
     "dev": "astro dev",
     "build": "astro check && astro build && pagefind --site dist",
     "flystatistikk": "node scripts/flystatistikk.mjs",
+    "test:tilgjengelighet": "playwright test",
+    "test:lighthouse": "lhci autorun",
     "preview": "astro preview",
     "check": "astro check",
     "forhandsvis": "node scripts/forhandsvis.mjs"
@@ -23,6 +25,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "@axe-core/playwright": "4.14.0",
+    "@lhci/cli": "0.16.1",
+    "@playwright/test": "1.65.0",
     "pagefind": "1.6.0",
     "typescript": "6.0.3",
     "wrangler": "4.166.0"

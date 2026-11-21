@@ -18,6 +18,9 @@
 .status { box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 .box { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); padding: 18px 22px 8px; }
 .box .links { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; }
+/* Boksen er like høy som statuskortet ved siden av. Lenkeradene deler høyden, så det ikke blir tomrom nederst. */
+.box { display: flex; flex-direction: column; }
+.box .links { flex: 1; grid-auto-rows: 1fr; }
 .box .links li:nth-child(2) a { border-top: 0; }
 .year { font-size: 14px; color: #D3E2EA; margin-top: 10px !important; }
 

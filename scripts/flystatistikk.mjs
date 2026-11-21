@@ -110,7 +110,14 @@ function analyser(p) {
   if (!valgt || p[valgt.slutt].t - p[valgt.start].t < MIN_FLYTID) return null;
   const fly = p.slice(valgt.start, valgt.slutt + 1);
   const maks = fly.reduce((m, x) => Math.max(m, x.hoyde), -Infinity);
+  // Lengden på sporet. Sprang raskere enn 40 m/s er GPS-feil og telles ikke.
+  let spor = 0;
+  for (let i = 1; i < fly.length; i++) {
+    const d = avstand(fly[i - 1], fly[i]);
+    if (d / Math.max(1, fly[i].t - fly[i - 1].t) < 40) spor += d;
+  }
   return {
+    spor,
     sekunder: fly.at(-1).t - fly[0].t,
     starttid: fly[0].t,
     maksHoyde: maks,
@@ -183,6 +190,8 @@ const resultat = {
         dato: unike.at(-1).dato.toISOString().slice(0, 10),
         minutter: Math.round(unike.at(-1).sekunder / 60),
         hoydeM: Math.round(unike.at(-1).maksHoyde),
+        // Lengden på sporet som ble fløyet, ikke XC-distanse
+        sporKm: Math.round(unike.at(-1).spor / 100) / 10,
         vinge: unike.at(-1).vinge || null,
       }
     : null,

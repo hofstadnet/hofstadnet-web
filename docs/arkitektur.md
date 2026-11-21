@@ -141,7 +141,8 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   har vært forbeholdt betalte planer. For en statisk side uten skjema og innlogging er angrepsflaten uansett liten.
   Én egendefinert regel blokkerer `.php`, `/wp-admin`, `/wp-includes`, `/wp-json`, `/.env` og `/.git`.
 - Rate limiting på `/api/status`: over 20 kall på 10 sekunder fra samme IP blokkeres i 10 sekunder.
-- Bot Fight Mode og blokkering av KI-roboter som henter innhold til trening er slått på.
+- KI-roboter som henter innhold til trening blokkeres. Bot Fight Mode er av: den krever at Cloudflare legger inn
+  et innebygd skript (JavaScript detections), som den strenge CSP-en uansett stopper. Den kunne også stoppet RSS-lesere.
 - Browser Cache TTL er «Respect Existing Headers», så `Cache-Control` fra siden og Workeren gjelder. Flystatusen
   mellomlagres derfor bare i 60 sekunder.
 - Workeren, hodene og videresendingene er kode i repoet (`wrangler.jsonc`, `public/_headers`, `public/_redirects`).

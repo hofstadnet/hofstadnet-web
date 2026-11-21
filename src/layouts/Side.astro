@@ -6,10 +6,10 @@ import '../styles/forside.css';
 import '../styles/innlegg.css';
 
 // Felles ramme for alle sider utenom forsiden: toppmeny på vanlig bakgrunn og bunntekst.
-interface Props { tittel: string; beskrivelse?: string; delingsbilde?: string; }
-const { tittel, beskrivelse, delingsbilde } = Astro.props;
+interface Props { tittel: string; beskrivelse?: string; delingsbilde?: string; strukturert?: Record<string, unknown>; }
+const { tittel, beskrivelse, delingsbilde, strukturert } = Astro.props;
 ---
-<Base tittel={tittel} beskrivelse={beskrivelse} delingsbilde={delingsbilde}>
+<Base tittel={tittel} beskrivelse={beskrivelse} delingsbilde={delingsbilde} strukturert={strukturert}>
   <div class="wrap">
     <Topp />
     <main id="innhold">

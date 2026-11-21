@@ -3,25 +3,28 @@ import { render } from 'astro:content';
 import Side from '../../layouts/Side.astro';
 import Pil from '../../components/Pil.astro';
 import Innholdsfortegnelse from '../../components/Innholdsfortegnelse.astro';
-import { hentInnlegg, datoIso, datoLang, lesetid, delingsbilde, type Innlegg } from '../../lib/innlegg';
+import Stikkord from '../../components/Stikkord.astro';
+import Flis from '../../components/Flis.astro';
+import { hentInnlegg, datoIso, datoLang, lesetid, delingsbilde, relaterte, type Innlegg } from '../../lib/innlegg';
 import { omradeNavn } from '../../lib/omrader';
+import { innlegg as strukturertInnlegg } from '../../lib/strukturert';
 
 // Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
 const MIN_OVERSKRIFTER = 3;
 
 export async function getStaticPaths() {
   const innlegg = await hentInnlegg();
-  return innlegg.map((i) => ({ params: { id: i.id }, props: { innlegg: i } }));
+  return innlegg.map((i) => ({ params: { id: i.id }, props: { innlegg: i, beslektet: relaterte(i, innlegg) } }));
 }
 
-interface Props { innlegg: Innlegg; }
-const { innlegg } = Astro.props;
+interface Props { innlegg: Innlegg; beslektet: Innlegg[]; }
+const { innlegg, beslektet } = Astro.props;
 const d = innlegg.data;
 const { Content, headings } = await render(innlegg);
 const medFortegnelse = headings.filter((h) => h.depth === 2).length >= MIN_OVERSKRIFTER;
 const deling = await delingsbilde(innlegg);
 ---
-<Side tittel={d.tittel} beskrivelse={d.ingress} delingsbilde={deling}>
+<Side tittel={d.tittel} beskrivelse={d.ingress} delingsbilde={deling} strukturert={strukturertInnlegg(innlegg, deling)}>
   <div class:list={['post-wrap', { 'has-toc': medFortegnelse }]}>
     <article class="post" data-pagefind-body>
       <a class="back" href="/innlegg/" data-pagefind-ignore><Pil type="arrow" snudd /> Alle innlegg</a>
@@ -40,9 +43,16 @@ const deling = await delingsbilde(innlegg);
       <p class="ingress">{d.ingress}</p>
       {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="topp" />}
       <Content />
+      <div data-pagefind-ignore><Stikkord liste={d.stikkord.map((navn) => ({ navn }))} /></div>
     </article>
     {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="side" />}
   </div>
+  {beslektet.length > 0 && (
+    <section class="relaterte" aria-labelledby="relaterte-tittel">
+      <h2 id="relaterte-tittel" class="eyebrow">Les også</h2>
+      <ul class="rows arkiv">{beslektet.map((i) => <Flis innlegg={i} />)}</ul>
+    </section>
+  )}
 </Side>
 
 <script>

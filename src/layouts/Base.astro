@@ -3,12 +3,16 @@ import '@fontsource/barlow-semi-condensed/600.css';
 import '@fontsource/barlow-semi-condensed/700.css';
 import '../styles/base.css';
 
-interface Props { tittel?: string; beskrivelse?: string; delingsbilde?: string; }
+interface Props { tittel?: string; beskrivelse?: string; delingsbilde?: string; strukturert?: Record<string, unknown>; }
 const {
   tittel,
   beskrivelse = 'Tech, friluft og foto. Turer, bilder og prosjekter fra lufta, bakken og under vann.',
   delingsbilde = '/og-image-1200x630.png',
+  strukturert,
 } = Astro.props;
+// Strukturert data (schema.org) for søkemotorer. type="application/ld+json" er data og kjøres aldri som skript,
+// så CSP stopper det ikke. «<» escapes så teksten ikke kan avslutte script-elementet.
+const jsonLd = strukturert ? JSON.stringify({ '@context': 'https://schema.org', ...strukturert }).replace(/</g, '\\u003c') : null;
 const fullTittel = tittel ? `${tittel} – Hofstad.NET` : 'Hofstad.NET – Tech · friluft · foto';
 const kanonisk = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -33,6 +37,7 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:image" content={new URL(delingsbilde, Astro.site)} />
     <meta property="og:locale" content="nb_NO" />
     <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
     <script is:inline src="/tema.js"></script>
     {/* Cloudflare Web Analytics: anonyme besøkstall og lastetid, uten informasjonskapsler. Se personvern.astro. */}
     <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "b491f74152bd435d8dff6126e7a1d8e9"}'></script>

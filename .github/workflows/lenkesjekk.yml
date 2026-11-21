@@ -1,0 +1,48 @@
+name: Lenkesjekk
+
+# Finner døde lenker med lychee.
+#  - På pull requests: bare lenker innad på siden (raskt og stabilt, avhenger ikke av andre nettsteder).
+#  - Hver mandag og ved manuell kjøring: også eksterne lenker, f.eks. YouTube, Kickstarter og getclug.com.
+#    Feiler jobben, får eier varsel fra GitHub, og lenken rettes eller fjernes i en egen PR.
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lenkesjekk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lenker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - run: npm ci --ignore-scripts
+
+      - run: npm run build
+
+      # Valgene står i lychee.toml. --offline på PR-er sjekker bare lenker innad på siden.
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: >-
+            --config lychee.toml
+            --root-dir ${{ github.workspace }}/dist
+            ${{ github.event_name == 'pull_request' && '--offline' || '' }}
+            'dist/**/*.html'
+          fail: true
+          jobSummary: true

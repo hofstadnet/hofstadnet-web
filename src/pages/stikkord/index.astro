@@ -1,0 +1,15 @@
+---
+import Side from '../../layouts/Side.astro';
+import Stikkord from '../../components/Stikkord.astro';
+import { hentInnlegg, alleStikkord } from '../../lib/innlegg';
+
+const stikkord = alleStikkord(await hentInnlegg());
+---
+<Side tittel="Stikkord" beskrivelse="Alle stikkord på Hofstad.NET.">
+  <div class="page-head">
+    <p class="eyebrow">Blogg</p>
+    <h1>Stikkord</h1>
+    <p>Områdene sorterer innleggene grovt. Stikkordene knytter sammen innlegg om det samme på tvers av dem.</p>
+  </div>
+  <Stikkord liste={stikkord.map((s) => ({ navn: s.navn, antall: s.innlegg.length }))} stor />
+</Side>

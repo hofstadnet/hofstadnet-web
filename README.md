@@ -73,7 +73,7 @@ Teksten skrives i Markdown.
 | `tittel`, `ingress`, `publisert` | Ja | |
 | `omrader` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
 | `type` | Nei | `innlegg` (standard), `notat`, `test`, `video` eller `prosjekt`. |
-| `stikkord` | Nei | Liste med frie stikkord. |
+| `stikkord` | Nei | Liste med frie stikkord. Hvert stikkord får en egen side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
 | `bilde`, `bildeAlt` | Nei | Hovedbilde. Legg bildefilen i `src/assets/bilder/`. |
 | `bildeFokus` | Nei | Hvilken del av bildet som vises i små miniatyrer: `center` (standard), `left`, `right`, `top` eller `bottom`. |
 | `harVideo` | Nei | `true` gir avspillingsmerke på kort. |
@@ -103,9 +103,23 @@ npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat "�
 `--utelat` hopper over andres spor fra felles turer. IGC-filene sjekkes aldri inn, og JSON-filen inneholder
 ingen spor, koordinater eller startsteder.
 
+### RSS, nettstedskart og strukturert data
+
+- `rss.xml` har hele innlegget med hovedbildet øverst, så det kan leses i RSS-leseren.
+- Nettstedskartet har `lastmod` fra `oppdatert` eller `publisert` (se `astro.config.mjs`).
+- Forsiden og innleggene har strukturert data (schema.org, JSON-LD) fra `src/lib/strukturert.ts`. Det er data,
+  ikke skript, så CSP-en og `sjekk-csp` slipper det gjennom.
+
+### Lenkesjekk
+
+`.github/workflows/lenkesjekk.yml` kjører lychee. På pull requests sjekkes bare lenker innad på siden. Hver mandag
+sjekkes også eksterne lenker, og GitHub varsler hvis noen er døde. Unntak står i `lychee.toml`.
+
 ### Søk
 
-Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
+«Søk» i menyen åpner et søkefelt rett under menyen med treff mens man skriver (`src/scripts/sokepanel.js`). «/»
+åpner søket fra tastaturet, og Esc lukker det. `/sok/` er reservesiden som brukes uten JavaScript, av 404-siden
+og av søkefeltet i Google-treffet. Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
 Astro-bygget. Bare innleggene blir indeksert (`data-pagefind-body` i `src/pages/innlegg/[id].astro`), og søket
 skjer helt i nettleseren.
 
@@ -131,7 +145,8 @@ skjer helt i nettleseren.
 - Skrift, ikoner, bilder og skript ligger i repoet. Siden fungerer selv om andre tjenester er nede.
 - `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Unntakene er videorammer
   fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av, og skriptet til Cloudflare Web
-  Analytics. `'wasm-unsafe-eval'` er med fordi søket kjører WebAssembly fra siden selv.
+  Analytics. `'wasm-unsafe-eval'` er med fordi søket kjører WebAssembly fra siden selv, og `form-action 'self'`
+  fordi søkefeltet på 404-siden sender til `/sok/`.
 - Cloudflare-sonen har DNSSEC, CAA-poster (bare Let's Encrypt, Google og SSL.com kan utstede sertifikater),
   DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
   WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`), Bot Fight Mode og blokkering av KI-roboter.

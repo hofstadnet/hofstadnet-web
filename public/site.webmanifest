@@ -3,8 +3,8 @@
   "short_name": "Hofstad.NET",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#204F6D",
-  "theme_color": "#204F6D",
+  "background_color": "#14243F",
+  "theme_color": "#14243F",
   "icons": [
     {
       "src": "icon-192.png",

@@ -1,0 +1,25 @@
+# Oppsett for lenkesjekken (.github/workflows/lenkesjekk.yml).
+
+# Lenker som begynner med / løses mot den ferdige siden i dist/. root_dir må være en absolutt sti
+# og settes derfor i arbeidsflyten (--root-dir).
+
+# Godta vanlige «finnes, men vil ikke snakke med roboter»-svar
+accept = ["100..=103", "200..=299", "403", "429"]
+
+max_retries = 2
+timeout = 20
+max_concurrency = 8
+user_agent = "Mozilla/5.0 (compatible; hofstad.net lenkesjekk)"
+
+# Ikke sjekk e-postadresser
+include_mail = false
+
+exclude = [
+  # Sider som krever innlogging eller blokkerer automatiske forespørsler
+  "^https://www\\.instagram\\.com/",
+  "^https://www\\.snapchat\\.com/",
+  # Søkesiden lages i nettleseren, og pagefind-filene finnes bare etter bygget
+  "/sok/\\?q=",
+  # Lenker til egen side sjekkes lokalt via root_dir
+  "^https://hofstad\\.net/",
+]

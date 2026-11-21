@@ -1,0 +1,33 @@
+---
+import type { MarkdownHeading } from 'astro';
+// Innholdsfortegnelse for lange innlegg. Vises bare når innlegget har nok hovedoverskrifter (##),
+// se MIN_OVERSKRIFTER i src/pages/innlegg/[id].astro.
+//
+// På brede skjermer står den i en egen kolonne til høyre og blir stående mens man ruller.
+// På smale skjermer er den en sammenleggbar boks øverst i innlegget.
+// Lenkene virker uten JavaScript. Skriptet markerer bare hvilken del man leser.
+interface Props { overskrifter: MarkdownHeading[]; variant: 'side' | 'topp'; }
+const { overskrifter, variant } = Astro.props;
+const punkter = overskrifter.filter((h) => h.depth === 2 || h.depth === 3);
+---
+{variant === 'side' ? (
+  <nav class="toc toc-side" aria-label="Innhold i innlegget">
+    <p class="eyebrow">Innhold</p>
+    <ol>
+      {punkter.map((h) => (
+        <li class:list={[`niva-${h.depth}`]}><a href={`#${h.slug}`} data-toc-lenke>{h.text}</a></li>
+      ))}
+    </ol>
+  </nav>
+) : (
+  <details class="toc toc-topp">
+    <summary>Innhold</summary>
+    <nav aria-label="Innhold i innlegget">
+      <ol>
+        {punkter.map((h) => (
+          <li class:list={[`niva-${h.depth}`]}><a href={`#${h.slug}`}>{h.text}</a></li>
+        ))}
+      </ol>
+    </nav>
+  </details>
+)}

@@ -22,6 +22,15 @@
     f.focus();
   });
 
+  // Lager et element med attributter og barn (tekst eller elementer). Brukes i stedet for innerHTML,
+  // så Trusted Types (se public/_headers) kan forby innsetting av HTML på hele siden.
+  function el(tag, attr, barn) {
+    var e = document.createElement(tag);
+    Object.keys(attr || {}).forEach(function (k) { e.setAttribute(k, attr[k]); });
+    (barn || []).forEach(function (b) { e.append(b); });
+    return e;
+  }
+
   // --- Galleri: ett stort bilde med småbildene på én rad under. Man blar på siden,
   // og kan åpne samme bilde i fullskjerm. Uten JavaScript er småbildene vanlige lenker til bildene.
   function swipe(el, go) {
@@ -39,27 +48,24 @@
     if (!items.length) return;
     var i = 0;
 
-    var v = document.createElement('div');
-    v.className = 'viewer';
-    v.innerHTML =
-      '<div class="v-stage">' +
-        '<button type="button" class="v-main" aria-label="Vis bildet i fullskjerm"><img alt=""></button>' +
-        '<button type="button" class="v-nav v-prev" aria-label="Forrige bilde">‹</button>' +
-        '<button type="button" class="v-nav v-next" aria-label="Neste bilde">›</button>' +
-        '<button type="button" class="v-full" aria-label="Vis bildet i fullskjerm"><span aria-hidden="true">⤢</span> Fullskjerm</button>' +
-      '</div>' +
-      '<p class="v-cap"><span class="v-text"></span><span class="v-count"></span></p>';
+    var v = el('div', { class: 'viewer' }, [
+      el('div', { class: 'v-stage' }, [
+        el('button', { type: 'button', class: 'v-main', 'aria-label': 'Vis bildet i fullskjerm' }, [el('img', { alt: '' })]),
+        el('button', { type: 'button', class: 'v-nav v-prev', 'aria-label': 'Forrige bilde' }, ['‹']),
+        el('button', { type: 'button', class: 'v-nav v-next', 'aria-label': 'Neste bilde' }, ['›']),
+        el('button', { type: 'button', class: 'v-full', 'aria-label': 'Vis bildet i fullskjerm' }, [el('span', { 'aria-hidden': 'true' }, ['⤢']), ' Fullskjerm'])
+      ]),
+      el('p', { class: 'v-cap' }, [el('span', { class: 'v-text' }), el('span', { class: 'v-count' })])
+    ]);
     g.parentNode.insertBefore(v, g);
     g.classList.add('is-thumbs');
 
-    var d = document.createElement('dialog');
-    d.className = 'lightbox';
-    d.setAttribute('aria-label', 'Bildevisning i fullskjerm');
-    d.innerHTML =
-      '<button type="button" class="lb-close" aria-label="Lukk fullskjerm">×</button>' +
-      '<button type="button" class="lb-prev" aria-label="Forrige bilde">‹</button>' +
-      '<figure><img alt=""><figcaption><span class="lb-text"></span><span class="lb-count"></span></figcaption></figure>' +
-      '<button type="button" class="lb-next" aria-label="Neste bilde">›</button>';
+    var d = el('dialog', { class: 'lightbox', 'aria-label': 'Bildevisning i fullskjerm' }, [
+      el('button', { type: 'button', class: 'lb-close', 'aria-label': 'Lukk fullskjerm' }, ['×']),
+      el('button', { type: 'button', class: 'lb-prev', 'aria-label': 'Forrige bilde' }, ['‹']),
+      el('figure', {}, [el('img', { alt: '' }), el('figcaption', {}, [el('span', { class: 'lb-text' }), el('span', { class: 'lb-count' })])]),
+      el('button', { type: 'button', class: 'lb-next', 'aria-label': 'Neste bilde' }, ['›'])
+    ]);
     document.body.appendChild(d);
 
     var vImg = v.querySelector('img'), vText = v.querySelector('.v-text'), vCount = v.querySelector('.v-count');

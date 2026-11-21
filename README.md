@@ -120,8 +120,12 @@ ingen spor, koordinater eller startsteder.
   under 90 gir advarsel. Lokalt: `npm run build`, og deretter `npm run test:lighthouse`.
 - **Tilgjengelighet** (`tests/tilgjengelighet.spec.ts`): axe sjekker alle sidene i nettstedskartet mot WCAG 2.2 AA,
   i mørk og lys visning og i 320 og 1280 px. Testen stopper også hvis siden blir bredere enn skjermen, eller ved
-  CSP-brudd og JavaScript-feil. Lokalt: `npx playwright install chromium` én gang, og deretter
-  `npm run test:tilgjengelighet`.
+  CSP-brudd og JavaScript-feil. En egen test søker og blar i galleriet, så brudd på Trusted Types blir oppdaget.
+  Lokalt: `npx playwright install chromium` én gang, og deretter `npm run test:tilgjengelighet`.
+
+`.github/workflows/produksjon.yml` kjører de samme sjekkene mot https://hofstad.net hver mandag
+(`lighthouserc.produksjon.json` og `PRODUKSJON=1`). Den fanger opp endringer utenfor repoet, som
+Cloudflare-innstillinger og tredjepartsskript.
 
 ### Lenkesjekk
 
@@ -160,6 +164,9 @@ skjer helt i nettleseren.
   fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av, og skriptet til Cloudflare Web
   Analytics. `'wasm-unsafe-eval'` er med fordi søket kjører WebAssembly fra siden selv, og `form-action 'self'`
   fordi søkefeltet på 404-siden sender til `/sok/`.
+- Trusted Types er påkrevd: ingen skript kan sette inn HTML som tekst (`innerHTML` o.l.). Eneste policy slipper bare
+  gjennom søkets egen arbeidertråd. `Cross-Origin-Resource-Policy: same-origin` hindrer andre nettsteder i å laste
+  sidens filer, unntatt bilder og logoer, som RSS-lesere og delte lenker trenger.
 - Cloudflare-sonen har DNSSEC, CAA-poster (bare Let's Encrypt, Google og SSL.com kan utstede sertifikater),
   DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
   WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`) og blokkering av KI-roboter.
@@ -178,6 +185,9 @@ skjer helt i nettleseren.
 - **Oppetid:** [status.hofstad.net](https://status.hofstad.net) (Upptime i repoet
   [hofstadnet/status](https://github.com/hofstadnet/status)) sjekker forsiden, flystatusen, søket og RSS hvert
   5. minutt. Hvis noe er nede, åpnes en issue der, og GitHub varsler eier.
+- **Feil i Workeren og angrep:** Cloudflare sender e-post til admin@ når Workers Observability finner en ny feiltype,
+  og når et DDoS-angrep mot sonen stoppes (Notifications).
+- **Ukentlig sjekk:** se Kvalitetssjekker over.
 - **Sertifikater:** Cloudflare varsler admin@ når det utstedes et nytt sertifikat for hofstad.net
   (Certificate Transparency). Uventede sertifikater kan tyde på at noen prøver å utgi seg for siden.
 

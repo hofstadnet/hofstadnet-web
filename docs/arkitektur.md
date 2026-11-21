@@ -125,7 +125,10 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   på GitHub.
 - **Egne domener:** Workeren svarer bare på hofstad.net og www.hofstad.net. `workers_dev` er slått av.
 - **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten innebygde skript, pluss HSTS,
-  `X-Content-Type-Options`, `Referrer-Policy` og `Permissions-Policy`. Tredjepartsdomener er bare videorammer fra
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP og CORP. Trusted Types er påkrevd, så
+  skript kan ikke sette inn HTML som tekst. Eneste policy («default» i `src/scripts/sok-motor.js`) slipper bare
+  gjennom `/pagefind/pagefind-worker.js`. Bilder og logoer har `Cross-Origin-Resource-Policy: cross-origin`, så de
+  vises i RSS-lesere. Tredjepartsdomener er bare videorammer fra
   YouTube og Vimeo og Cloudflare Web Analytics (skript fra `static.cloudflareinsights.com`, måletall til
   `cloudflareinsights.com`). Hodene ligger i repoet og følger med hver deploy.
 
@@ -140,6 +143,8 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   `_github-pages-challenge-hofstadnet`). Da kan ingen andre GitHub-kontoer ta i bruk `status.hofstad.net` eller andre
   underdomener på Pages, selv om CNAME-en skulle peke dit mens repoet er borte. Posten må bli liggende.
 - DDoS-vern er inkludert i gratisplanen.
+- Varsler (Notifications) på e-post til admin@: ny feiltype i Workeren (Workers Observability, «Real-Time Issue»)
+  og HTTP DDoS-angrep mot sonen.
 - WAF: gratisplanen har Cloudflares eget gratis regelsett og noen få egendefinerte regler. Fullt OWASP Core Ruleset
   har vært forbeholdt betalte planer. For en statisk side uten skjema og innlogging er angrepsflaten uansett liten.
   Én egendefinert regel blokkerer `.php`, `/wp-admin`, `/wp-includes`, `/wp-json`, `/.env` og `/.git`.

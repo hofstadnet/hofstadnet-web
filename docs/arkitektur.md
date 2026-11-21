@@ -117,14 +117,17 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   (`wp-login.php`, `xmlrpc.php`, utvidelser) forsvinner helt.
 - **Kontoer:** GitHub og Cloudflare med passnøkkel eller sikkerhetsnøkkel som tofaktor. Gjenopprettingskoder
   oppbevares utenfor begge tjenestene.
-- **Deploy-tilgang:** Ett Cloudflare API-token som bare kan publisere dette ene prosjektet. Det ligger i et GitHub
-  Environment (`production`) som bare `main` kan bruke. Workflows har `permissions: contents: read` som utgangspunkt.
-- **Hemmeligheter:** PGpilot-tokenet ligger som Worker-secret hos Cloudflare. Det finnes ikke i repoet eller i GitHub.
-- **Forhåndsvisninger** av pull requests legges bak Cloudflare Access, slik at utkast ikke er offentlige.
-- **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten innebygde skript.
-  Tredjepartsdomener er bare videorammer fra YouTube og Vimeo og Cloudflare Web Analytics (skript fra
-  `static.cloudflareinsights.com`, måletall til `cloudflareinsights.com`). Ellers pluss HSTS, `X-Content-Type-Options`, `Referrer-Policy` og `Permissions-Policy`. Hodene ligger i
-  repoet og følger med hver deploy.
+- **Deploy-tilgang:** Cloudflare Workers Builds henter repoet via GitHub-appen og publiserer fra `main`. Det finnes
+  ingen API-token for publisering i GitHub. Workflows har `permissions: contents: read` som utgangspunkt.
+- **Hemmeligheter:** Workeren har ingen. Statustjenesten leser en offentlig adresse hos LiveTrack24.
+- **Forhåndsvisninger** av pull requests bygges av Workers Builds. Repoet er offentlig, så innholdet i en PR er
+  uansett synlig. Det gjelder også innlegg merket `utkast: true`: de vises ikke på siden, men Markdown-filen kan leses
+  på GitHub.
+- **Egne domener:** Workeren svarer bare på hofstad.net og www.hofstad.net. `workers_dev` er slått av.
+- **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten innebygde skript, pluss HSTS,
+  `X-Content-Type-Options`, `Referrer-Policy` og `Permissions-Policy`. Tredjepartsdomener er bare videorammer fra
+  YouTube og Vimeo og Cloudflare Web Analytics (skript fra `static.cloudflareinsights.com`, måletall til
+  `cloudflareinsights.com`). Hodene ligger i repoet og følger med hver deploy.
 
 ### Cloudflare
 
@@ -139,8 +142,11 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   Én egendefinert regel blokkerer `.php`, `/wp-admin`, `/wp-includes`, `/wp-json`, `/.env` og `/.git`.
 - Rate limiting på `/api/status`: over 20 kall på 10 sekunder fra samme IP blokkeres i 10 sekunder.
 - Bot Fight Mode og blokkering av KI-roboter som henter innhold til trening er slått på.
-- Oppsettet (DNS, regler, hoder) beskrives som kode (Terraform/OpenTofu eller `wrangler.toml`) i repoet, ikke som
-  klikk i kontrollpanelet.
+- Browser Cache TTL er «Respect Existing Headers», så `Cache-Control` fra siden og Workeren gjelder. Flystatusen
+  mellomlagres derfor bare i 60 sekunder.
+- Workeren, hodene og videresendingene er kode i repoet (`wrangler.jsonc`, `public/_headers`, `public/_redirects`).
+  Soneinnstillingene over er satt via Cloudflare-API-et og beskrevet her. De bør på sikt også inn som kode
+  (Terraform/OpenTofu).
 
 ### GitOps og DevSecOps
 

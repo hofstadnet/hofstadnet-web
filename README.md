@@ -75,6 +75,7 @@ Teksten skrives i Markdown.
 | `type` | Nei | `innlegg` (standard), `notat`, `test`, `video` eller `prosjekt`. |
 | `stikkord` | Nei | Liste med frie stikkord. |
 | `bilde`, `bildeAlt` | Nei | Hovedbilde. Legg bildefilen i `src/assets/bilder/`. |
+| `bildeFokus` | Nei | Hvilken del av bildet som vises i små miniatyrer: `center` (standard), `left`, `right`, `top` eller `bottom`. |
 | `harVideo` | Nei | `true` gir avspillingsmerke på kort. |
 | `oppdatert` | Nei | Dato for siste endring. |
 | `utkast` | Nei | `true` skjuler innlegget fra den publiserte siden. |

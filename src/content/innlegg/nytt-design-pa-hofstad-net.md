@@ -7,6 +7,7 @@ type: prosjekt
 stikkord: [nettsiden, prosjektlogg]
 bilde: ../../assets/bilder/hofstadnet.png
 bildeAlt: "Hofstad.NET-logoen på blå bakgrunn"
+bildeFokus: left
 ---
 
 Hofstad.NET har stått nesten urørt siden 2020. Siden lå på WordPress hos et webhotell, og det meste av jobben gikk

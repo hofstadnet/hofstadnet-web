@@ -2,11 +2,12 @@
 import Side from '../../layouts/Side.astro';
 import Omrader from '../../components/Omrader.astro';
 import Flis from '../../components/Flis.astro';
-import { hentInnlegg } from '../../lib/innlegg';
+import { hentInnlegg, delingsbilde } from '../../lib/innlegg';
 
 const innlegg = await hentInnlegg();
+const deling = await delingsbilde(innlegg);
 ---
-<Side tittel="Alle innlegg" beskrivelse="Alle innlegg på Hofstad.NET, nyeste først.">
+<Side tittel="Alle innlegg" beskrivelse="Alle innlegg på Hofstad.NET, nyeste først." delingsbilde={deling}>
   <div class="page-head">
     <p class="eyebrow">Blogg</p>
     <h1>Alle innlegg</h1>

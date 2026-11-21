@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && pagefind --site dist",
+    "flystatistikk": "node scripts/flystatistikk.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "forhandsvis": "node scripts/forhandsvis.mjs"
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "pagefind": "1.6.0",
     "typescript": "6.0.3",
     "wrangler": "4.166.0"
   }

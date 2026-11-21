@@ -2,7 +2,8 @@
 import Side from '../../layouts/Side.astro';
 import Omrader from '../../components/Omrader.astro';
 import Flis from '../../components/Flis.astro';
-import { hentInnlegg, iOmrade } from '../../lib/innlegg';
+import Flystatistikk from '../../components/Flystatistikk.astro';
+import { hentInnlegg, iOmrade, delingsbilde } from '../../lib/innlegg';
 import { omrader } from '../../lib/omrader';
 
 export function getStaticPaths() {
@@ -13,14 +14,16 @@ interface Props { omrade: (typeof omrader)[number]; }
 const { omrade } = Astro.props;
 const alle = await hentInnlegg();
 const innlegg = iOmrade(alle, omrade.id);
+const deling = await delingsbilde(innlegg);
 ---
-<Side tittel={omrade.navn} beskrivelse={omrade.beskrivelse}>
+<Side tittel={omrade.navn} beskrivelse={omrade.beskrivelse} delingsbilde={deling}>
   <div class="page-head">
     <p class="eyebrow">{omrade.undertekst}</p>
     <h1>{omrade.navn}</h1>
     <p>{omrade.beskrivelse}</p>
   </div>
   <Omrader innlegg={alle} aktiv={omrade.id} />
+  {omrade.id === 'luft' && <Flystatistikk />}
   {innlegg.length > 0 ? (
     <ul class="rows arkiv">{innlegg.map((i) => <Flis innlegg={i} />)}</ul>
   ) : (

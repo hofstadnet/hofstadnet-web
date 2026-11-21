@@ -1,0 +1,40 @@
+---
+import Side from '../layouts/Side.astro';
+// Søk i innleggene med Pagefind. Søkeindeksen lages etter bygget (`pagefind --site dist`) og ligger i
+// dist/pagefind/. Søket skjer helt i nettleseren, og ingenting sendes til noen server.
+// Bare innhold merket med data-pagefind-body (selve innleggene) blir indeksert.
+---
+<Side tittel="Søk" beskrivelse="Søk i innleggene på Hofstad.NET.">
+  <div class="page-head">
+    <p class="eyebrow">Søk</p>
+    <h1>Søk i innleggene</h1>
+  </div>
+  <form class="sok" role="search" data-sok>
+    <label for="sok-felt" class="sr-only">Søkeord</label>
+    <input id="sok-felt" name="q" type="search" placeholder="F.eks. paraglider, video, Clug" autocomplete="off" spellcheck="false" />
+  </form>
+  <p class="sok-status" aria-live="polite" data-sok-status>
+    <noscript>Søket trenger JavaScript. Se <a href="/innlegg/">alle innlegg</a> i stedet.</noscript>
+  </p>
+  <ol class="sok-treff" data-sok-treff></ol>
+</Side>
+
+<script>
+  import '../scripts/sok.js';
+</script>
+
+<style>
+  .sok input {
+    width: 100%; font: inherit; font-size: 17px; padding: 13px 15px; border-radius: var(--r);
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  }
+  .sok input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .sok-status { min-height: 1.5em; margin: 14px 0 6px; font-size: 14px; color: var(--soft); }
+  .sok-treff { list-style: none; margin: 0 0 48px; padding: 0; }
+  .sok-treff :global(li) { padding: 16px 0; border-top: 1px solid var(--rule); }
+  .sok-treff :global(a) { font: 700 1.25rem/1.2 var(--display); color: var(--ink); text-decoration: none; }
+  .sok-treff :global(a:hover) { color: var(--hover); }
+  .sok-treff :global(p) { margin: 6px 0 0; font-size: 15px; color: var(--text); }
+  .sok-treff :global(mark) { background: none; color: var(--ink); font-weight: 700; }
+</style>

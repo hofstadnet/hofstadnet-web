@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
 import type { OmradeId } from './omrader';
 
 export type Innlegg = CollectionEntry<'innlegg'>;
@@ -11,6 +12,14 @@ export async function hentInnlegg(): Promise<Innlegg[]> {
 
 export function iOmrade(innlegg: Innlegg[], id: OmradeId): Innlegg[] {
   return innlegg.filter((i) => i.data.omrader.includes(id));
+}
+
+// Delingsbilde (Open Graph, 1200 × 630) fra hovedbildet til et innlegg, eller fra det første innlegget i en
+// liste som har bilde. Gir undefined når ingen har bilde, og da brukes standardbildet i Base.astro.
+export async function delingsbilde(innlegg: Innlegg | Innlegg[]): Promise<string | undefined> {
+  const bilde = [innlegg].flat().find((i) => i.data.bilde)?.data.bilde;
+  if (!bilde) return undefined;
+  return (await getImage({ src: bilde, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src;
 }
 
 const kort = new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });

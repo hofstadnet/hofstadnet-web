@@ -1,0 +1,67 @@
+{
+  "kilde": "IGC-filer fra variometer og telefon",
+  "generert": "2026-11-21",
+  "forsteTur": "2020-04-09",
+  "sisteTur": "2026-10-11",
+  "totalt": {
+    "turer": 287,
+    "timer": 209.9,
+    "hoyesteM": 3536,
+    "besteHoydegevinstM": 2117
+  },
+  "perAar": [
+    {
+      "aar": 2020,
+      "turer": 34,
+      "timer": 18.3
+    },
+    {
+      "aar": 2021,
+      "turer": 51,
+      "timer": 26.1
+    },
+    {
+      "aar": 2022,
+      "turer": 27,
+      "timer": 10.3
+    },
+    {
+      "aar": 2023,
+      "turer": 46,
+      "timer": 28.4
+    },
+    {
+      "aar": 2024,
+      "turer": 29,
+      "timer": 33.2
+    },
+    {
+      "aar": 2025,
+      "turer": 44,
+      "timer": 39
+    },
+    {
+      "aar": 2026,
+      "turer": 56,
+      "timer": 54.7
+    }
+  ],
+  "vinger": [
+    {
+      "navn": "Skywalk Spice 2",
+      "turer": 136
+    },
+    {
+      "navn": "Ozone Zeolite 2",
+      "turer": 100
+    },
+    {
+      "navn": "Supair Taska",
+      "turer": 47
+    },
+    {
+      "navn": "Nova Bantam 14",
+      "turer": 1
+    }
+  ]
+}

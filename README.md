@@ -45,8 +45,11 @@ Siden kjører på Cloudflare Workers med statiske filer. Cloudflare anbefaler Wo
 - `worker/index.js` kjøres bare for adresser under `/api/`.
 - `public/_headers` og `public/_redirects` følger med i `dist/` og leses av Cloudflare.
 
-Koble repoet til Cloudflare med Workers Builds: byggekommando `npm run build`, publiseringskommando
-`npx wrangler deploy`. Det er ikke gjort ennå.
+Repoet er koblet til Cloudflare med Workers Builds. Hver endring som flettes inn i `main`, bygges med
+`npm run build` og publiseres med `npx wrangler deploy`. Pull requests får en egen forhåndsvisning.
+
+Domenene `hofstad.net` og `www.hofstad.net` er satt opp i `wrangler.jsonc`. `www` sendes videre til
+`hofstad.net` med en videresendingsregel i Cloudflare-sonen.
 
 ## Skrive et innlegg
 

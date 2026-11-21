@@ -192,9 +192,8 @@ Gjort:
 
 Gjenstår:
 
-- Opprette repoet på GitHub og koble det til Cloudflare med Workers Builds. Byggekommando `npm run build`,
-  publiseringskommando `npx wrangler deploy`. Oppsettet i `wrangler.jsonc` er kontrollert med en tørrkjøring, men
-  ingenting er publisert. Om Workers Builds kan kobles til et privat repo, er ikke bekreftet i dokumentasjonen.
+- ~~Koble repoet til Cloudflare og bytte domenet~~ Gjort 21. november 2026: Workers Builds publiserer fra `main`,
+  og `hofstad.net` og `www.hofstad.net` peker på Workeren.
 - Flytte DNS til Cloudflare og sette opp Email Routing.
 - Bekrefte flystatusen under en ekte tur. Tjenesten er testet mot LiveTrack24 når sporingen er av. Hvordan
   statusruten ser ut når sporingen er på, er ikke sett, så gjenkjenningen av «live» bygger på en antakelse.

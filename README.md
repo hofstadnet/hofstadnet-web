@@ -115,3 +115,20 @@ Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
 - `public/_redirects` sender adressene fra den gamle WordPress-siden videre til de nye.
 
 Sikkerhetsfeil rapporteres via «Report a vulnerability» under Security-fanen i repoet. Se [SECURITY.md](SECURITY.md).
+
+## Lisens
+
+Koden er lisensiert under MIT, se [LICENSE](LICENSE). Det gjelder komponenter, stilark, skript, workeren,
+byggeskript og arbeidsflyter.
+
+Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
+
+- bildene i `src/assets/bilder/`
+- innleggene i `src/content/innlegg/`
+- logoen og ikonene med Hofstad.NET-merket i `public/`, `public/assets/logo/` og delingsbildet
+  `public/og-image-1200x630.png`
+
+© Kristoffer D. Hofstad. Skjermbildene av hpgt.com og flysteder.hpgt.com inneholder bilder fra Harstad Hang og
+Paragliderklubbs bildesamling, og rettighetene til dem tilhører klubben og fotografene.
+
+Skriften Barlow Semi Condensed hentes fra npm ved bygg og er lisensiert under SIL Open Font License 1.1.

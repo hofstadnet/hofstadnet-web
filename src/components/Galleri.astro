@@ -2,15 +2,16 @@
 import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 // Bildegalleri: ett stort bilde med småbildene på én rad under, og fullskjerm.
-// Uten JavaScript er småbildene vanlige lenker til de store bildene.
+// Uten JavaScript er småbildene vanlige lenker til de store bildene. AVIF gir omtrent halvparten av
+// størrelsen til WebP, og støttes av alle nettlesere som er oppdatert de siste årene.
 interface Bilde { src: ImageMetadata; alt: string; tekst?: string; }
 interface Props { bilder: Bilde[]; navn?: string; }
 const { bilder, navn = 'Bilder' } = Astro.props;
 const ferdige = await Promise.all(
   bilder.map(async (b) => ({
     ...b,
-    stor: await getImage({ src: b.src, width: Math.min(1600, b.src.width), format: 'webp' }),
-    liten: await getImage({ src: b.src, width: 480, height: 320, fit: 'cover', format: 'webp' }),
+    stor: await getImage({ src: b.src, width: Math.min(1600, b.src.width), format: 'avif' }),
+    liten: await getImage({ src: b.src, width: 480, height: 320, fit: 'cover', format: 'avif' }),
   })),
 );
 ---

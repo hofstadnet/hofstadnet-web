@@ -5,7 +5,7 @@
 // under menyen med top/left/width via CSSOM (element.style), som CSP-en tillater.
 //
 // Tastatur: «/» åpner søket (når man ikke skriver i et felt), Esc lukker og setter fokus tilbake på knappen,
-// pil ned fra feltet går til første treff, Enter går til første treff.
+// pil opp og ned flytter mellom feltet og treffene, Enter går til første treff.
 import { sok, treffliste } from './sok-motor.js';
 
 const knapp = document.querySelector('[data-sok-apne]');
@@ -80,7 +80,15 @@ if (stottet && knapp && panel && meny && felt && status && liste) {
     const iFelt = e.target instanceof HTMLElement && (e.target.isContentEditable || /^(input|textarea|select)$/i.test(e.target.tagName));
     if (e.key === '/' && !iFelt && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apne(); }
     else if (e.key === 'Escape' && erApen()) steng();
-    else if (e.key === 'ArrowDown' && e.target === felt) { e.preventDefault(); liste.querySelector('a')?.focus(); }
+    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && erApen() && panel.contains(e.target)) {
+      // Pil opp og ned flytter mellom søkefeltet og treffene
+      const steder = [felt, ...liste.querySelectorAll('a')];
+      const her = steder.indexOf(e.target);
+      if (her === -1) return;
+      const neste = e.key === 'ArrowDown' ? Math.min(her + 1, steder.length - 1) : Math.max(her - 1, 0);
+      e.preventDefault();
+      steder[neste].focus();
+    }
   });
 
   // Klikk utenfor lukker. Ved rulling og ny vindusstørrelse følger panelet menyen.

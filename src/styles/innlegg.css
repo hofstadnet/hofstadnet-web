@@ -29,7 +29,7 @@ html[data-theme="light"] .post-top .mode .i-sun, html[data-theme="dark"] .post-t
 .post a { text-decoration-color: var(--soft); text-underline-offset: 3px; }
 .post a:hover { color: var(--hover); }
 .post figure { margin: 0 0 24px; }
-.post figure > img { display: block; width: 100%; height: auto; border-radius: var(--r); }
+.post figure > img, .post figure > picture > img { display: block; width: 100%; height: auto; border-radius: var(--r); }
 .post figcaption { font-size: 13.5px; color: var(--soft); margin-top: 6px; }
 
 /* Video: lokal forhåndsvisning, spilleren lastes ved klikk */

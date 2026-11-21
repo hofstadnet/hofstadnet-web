@@ -139,3 +139,10 @@ html[data-theme="light"] .mode .i-sun, html[data-theme="dark"] .mode .i-moon { d
 
 /* Litt bredere innholdsfelt på store skjermer */
 @media (min-width: 1800px) { .wrap { max-width: 1320px; } }
+
+/* Myke overganger mellom sidene (CSS cross-document view transitions). Uten JavaScript; nettlesere som ikke
+   støtter det, bytter side som vanlig. Slått av for den som har bedt om mindre bevegelse. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .18s; }
+}

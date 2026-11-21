@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import { adresse, datoIso, datoKort, type Innlegg } from '../lib/innlegg';
 import { omradeNavn } from '../lib/omrader';
 // Innleggskort med bilde. «stort» brukes for det nyeste innlegget på forsiden.
@@ -9,7 +9,8 @@ const d = innlegg.data;
 ---
 <a class:list={['card', { lead: stort, 'has-video': d.harVideo }]} href={adresse(innlegg)}>
   {d.bilde && (
-    <span class="media"><Image
+    <span class="media"><Picture
+      formats={['avif', 'webp']}
       src={d.bilde}
       alt={d.bildeAlt}
       widths={stort ? [480, 900] : [360, 720]}

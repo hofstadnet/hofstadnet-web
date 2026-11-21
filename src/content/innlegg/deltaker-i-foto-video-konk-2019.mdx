@@ -10,7 +10,7 @@ bilde: ../../assets/bilder/konk-2019.jpg
 bildeAlt: "Flyfoto av bygd og fjord i sommerlys"
 harVideo: true
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import Video from '../../components/Video.astro';
 import plakat from '../../assets/bilder/konk-2019.jpg';
 import foto from '../../assets/bilder/konk-2019-foto.jpg';
@@ -24,5 +24,5 @@ Se resultatet under.
 ## Foto
 
 <figure>
-  <Image src={foto} alt="Bidraget til fotokonkurransen 2019" widths={[720, 1024]} sizes="(max-width: 760px) 100vw, 720px" />
+  <Picture src={foto} formats={['avif', 'webp']} alt="Bidraget til fotokonkurransen 2019" widths={[720, 1024]} sizes="(max-width: 760px) 100vw, 720px" />
 </figure>

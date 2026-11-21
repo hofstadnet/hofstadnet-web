@@ -3,9 +3,6 @@
 .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 34%; z-index: 0; }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(18,36,63,.7) 0, rgba(18,36,63,0) 24%, rgba(18,36,63,0) 40%, rgba(18,36,63,.42) 66%, var(--bg) 97%); }
 .hero > .wrap { position: relative; width: 100%; z-index: 2; }
-/* Menyen (med søkepanelet) ligger over overskriften, og når søket er åpent, over statuskortet under bildet */
-.hero > .wrap:first-of-type { z-index: 3; }
-.hero:has(.sokepanel:not([hidden])) { z-index: 10; }
 .hero .top nav a { color: #E7EEF2; text-shadow: 0 1px 8px rgba(0,0,0,.45); }
 .hero .top nav a.handle { color: #fff; border-left-color: rgba(255,255,255,.35); }
 .hero-foot { margin-top: auto; padding-bottom: 210px; }

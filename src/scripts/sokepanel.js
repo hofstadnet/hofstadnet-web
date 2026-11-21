@@ -1,27 +1,44 @@
 // Søkefeltet i menyen. «Søk» åpner et felt rett under menyen med treff mens man skriver.
 // Uten JavaScript er «Søk» en vanlig lenke til /sok/.
 //
+// Panelet er en popover, så det vises i nettleserens øverste lag over toppbildet og kortene. Det plasseres
+// under menyen med top/left/width via CSSOM (element.style), som CSP-en tillater.
+//
 // Tastatur: «/» åpner søket (når man ikke skriver i et felt), Esc lukker og setter fokus tilbake på knappen,
-// pil ned fra feltet går til første treff.
+// pil ned fra feltet går til første treff, Enter går til første treff.
 import { sok, treffliste } from './sok-motor.js';
 
 const knapp = document.querySelector('[data-sok-apne]');
 const panel = document.getElementById('sokepanel');
+const meny = knapp?.closest('header');
 const felt = panel?.querySelector('input');
 const status = panel?.querySelector('[data-sokepanel-status]');
 const liste = panel?.querySelector('[data-sokepanel-treff]');
 const lukk = panel?.querySelector('[data-sokepanel-lukk]');
 
+const stottet = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
+const erApen = () => panel.matches(':popover-open');
+
+// Høyrekanten flukter med menyen, og panelet ligger rett under den
+function plasser() {
+  const m = meny.getBoundingClientRect();
+  const bredde = Math.min(520, m.width);
+  panel.style.width = `${bredde}px`;
+  panel.style.left = `${Math.max(8, m.right - bredde)}px`;
+  panel.style.top = `${Math.max(8, m.bottom - 6)}px`;
+}
+
 function apne() {
-  panel.hidden = false;
+  if (!erApen()) panel.showPopover();
+  plasser();
   knapp.setAttribute('aria-expanded', 'true');
   felt.focus();
   felt.select();
 }
 
 function steng(tilbakeTilKnapp = true) {
-  if (panel.hidden) return;
-  panel.hidden = true;
+  if (!erApen()) return;
+  panel.hidePopover();
   knapp.setAttribute('aria-expanded', 'false');
   if (tilbakeTilKnapp) knapp.focus();
 }
@@ -44,16 +61,15 @@ async function kjor() {
   }
 }
 
-if (knapp && panel && felt && status && liste) {
-  // Med JavaScript er lenken en knapp som åpner panelet
+// Eldre nettlesere uten popover får vanlig lenke til /sok/
+if (stottet && knapp && panel && meny && felt && status && liste) {
   knapp.setAttribute('role', 'button');
   knapp.addEventListener('click', (e) => {
     e.preventDefault();
-    if (panel.hidden) apne(); else steng();
+    if (erApen()) steng(); else apne();
   });
   lukk?.addEventListener('click', () => steng());
   felt.addEventListener('input', kjor);
-  // Enter går til første treff
   panel.querySelector('form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const forste = liste.querySelector('a');
@@ -63,12 +79,20 @@ if (knapp && panel && felt && status && liste) {
   document.addEventListener('keydown', (e) => {
     const iFelt = e.target instanceof HTMLElement && (e.target.isContentEditable || /^(input|textarea|select)$/i.test(e.target.tagName));
     if (e.key === '/' && !iFelt && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apne(); }
-    else if (e.key === 'Escape' && !panel.hidden) steng();
+    else if (e.key === 'Escape' && erApen()) steng();
     else if (e.key === 'ArrowDown' && e.target === felt) { e.preventDefault(); liste.querySelector('a')?.focus(); }
   });
 
-  // Klikk utenfor panelet lukker det
+  // Klikk utenfor lukker. Ved rulling og ny vindusstørrelse følger panelet menyen.
   document.addEventListener('click', (e) => {
-    if (!panel.hidden && !panel.contains(e.target) && !knapp.contains(e.target)) steng(false);
+    if (erApen() && !panel.contains(e.target) && !knapp.contains(e.target)) steng(false);
   });
+  let venter = false;
+  const folg = () => {
+    if (venter || !erApen()) return;
+    venter = true;
+    requestAnimationFrame(() => { venter = false; plasser(); });
+  };
+  addEventListener('scroll', folg, { passive: true });
+  addEventListener('resize', folg);
 }

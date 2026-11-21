@@ -2,7 +2,12 @@
   "kilde": "IGC-filer fra variometer og telefon",
   "generert": "2026-11-21",
   "forsteTur": "2020-04-09",
-  "sisteTur": "2026-10-11",
+  "sisteTur": {
+    "dato": "2026-10-11",
+    "minutter": 45,
+    "hoydeM": 693,
+    "vinge": "Ozone Zeolite 2"
+  },
   "totalt": {
     "turer": 287,
     "timer": 209.9,

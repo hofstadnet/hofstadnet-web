@@ -177,6 +177,15 @@ const resultat = {
     hoyesteM: Math.round(maksAv((t) => t.maksHoyde)),
     besteHoydegevinstM: Math.round(maksAv((t) => t.gevinst)),
   },
+  // Siste tur vises i statuskortet på forsiden. Startsted er ikke med: nyere logger har det ikke.
+  sisteTur: unike.at(-1)
+    ? {
+        dato: unike.at(-1).dato.toISOString().slice(0, 10),
+        minutter: Math.round(unike.at(-1).sekunder / 60),
+        hoydeM: Math.round(unike.at(-1).maksHoyde),
+        vinge: unike.at(-1).vinge || null,
+      }
+    : null,
   perAar: [...perAar.values()].sort((a, b) => a.aar - b.aar).map((r) => ({ aar: r.aar, turer: r.turer, timer: timer(r.sekunder) })),
   vinger: [...vinger.entries()].sort((a, b) => b[1] - a[1]).map(([navn, turer]) => ({ navn, turer })),
 };

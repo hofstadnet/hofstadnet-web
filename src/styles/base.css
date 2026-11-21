@@ -63,12 +63,14 @@ html[data-status="air"] .status .dot { background: var(--orange); animation: pin
 .links a:hover b, .links a:hover i, .links a:hover .ico, .areas a:hover .ico { color: var(--hover); }
 
 /* Områder */
-.areas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); }
+.areas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); }
 .areas a { display: grid; grid-template-columns: 22px 1fr auto; gap: 0 12px; align-items: center; padding: 14px 16px; text-decoration: none; border-left: 1px solid var(--rule); height: 100%; }
 .areas li:first-child a { border-left: 0; }
 .areas .ico { grid-row: 1 / span 2; grid-column: 1; color: var(--icon); }
 .areas b { grid-column: 2; grid-row: 1; display: block; font: 600 1.05rem/1.25 var(--display); color: var(--ink); }
 .areas span { grid-column: 2; grid-row: 2; font-size: 13.5px; color: var(--soft); }
+/* Lange ord brytes heller enn å gjøre siden bredere enn skjermen */
+.areas b, .areas span { overflow-wrap: anywhere; }
 .areas em { grid-column: 3; grid-row: 1; font: 600 13px/1.6 var(--display); font-style: normal; color: var(--soft); font-variant-numeric: tabular-nums; }
 .areas a:hover b { color: var(--hover); }
 
@@ -94,7 +96,7 @@ html[data-status="air"] .status .dot { background: var(--orange); animation: pin
 .foot a { display: inline-block; min-width: 24px; padding: 4px 2px; text-align: center; }
 
 @media (max-width: 900px) {
-  .areas { grid-template-columns: 1fr 1fr; }
+  .areas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .areas a { border-left: 0; border-top: 1px solid var(--rule); }
   .areas li:nth-child(even) a { border-left: 1px solid var(--rule); }
   .areas li:nth-child(-n+2) a { border-top: 0; }

@@ -1,11 +1,12 @@
 ---
 import Pil from './Pil.astro';
 import { KART } from '../lib/livetrack-status.js';
-import { datoKort } from '../lib/innlegg';
 import flystatistikk from '../data/flystatistikk.json';
 // Siste loggførte tur fra IGC-filene (scripts/flystatistikk.mjs). Oppdateres når skriptet kjøres etter nye turer.
 const siste = flystatistikk.sisteTur;
-const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min % 60} min` : `${min} min`);
+const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min % 60} m` : `${min} min`);
+// Kort dato som får plass på én rad, f.eks. «11.10.26»
+const datoKompakt = (iso: string) => { const [a, m, d] = iso.split('-'); return `${d}.${m}.${a.slice(2)}`; };
 // Flystatus: grønn prikk og «I lufta nå» når sporingen på LiveTrack24 er aktiv. Det er bare sporingen som
 // kan sjekkes, så teksten under sier det, og når statusen sist ble sjekket. role="status" gjør at
 // skjermlesere leser opp endringer.
@@ -20,10 +21,10 @@ const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min 
   </div>
   {siste && (
     <dl class="siste-tur" aria-label="Siste loggførte tur">
-      <div><dt>Siste tur</dt><dd><time datetime={siste.dato}>{datoKort(new Date(siste.dato))}</time></dd></div>
+      <div><dt>Siste tur</dt><dd><time datetime={siste.dato}>{datoKompakt(siste.dato)}</time></dd></div>
       <div><dt>Flytid</dt><dd>{varighet(siste.minutter)}</dd></div>
       <div><dt>Distanse</dt><dd>{siste.sporKm.toLocaleString('nb-NO', { maximumFractionDigits: 1 })} km</dd></div>
-      <div><dt>Høyest</dt><dd>{siste.hoydeM.toLocaleString('nb-NO')} moh.</dd></div>
+      <div><dt>Høyest</dt><dd>{siste.hoydeM.toLocaleString('nb-NO')} m</dd></div>
     </dl>
   )}
   <a class="go" href={KART} target="_blank" rel="noopener">
@@ -38,8 +39,8 @@ const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min 
 
 <style>
   /* Fire tall i to rader, så de får plass i det smale statuskortet */
-  .siste-tur { grid-template-columns: repeat(2, 1fr); row-gap: 8px; }
-  /* Mindre enn statusen over, så detaljene ikke konkurrerer med den */
-  .siste-tur dt { font-size: 10.5px; }
-  .siste-tur dd { font-size: 1rem; font-weight: 600; }
+  /* Fire tall på én rad, mindre enn statusen over, så de ikke konkurrerer med den */
+  .siste-tur { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 8px; }
+  .siste-tur dt { font-size: 10px; letter-spacing: .06em; }
+  .siste-tur dd { font-size: .95rem; font-weight: 600; white-space: nowrap; }
 </style>

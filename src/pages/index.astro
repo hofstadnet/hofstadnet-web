@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import Topp from '../components/Topp.astro';
 import Bunn from '../components/Bunn.astro';
@@ -9,6 +9,7 @@ import Omrader from '../components/Omrader.astro';
 import Kort from '../components/Kort.astro';
 import Flis from '../components/Flis.astro';
 import { hentInnlegg } from '../lib/innlegg';
+import { forside } from '../lib/strukturert';
 import toppbilde from '../assets/bilder/konk-2017.jpg';
 import '../styles/forside.css';
 
@@ -19,9 +20,10 @@ const [nyeste, ...resten] = innlegg;
 const kort = resten.slice(0, 3);
 const eldre = resten.slice(3, 9);
 ---
-<Base>
+<Base strukturert={forside()}>
   <div class="hero">
-    <Image class="hero-bg" src={toppbilde} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+    {/* AVIF med WebP som reserve. Kvalitet 60 er godt nok bak tekst og panel, og gjør bildet en brøkdel så stort. */}
+    <Picture class="hero-bg" src={toppbilde} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
     <div class="wrap">
       <Topp variant="hero" />
     </div>

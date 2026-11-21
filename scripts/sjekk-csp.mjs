@@ -12,7 +12,8 @@ async function gaa(mappe) {
       await gaa(sti);
     } else if (e.name.endsWith('.html')) {
       const html = await readFile(sti, 'utf8');
-      if (/<script(?![^>]*\ssrc=)[^>]*>/i.test(html)) funn.push(`${sti}: skript uten egen fil`);
+      // Strukturert data (type="application/ld+json") er data, ikke kode, og kjøres aldri av nettleseren
+      if (/<script(?![^>]*\ssrc=)(?![^>]*type="application\/ld\+json")[^>]*>/i.test(html)) funn.push(`${sti}: skript uten egen fil`);
       if (/\sstyle="/i.test(html)) funn.push(`${sti}: style-attributt`);
       if (/<style[\s>]/i.test(html)) funn.push(`${sti}: <style>-blokk`);
     }

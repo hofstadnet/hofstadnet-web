@@ -16,6 +16,9 @@ html[data-theme="light"] .post-top .mode .i-sun, html[data-theme="dark"] .post-t
 @media (prefers-reduced-motion: reduce) { .post-top .mode::before { transition: none; } }
 
 .post { max-width: 720px; margin: 0 auto; padding: 36px 0 20px; }
+/* «Les også» under innlegget */
+.relaterte { max-width: 1000px; margin: 24px auto 0; padding-top: 24px; border-top: 1px solid var(--rule); }
+.relaterte h2 { margin-bottom: 14px; }
 .back { display: inline-block; font-size: 14.5px; color: var(--soft); text-decoration: none; margin-bottom: 22px; }
 .back:hover { color: var(--ink); }
 .post h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); line-height: 1.08; margin: 10px 0 12px; }

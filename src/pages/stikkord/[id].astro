@@ -1,0 +1,26 @@
+---
+import Side from '../../layouts/Side.astro';
+import Flis from '../../components/Flis.astro';
+import Pil from '../../components/Pil.astro';
+import { hentInnlegg, alleStikkord, delingsbilde } from '../../lib/innlegg';
+
+// Én side per stikkord, med alle innleggene som har det
+export async function getStaticPaths() {
+  const stikkord = alleStikkord(await hentInnlegg());
+  return stikkord.map((s) => ({ params: { id: s.id }, props: { stikkord: s } }));
+}
+
+interface Props { stikkord: ReturnType<typeof alleStikkord>[number]; }
+const { stikkord } = Astro.props;
+const deling = await delingsbilde(stikkord.innlegg);
+const n = stikkord.innlegg.length;
+---
+<Side tittel={`#${stikkord.navn}`} beskrivelse={`Innlegg med stikkordet ${stikkord.navn} på Hofstad.NET.`} delingsbilde={deling}>
+  <div class="page-head">
+    <p class="eyebrow"><a href="/stikkord/">Stikkord</a></p>
+    <h1>#{stikkord.navn}</h1>
+    <p>{n} innlegg med dette stikkordet.</p>
+  </div>
+  <ul class="rows arkiv">{stikkord.innlegg.map((i) => <Flis innlegg={i} />)}</ul>
+  <p><a href="/stikkord/">Alle stikkord <Pil type="arrow" /></a></p>
+</Side>

@@ -4,7 +4,7 @@ import { getImage } from 'astro:assets';
 import Side from '../../layouts/Side.astro';
 import Pil from '../../components/Pil.astro';
 import Innholdsfortegnelse from '../../components/Innholdsfortegnelse.astro';
-import { hentInnlegg, datoIso, datoLang, type Innlegg } from '../../lib/innlegg';
+import { hentInnlegg, datoIso, datoLang, lesetid, type Innlegg } from '../../lib/innlegg';
 import { omradeNavn } from '../../lib/omrader';
 
 // Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
@@ -36,6 +36,7 @@ const deling = d.bilde ? (await getImage({ src: d.bilde, width: 1200, height: 63
       <p class="meta">
         <time datetime={datoIso(d.publisert)}>{datoLang(d.publisert)}</time>
         {d.oppdatert && <> · oppdatert <time datetime={datoIso(d.oppdatert)}>{datoLang(d.oppdatert)}</time></>}
+        {' · '}{lesetid(innlegg)} min lesing
       </p>
       <p class="ingress">{d.ingress}</p>
       {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="topp" />}

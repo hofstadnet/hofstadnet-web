@@ -36,3 +36,6 @@ jobs:
 
       - name: Ingen innebygd kode i HTML
         run: node scripts/sjekk-csp.mjs
+
+      - name: security.txt er ikke i ferd med å utløpe
+        run: node scripts/sjekk-security-txt.mjs

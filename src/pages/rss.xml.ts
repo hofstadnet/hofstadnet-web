@@ -14,19 +14,13 @@ export async function GET(context: APIContext) {
   const container = await AstroContainer.create({ renderers: await loadRenderers([mdxRenderer()]) });
 
   // RSS-lesere kjører ikke skript, så skript og stilark fra komponentene (galleri, video) fjernes.
-  // Gjentas til ingenting endres, og løse start- eller sluttagger fjernes til slutt.
-  const utenSkript = (html: string) => {
-    let forrige;
-    let s = html;
-    do {
-      forrige = s;
-      s = s
-        .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, '')
-        .replace(/<\/?(script|style)\b[^>]*>?/gi, '')
-        .replace(/<link\b[^>]*>/gi, '');
-    } while (s !== forrige);
-    return s;
-  };
+  // Til slutt gjøres eventuelle rester ufarlige ved at «<» foran script/style blir «&lt;». Det er ett tegn,
+  // så fjerningen kan ikke sette sammen en ny tagg.
+  const utenSkript = (html: string) =>
+    html
+      .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, '')
+      .replace(/<link\b[^>]*>/gi, '')
+      .replace(/<(?=\s*\/?\s*(script|style)\b)/gi, '&lt;');
   const absolutt = (html: string) =>
     utenSkript(html)
       .replace(/\s(src|href|poster)="\/(?!\/)/g, (_, attr) => ` ${attr}="${site.origin}/`)

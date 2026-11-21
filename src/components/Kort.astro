@@ -9,13 +9,13 @@ const d = innlegg.data;
 ---
 <a class:list={['card', { lead: stort, 'has-video': d.harVideo }]} href={adresse(innlegg)}>
   {d.bilde && (
-    <Image
+    <span class="media"><Image
       src={d.bilde}
       alt={d.bildeAlt}
       widths={stort ? [480, 900] : [360, 720]}
       sizes={stort ? '(max-width: 900px) 100vw, 420px' : '(max-width: 620px) 108px, 360px'}
       loading="lazy"
-    />
+    /></span>
   )}
   <div>
     <span class="kicker">{omradeNavn(d.omrader[0])} <time datetime={datoIso(d.publisert)}>{datoKort(d.publisert)}</time></span>

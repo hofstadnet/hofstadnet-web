@@ -23,3 +23,8 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    ignore:
+      # @astrojs/check støtter bare TypeScript 5 og 6. Fjern når en ny versjon av @astrojs/check
+      # godtar TypeScript 7, ellers feiler «npm ci» og bygget.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]

@@ -20,6 +20,9 @@
     { "pattern": "hofstad.net", "custom_domain": true },
     { "pattern": "www.hofstad.net", "custom_domain": true }
   ],
+  // Forhåndsvisninger av pull requests (Workers Builds kjører «wrangler preview»).
+  // Tom blokk betyr samme oppsett som i drift.
+  "previews": {},
   // Wrangler skal ikke sende bruksstatistikk til Cloudflare
   "send_metrics": false,
   // Logger fra workeren, uten utvalg, så feil i statustjenesten kan spores

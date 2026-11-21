@@ -20,3 +20,17 @@ export const datoKort = (d: Date) => kort.format(d);
 export const datoLang = (d: Date) => lang.format(d);
 export const datoIso = (d: Date) => d.toISOString().slice(0, 10);
 export const adresse = (i: Innlegg) => `/innlegg/${i.id}/`;
+
+// Omtrentlig lesetid i hele minutter, minst 1. Regner 200 ord i minuttet.
+// Import-linjer, komponenter og Markdown-tegn i MDX-filer telles ikke med.
+const ORD_I_MINUTTET = 200;
+export function lesetid(i: Innlegg): number {
+  const tekst = (i.body ?? '')
+    .replace(/^\s*(import|export)\s.*$/gm, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\{[^}]*\}/g, ' ')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[#*_`>|~-]/g, ' ');
+  const ord = tekst.split(/\s+/).filter((w) => /\p{L}/u.test(w)).length;
+  return Math.max(1, Math.round(ord / ORD_I_MINUTTET));
+}

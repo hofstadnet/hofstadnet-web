@@ -4,7 +4,7 @@
 
 Do not open a public issue. Use **Report a vulnerability** under this repository's **Security** tab, so only the
 maintainers see the report. Describe what you found, how to reproduce it and what it affects. We reply as soon as we
-can, but this is a volunteer club project.
+can, but this is a personal project.
 
 ## What is in place
 
@@ -18,4 +18,10 @@ can, but this is a volunteer club project.
 - Secrets live in GitHub environments limited to `main`, never in the code. `.gitignore` blocks `.env` and key files.
 - Secret scanning with push protection, Dependabot alerts and security updates are on.
 
-<!-- Beskriv det som er spesielt for dette repoet: hva som publiseres, hvor, med hvilke nøkler. -->
+## This repository
+
+- The site is published to Cloudflare Workers by Workers Builds when `main` changes. No deploy keys are stored in
+  GitHub.
+- The only server code is `worker/index.js`, which answers `/api/status`. It takes no input and holds no secrets.
+- [`/.well-known/security.txt`](https://hofstad.net/.well-known/security.txt) points here. The build fails when it is
+  within 30 days of expiring, so it gets renewed.

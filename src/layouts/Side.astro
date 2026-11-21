@@ -1,0 +1,20 @@
+---
+import Base from './Base.astro';
+import Topp from '../components/Topp.astro';
+import Bunn from '../components/Bunn.astro';
+import '../styles/forside.css';
+import '../styles/innlegg.css';
+
+// Felles ramme for alle sider utenom forsiden: toppmeny på vanlig bakgrunn og bunntekst.
+interface Props { tittel: string; beskrivelse?: string; delingsbilde?: string; }
+const { tittel, beskrivelse, delingsbilde } = Astro.props;
+---
+<Base tittel={tittel} beskrivelse={beskrivelse} delingsbilde={delingsbilde}>
+  <div class="wrap">
+    <Topp />
+    <main id="innhold">
+      <slot />
+    </main>
+    <Bunn />
+  </div>
+</Base>

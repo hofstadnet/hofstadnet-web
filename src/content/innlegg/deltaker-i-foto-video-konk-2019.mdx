@@ -1,0 +1,28 @@
+---
+tittel: "Deltaker i foto & video konk 2019"
+ingress: "Den lokale paragliderklubben i Harstad arrangerer foto- og videokonkurranse for medlemmene. Jeg deltok i begge klasser."
+publisert: 2019-10-14
+oppdatert: 2020-03-07
+omrader: [luft, foto-video]
+type: video
+stikkord: [hpgt, konkurranse]
+bilde: ../../assets/bilder/konk-2019.jpg
+bildeAlt: "Flyfoto av bygd og fjord i sommerlys"
+harVideo: true
+---
+import { Image } from 'astro:assets';
+import Video from '../../components/Video.astro';
+import plakat from '../../assets/bilder/konk-2019.jpg';
+import foto from '../../assets/bilder/konk-2019-foto.jpg';
+
+Se resultatet under.
+
+## Video
+
+<Video id="4Tv7rxzCNdQ" tittel="Bidraget til videokonkurransen 2019" plakat={plakat} />
+
+## Foto
+
+<figure>
+  <Image src={foto} alt="Bidraget til fotokonkurransen 2019" widths={[720, 1024]} sizes="(max-width: 760px) 100vw, 720px" />
+</figure>

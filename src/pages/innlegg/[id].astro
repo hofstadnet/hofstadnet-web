@@ -1,0 +1,41 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Side from '../../layouts/Side.astro';
+import Pil from '../../components/Pil.astro';
+import { hentInnlegg, datoIso, datoLang, type Innlegg } from '../../lib/innlegg';
+import { omradeNavn } from '../../lib/omrader';
+
+export async function getStaticPaths() {
+  const innlegg = await hentInnlegg();
+  return innlegg.map((i) => ({ params: { id: i.id }, props: { innlegg: i } }));
+}
+
+interface Props { innlegg: Innlegg; }
+const { innlegg } = Astro.props;
+const d = innlegg.data;
+const { Content } = await render(innlegg);
+const deling = d.bilde ? (await getImage({ src: d.bilde, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src : undefined;
+---
+<Side tittel={d.tittel} beskrivelse={d.ingress} delingsbilde={deling}>
+  <article class="post">
+    <a class="back" href="/innlegg/"><Pil type="arrow" snudd /> Alle innlegg</a>
+    <div>
+      <span class="kicker">
+        {d.omrader.map((o, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${o}/`}>{omradeNavn(o)}</a></>))}
+        {d.type !== 'innlegg' && ` · ${d.type}`}
+      </span>
+    </div>
+    <h1>{d.tittel}</h1>
+    <p class="meta">
+      <time datetime={datoIso(d.publisert)}>{datoLang(d.publisert)}</time>
+      {d.oppdatert && <> · oppdatert <time datetime={datoIso(d.oppdatert)}>{datoLang(d.oppdatert)}</time></>}
+    </p>
+    <p class="ingress">{d.ingress}</p>
+    <Content />
+  </article>
+</Side>
+
+<script>
+  import '../../scripts/eksterne-lenker.js';
+</script>

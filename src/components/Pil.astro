@@ -1,0 +1,6 @@
+---
+// Tegnet pil: «ext» for ekstern lenke, «arrow» for videre på siden, «down» for noe som åpnes under.
+interface Props { type?: 'ext' | 'arrow' | 'down'; snudd?: boolean; }
+const { type = 'ext', snudd = false } = Astro.props;
+---
+<svg class:list={['arr', { flip: snudd }]} width="16" height="16" aria-hidden="true" focusable="false"><use href={`/assets/icons.svg#${type}`} /></svg>

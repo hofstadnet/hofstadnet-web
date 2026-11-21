@@ -1,0 +1,16 @@
+---
+import Side from '../../layouts/Side.astro';
+import Omrader from '../../components/Omrader.astro';
+import Flis from '../../components/Flis.astro';
+import { hentInnlegg } from '../../lib/innlegg';
+
+const innlegg = await hentInnlegg();
+---
+<Side tittel="Alle innlegg" beskrivelse="Alle innlegg på Hofstad.NET, nyeste først.">
+  <div class="page-head">
+    <p class="eyebrow">Blogg</p>
+    <h1>Alle innlegg</h1>
+  </div>
+  <Omrader innlegg={innlegg} />
+  <ul class="rows arkiv">{innlegg.map((i) => <Flis innlegg={i} />)}</ul>
+</Side>

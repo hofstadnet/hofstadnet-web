@@ -1,21 +1,134 @@
 # hofstad.net
 
-Kildekode og innhold for hofstad.net.
+Kildekoden til [hofstad.net](https://hofstad.net): en statisk side bygget med [Astro](https://astro.build).
+Forsiden viser et bilde fra arkivet, live-kart, lenker til profiler og de nyeste innleggene.
+
+Status: siden bygger og er testet lokalt. Den er ikke publisert.
 
 ## Kom i gang
 
-<!-- Hvordan installere, bygge og teste lokalt. -->
+Du trenger Node.js 22 eller nyere.
 
-## Etter at repoet er laget fra malen
+```bash
+npm install
+```
 
-- [ ] Fyll inn denne README-en og `description` på repoet.
-- [ ] `.github/workflows/code-scanning.yml`: legg til språkene repoet bruker.
-- [ ] `.github/dependabot.yml`: slå på økosystemene repoet bruker.
-- [ ] Privat repo: slett `.github/workflows/scorecard.yml`.
-- [ ] Kjør `settings/apply.sh repo hofstadnet/hofstad.net` fra repo-malen (rulesett og sikkerhetsinnstillinger;
-      innstillinger følger ikke med når et repo lages fra en mal).
-- [ ] Legg til en `build`/`test`-jobb og legg den til som påkrevd sjekk (`--checks`).
+```bash
+npm run dev
+```
+
+| Kommando | Hva den gjør |
+|---|---|
+| `npm run dev` | Starter lokal utvikling med automatisk oppdatering. Utkast vises. |
+| `npm run build` | Typesjekker og bygger den ferdige siden til `dist/`. |
+| `npm run forhandsvis` | Viser `dist/` lokalt med de samme sikkerhetshodene som i drift, og svarer på `/api/status`. |
+| `node scripts/sjekk-csp.mjs` | Kontrollerer at den bygde siden ikke har innebygd kode. |
+| `npx wrangler deploy --dry-run` | Kontrollerer oppsettet for Cloudflare uten å publisere noe. |
+
+### Windows med Smart App Control
+
+Smart App Control blokkerer én usignert maskinkodefil i Astros Markdown-leser (`satteri`). Bygget feiler da med
+«Cannot find native binding». Installer WebAssembly-utgaven lokalt, så brukes den automatisk:
+
+```bash
+npm install --no-save --force @bruits/satteri-wasm32-wasi@0.11.7
+```
+
+Versjonen må være den samme som `satteri` i `package-lock.json`. Pakken lagres ikke i `package.json`, fordi den bare
+trengs på maskiner med denne beskyttelsen. Den må installeres på nytt etter `npm ci`.
+
+## Publisering
+
+Siden kjører på Cloudflare Workers med statiske filer. Cloudflare anbefaler Workers fremfor Pages for nye prosjekter.
+
+- Statiske filer fra `dist/` leveres direkte av Cloudflare, uten at kode kjøres.
+- `worker/index.js` kjøres bare for adresser under `/api/`.
+- `public/_headers` og `public/_redirects` følger med i `dist/` og leses av Cloudflare.
+
+Koble repoet til Cloudflare med Workers Builds: byggekommando `npm run build`, publiseringskommando
+`npx wrangler deploy`. Det er ikke gjort ennå.
+
+## Skrive et innlegg
+
+Lag en fil i `src/content/innlegg/`. Filnavnet blir adressen: `mitt-innlegg.md` får adressen `/innlegg/mitt-innlegg/`.
+
+```markdown
+---
+tittel: "Tittelen"
+ingress: "Én eller to setninger som vises på kort og øverst i innlegget."
+publisert: 2026-12-01
+omrader: [luft]
+bilde: ../../assets/bilder/mitt-bilde.jpg
+bildeAlt: "Hva bildet viser"
+---
+
+Teksten skrives i Markdown.
+```
+
+| Felt | Påkrevd | Forklaring |
+|---|---|---|
+| `tittel`, `ingress`, `publisert` | Ja | |
+| `omrader` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
+| `type` | Nei | `innlegg` (standard), `notat`, `test`, `video` eller `prosjekt`. |
+| `stikkord` | Nei | Liste med frie stikkord. |
+| `bilde`, `bildeAlt` | Nei | Hovedbilde. Legg bildefilen i `src/assets/bilder/`. |
+| `harVideo` | Nei | `true` gir avspillingsmerke på kort. |
+| `oppdatert` | Nei | Dato for siste endring. |
+| `utkast` | Nei | `true` skjuler innlegget fra den publiserte siden. |
+
+Bygget stopper hvis et felt mangler, et område er ukjent eller et bilde ikke finnes.
+
+### Video og bildegalleri
+
+Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
+`src/content/innlegg/deltaker-i-foto-video-konk-2019.mdx` og `clug-roadie-mtb-sykkelstativ.mdx` for eksempler.
+
+- **Video:** `<Video id="..." tittel="..." plakat={bilde} />`. Forhåndsvisningen er et lokalt bilde, og spilleren
+  hentes fra YouTube eller Vimeo først når den besøkende trykker.
+- **Galleri:** `<Galleri bilder={[...]} />`. Ett stort bilde med småbilder under, blaing og fullskjerm.
+
+## Mappestruktur
+
+| Sti | Innhold |
+|---|---|
+| `src/content/innlegg/` | Innleggene, én fil per innlegg |
+| `src/content.config.ts` | Innholdsmodellen som innleggene valideres mot |
+| `src/lib/omrader.ts` | De fem områdene |
+| `src/pages/` | Forside, innlegg, arkiv, områder, RSS, personvern og 404 |
+| `src/components/`, `src/layouts/` | Byggeklossene sidene er satt sammen av |
+| `src/styles/`, `src/scripts/` | Stilark og skript |
+| `src/assets/bilder/` | Bilder som optimaliseres ved bygg |
+| `public/` | Filer som kopieres uendret: ikoner, logo, `_headers`, `_redirects` |
+| `worker/index.js` | Statustjenesten som spør LiveTrack24 om sporingen er aktiv. Kjøres bare for `/api/`. |
+| `wrangler.jsonc` | Oppsett for Cloudflare Workers med statiske filer |
+| `.github/` | Arbeidsflyter for bygg og sikkerhetssjekker |
+| `docs/` | [Arkitektur, sikkerhet og beslutninger](docs/arkitektur.md) |
 
 ## Sikkerhet
 
-Se [SECURITY.md](SECURITY.md).
+- Skrift, ikoner, bilder og skript ligger i repoet. Siden fungerer selv om andre tjenester er nede.
+- `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Eneste unntak er videorammer
+  fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av.
+- Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
+  kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
+- Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler og ingen statistikk.
+- `public/_redirects` sender adressene fra den gamle WordPress-siden videre til de nye.
+
+Sikkerhetsfeil rapporteres via «Report a vulnerability» under Security-fanen i repoet. Se [SECURITY.md](SECURITY.md).
+
+## Lisens
+
+Koden er lisensiert under MIT, se [LICENSE](LICENSE). Det gjelder komponenter, stilark, skript, workeren,
+byggeskript og arbeidsflyter.
+
+Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
+
+- bildene i `src/assets/bilder/`
+- innleggene i `src/content/innlegg/`
+- logoen og ikonene med Hofstad.NET-merket i `public/`, `public/assets/logo/` og delingsbildet
+  `public/og-image-1200x630.png`
+
+© Kristoffer D. Hofstad. Skjermbildene av hpgt.com og flysteder.hpgt.com inneholder bilder fra Harstad Hang og
+Paragliderklubbs bildesamling, og rettighetene til dem tilhører klubben og fotografene.
+
+Skriften Barlow Semi Condensed hentes fra npm ved bygg og er lisensiert under SIL Open Font License 1.1.

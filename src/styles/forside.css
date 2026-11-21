@@ -149,3 +149,13 @@ html[data-theme="light"] .box .links span, html[data-theme="light"] .box .links 
 /* På svært brede skjermer vises bare en smal stripe av toppbildet. Utsnittet flyttes da litt ned,
    slik at både paraglideren og fjellene er med. Høyden på toppen er den samme som ellers. */
 @media (min-width: 2000px) { .hero-bg { object-position: center 40%; } }
+
+/* Løft: knapper og områdefliser løftes litt når man holder over eller tabber til dem */
+.status .go, .areas a { transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease; }
+.status .go:hover, .status .go:focus-visible { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, .25); }
+.areas a { position: relative; border-radius: var(--r); }
+.areas a:hover, .areas a:focus-visible { z-index: 1; transform: translateY(-3px); background: var(--surface); box-shadow: 0 8px 20px rgba(0, 0, 0, .22); }
+@media (prefers-reduced-motion: reduce) {
+  .status .go, .areas a { transition: none; }
+  .status .go:hover, .status .go:focus-visible, .areas a:hover, .areas a:focus-visible { transform: none; }
+}

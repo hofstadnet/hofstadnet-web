@@ -136,6 +136,9 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   Universal SSL). Avviste forsøk meldes til admin@. Sammen med CT-varslingen gir det beskjed om falske sertifikater.
 - E-post: domenet tar bare imot (Email Routing). DMARC er `p=reject` med streng samsvar, så e-post som utgir seg
   for å komme fra `@hofstad.net` avvises.
+- `hofstad.net` er verifisert for GitHub Pages i organisasjonen hofstadnet (TXT-posten
+  `_github-pages-challenge-hofstadnet`). Da kan ingen andre GitHub-kontoer ta i bruk `status.hofstad.net` eller andre
+  underdomener på Pages, selv om CNAME-en skulle peke dit mens repoet er borte. Posten må bli liggende.
 - DDoS-vern er inkludert i gratisplanen.
 - WAF: gratisplanen har Cloudflares eget gratis regelsett og noen få egendefinerte regler. Fullt OWASP Core Ruleset
   har vært forbeholdt betalte planer. For en statisk side uten skjema og innlogging er angrepsflaten uansett liten.

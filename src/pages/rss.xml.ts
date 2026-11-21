@@ -13,12 +13,22 @@ export async function GET(context: APIContext) {
   const innlegg = await hentInnlegg();
   const container = await AstroContainer.create({ renderers: await loadRenderers([mdxRenderer()]) });
 
-  // RSS-lesere kjører ikke skript, så skript og stilark fra komponentene (galleri, video) fjernes
+  // RSS-lesere kjører ikke skript, så skript og stilark fra komponentene (galleri, video) fjernes.
+  // Gjentas til ingenting endres, og løse start- eller sluttagger fjernes til slutt.
+  const utenSkript = (html: string) => {
+    let forrige;
+    let s = html;
+    do {
+      forrige = s;
+      s = s
+        .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, '')
+        .replace(/<\/?(script|style)\b[^>]*>?/gi, '')
+        .replace(/<link\b[^>]*>/gi, '');
+    } while (s !== forrige);
+    return s;
+  };
   const absolutt = (html: string) =>
-    html
-      .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-      .replace(/<style\b[\s\S]*?<\/style>/gi, '')
-      .replace(/<link\b[^>]*rel="stylesheet"[^>]*>/gi, '')
+    utenSkript(html)
       .replace(/\s(src|href|poster)="\/(?!\/)/g, (_, attr) => ` ${attr}="${site.origin}/`)
       .replace(/\ssrcset="([^"]*)"/g, (_, liste: string) =>
         ` srcset="${liste.replace(/(^|,\s*)\/(?!\/)/g, (__, skille) => `${skille}${site.origin}/`)}"`);

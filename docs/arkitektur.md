@@ -121,8 +121,9 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   Environment (`production`) som bare `main` kan bruke. Workflows har `permissions: contents: read` som utgangspunkt.
 - **Hemmeligheter:** PGpilot-tokenet ligger som Worker-secret hos Cloudflare. Det finnes ikke i repoet eller i GitHub.
 - **Forhåndsvisninger** av pull requests legges bak Cloudflare Access, slik at utkast ikke er offentlige.
-- **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten tredjepartsdomener og uten
-  innebygde skript, pluss HSTS, `X-Content-Type-Options`, `Referrer-Policy` og `Permissions-Policy`. Hodene ligger i
+- **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten innebygde skript.
+  Tredjepartsdomener er bare videorammer fra YouTube og Vimeo og Cloudflare Web Analytics (skript fra
+  `static.cloudflareinsights.com`, måletall til `cloudflareinsights.com`). Ellers pluss HSTS, `X-Content-Type-Options`, `Referrer-Policy` og `Permissions-Policy`. Hodene ligger i
   repoet og følger med hver deploy.
 
 ### Cloudflare

@@ -34,6 +34,8 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:locale" content="nb_NO" />
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline src="/tema.js"></script>
+    {/* Cloudflare Web Analytics: anonyme besøkstall og lastetid, uten informasjonskapsler. Se personvern.astro. */}
+    <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "90cf025e2bfc41deb8071d4f67f5c4e8"}'></script>
   </head>
   <body>
     <a class="skip" href="#innhold">Hopp til innhold</a>

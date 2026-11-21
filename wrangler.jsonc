@@ -14,6 +14,15 @@
     // Workeren kjøres bare for /api/. Alt annet leveres som statiske filer uten å kjøre kode.
     "run_worker_first": ["/api/*"]
   },
+  // Domenene siden svarer på. www.hofstad.net sendes videre til hofstad.net av en
+  // videresendingsregel i sonen (Rules → Redirect Rules), før Workeren kjøres.
+  "routes": [
+    { "pattern": "hofstad.net", "custom_domain": true },
+    { "pattern": "www.hofstad.net", "custom_domain": true }
+  ],
+  // Forhåndsvisninger av pull requests (Workers Builds kjører «wrangler preview»).
+  // Tom blokk betyr samme oppsett som i drift.
+  "previews": {},
   // Wrangler skal ikke sende bruksstatistikk til Cloudflare
   "send_metrics": false,
   // Logger fra workeren, uten utvalg, så feil i statustjenesten kan spores

@@ -20,6 +20,8 @@ const innlegg = defineCollection({
       stikkord: z.array(z.string()).default([]),
       bilde: image().optional(),
       bildeAlt: z.string().default(''),
+      // Hvilken del av hovedbildet som beholdes når det beskjæres til små miniatyrer
+      bildeFokus: z.enum(['center', 'left', 'right', 'top', 'bottom']).default('center'),
       // Settes når innlegget inneholder video, slik at kort får avspillingsmerke.
       harVideo: z.boolean().default(false),
       // Utkast vises lokalt, men bygges ikke til den publiserte siden.

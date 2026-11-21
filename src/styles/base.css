@@ -90,6 +90,8 @@ html[data-status="air"] .status .dot { background: var(--orange); animation: pin
 .about p { margin: 0 0 12px; max-width: 36em; }
 
 .foot { border-top: 1px solid var(--rule); margin-top: 48px; padding: 22px 0 90px; font-size: 14px; color: var(--soft); display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: space-between; }
+/* Trykkflate på minst 24 × 24 px (WCAG 2.5.8) */
+.foot a { display: inline-block; min-width: 24px; padding: 4px 2px; text-align: center; }
 
 @media (max-width: 900px) {
   .areas { grid-template-columns: 1fr 1fr; }
@@ -104,6 +106,12 @@ html[data-status="air"] .status .dot { background: var(--orange); animation: pin
   .top nav a { padding: 10px 7px; font-size: 14.5px; }
   .top nav a.handle { display: none; }
   .areas em { display: none; }
+}
+/* På de smaleste skjermene (ned til 320 px) går menyen ned på en egen rad under logoen,
+   så siden aldri blir bredere enn skjermen (WCAG 1.4.10). */
+@media (max-width: 400px) {
+  .top { flex-wrap: wrap; row-gap: 8px; }
+  .top nav { margin-left: auto; }
 }
 
 /* Lys/mørk-knapp */

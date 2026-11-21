@@ -15,6 +15,7 @@ const d = innlegg.data;
       widths={stort ? [480, 900] : [360, 720]}
       sizes={stort ? '(max-width: 900px) 100vw, 420px' : '(max-width: 620px) 108px, 360px'}
       loading="lazy"
+      class={`fokus-${d.bildeFokus}`}
     /></span>
   )}
   <div>

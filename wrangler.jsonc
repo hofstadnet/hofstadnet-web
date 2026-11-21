@@ -23,6 +23,8 @@
   // Forhåndsvisninger av pull requests (Workers Builds kjører «wrangler preview»).
   // Tom blokk betyr samme oppsett som i drift.
   "previews": {},
+  // Produksjon skal bare nås på egne domener, ikke på hofstadnet-web.<konto>.workers.dev
+  "workers_dev": false,
   // Wrangler skal ikke sende bruksstatistikk til Cloudflare
   "send_metrics": false,
   // Logger, sporing og feilgruppering for workeren (Workers & Pages → hofstadnet-web → Observability).

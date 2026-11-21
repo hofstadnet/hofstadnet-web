@@ -9,7 +9,7 @@ const d = innlegg.data;
 ---
 <li>
   <a class:list={[{ 'has-video': d.harVideo, 'no-img': !d.bilde }]} href={adresse(innlegg)}>
-    {d.bilde && <div class="media"><Image src={d.bilde} alt="" width={240} height={184} fit="cover" loading="lazy" /></div>}
+    {d.bilde && <div class="media"><Image src={d.bilde} alt="" width={240} height={184} fit="cover" position={d.bildeFokus} loading="lazy" /></div>}
     <span>{d.omrader.map((o) => omradeNavn(o)).join(' · ')}</span>
     <time datetime={datoIso(d.publisert)}>{datoKort(d.publisert)}</time>
     <b>{d.tittel}</b>

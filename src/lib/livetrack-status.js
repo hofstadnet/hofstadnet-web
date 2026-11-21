@@ -1,9 +1,10 @@
 // Leser LiveTrack24 sin statusrute og avgjør om sporingen er aktiv.
-// Brukes av statustjenesten (functions/api/status.js) og av den lokale forhåndsvisningen.
+// Brukes av statustjenesten (worker/index.js) og av den lokale forhåndsvisningen.
 //
 // Statusruten er en liten HTML-side. Når sporingen ikke er aktiv, inneholder den teksten
-// «is not live» og ikonet icon_user_not_live. Alt annet som nevner brukeren, regnes som aktiv sporing.
-// Svar vi ikke kjenner igjen, gir «ukjent» i stedet for en gjetning.
+// «is not live» og ikonet icon_user_not_live. Aktiv sporing godtas bare med en entydig markør
+// («is live» eller icon_user_live). Alt annet gir «ukjent» i stedet for en gjetning, og svaret
+// logges (Workers Logs), så formatet kan sjekkes og parseren rettes hvis LiveTrack24 endrer siden.
 
 export const BRUKER = 'krishofs';
 export const KILDE = `https://www.livetrack24.com/user/${BRUKER}/status/map/1`;
@@ -13,7 +14,7 @@ export const KART = `https://www.livetrack24.com/user/${BRUKER}/2d`;
 export function tolkStatus(html) {
   if (typeof html !== 'string' || !html.toLowerCase().includes(BRUKER)) return 'ukjent';
   if (/is not live|icon_user_not_live/i.test(html)) return 'ikke-live';
-  if (/is live|icon_user_live|<img|<iframe|map/i.test(html)) return 'live';
+  if (/\bis live\b|\bicon_user_live\b/i.test(html)) return 'live';
   return 'ukjent';
 }
 
@@ -26,9 +27,16 @@ export async function hentStatus(hent) {
       signal: AbortSignal.timeout(5000),
       redirect: 'follow',
     });
-    if (svar.ok) status = tolkStatus((await svar.text()).slice(0, 20000));
-  } catch {
+    if (svar.ok) {
+      const html = (await svar.text()).slice(0, 20000);
+      status = tolkStatus(html);
+      if (status === 'ukjent') console.warn('LiveTrack24: ukjent svarformat', html.slice(0, 600));
+    } else {
+      console.warn('LiveTrack24: HTTP', svar.status);
+    }
+  } catch (feil) {
     // Nettverksfeil eller tidsavbrudd gir «ukjent»
+    console.warn('LiveTrack24: ingen svar', String(feil));
   }
   return { status, sjekket: new Date().toISOString() };
 }

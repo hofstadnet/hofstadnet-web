@@ -22,7 +22,8 @@ const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min 
     <dl class="siste-tur" aria-label="Siste loggførte tur">
       <div><dt>Siste tur</dt><dd><time datetime={siste.dato}>{datoKort(new Date(siste.dato))}</time></dd></div>
       <div><dt>Flytid</dt><dd>{varighet(siste.minutter)}</dd></div>
-      <div><dt>Høyest</dt><dd>{siste.hoydeM.toLocaleString('nb-NO')} m</dd></div>
+      <div><dt>Distanse</dt><dd>{siste.sporKm.toLocaleString('nb-NO', { maximumFractionDigits: 1 })} km</dd></div>
+      <div><dt>Høyest</dt><dd>{siste.hoydeM.toLocaleString('nb-NO')} moh.</dd></div>
     </dl>
   )}
   <a class="go" href={KART} target="_blank" rel="noopener">
@@ -34,3 +35,11 @@ const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min 
 <script>
   import '../scripts/status.js';
 </script>
+
+<style>
+  /* Fire tall i to rader, så de får plass i det smale statuskortet */
+  .siste-tur { grid-template-columns: repeat(2, 1fr); row-gap: 8px; }
+  /* Mindre enn statusen over, så detaljene ikke konkurrerer med den */
+  .siste-tur dt { font-size: 10.5px; }
+  .siste-tur dd { font-size: 1rem; font-weight: 600; }
+</style>

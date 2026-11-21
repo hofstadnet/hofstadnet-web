@@ -1,6 +1,11 @@
 ---
 import Pil from './Pil.astro';
 import { KART } from '../lib/livetrack-status.js';
+import { datoKort } from '../lib/innlegg';
+import flystatistikk from '../data/flystatistikk.json';
+// Siste loggførte tur fra IGC-filene (scripts/flystatistikk.mjs). Oppdateres når skriptet kjøres etter nye turer.
+const siste = flystatistikk.sisteTur;
+const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min % 60} min` : `${min} min`);
 // Flystatus: grønn prikk og «I lufta nå» når sporingen på LiveTrack24 er aktiv. Det er bare sporingen som
 // kan sjekkes, så teksten under sier det, og når statusen sist ble sjekket. role="status" gjør at
 // skjermlesere leser opp endringer.
@@ -13,6 +18,13 @@ import { KART } from '../lib/livetrack-status.js';
     <p class="now"><span class="dot" aria-hidden="true"></span><span data-status-tekst>Se status på kartet</span></p>
     <p data-status-detalj>Live-kartet viser pågående eller siste tur.</p>
   </div>
+  {siste && (
+    <dl class="siste-tur" aria-label="Siste loggførte tur">
+      <div><dt>Siste tur</dt><dd><time datetime={siste.dato}>{datoKort(new Date(siste.dato))}</time></dd></div>
+      <div><dt>Flytid</dt><dd>{varighet(siste.minutter)}</dd></div>
+      <div><dt>Høyest</dt><dd>{siste.hoydeM.toLocaleString('nb-NO')} m</dd></div>
+    </dl>
+  )}
   <a class="go" href={KART} target="_blank" rel="noopener">
     <span>Åpne live-kartet</span><span aria-hidden="true"><Pil /></span>
   </a>

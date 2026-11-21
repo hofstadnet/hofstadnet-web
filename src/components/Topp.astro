@@ -29,7 +29,8 @@ const hero = variant === 'hero';
       <Ikon navn="moon" class="ico i-moon" /><Ikon navn="sun" class="ico i-sun" />
     </button>
   </nav>
-  <div id="sokepanel" class="sokepanel" role="search" hidden>
+  {/* popover: panelet vises i nettleserens øverste lag, over toppbildet og kortene, uansett lagrekkefølge */}
+  <div id="sokepanel" class="sokepanel" role="search" popover="manual">
     <form>
       <label for="sokepanel-felt" class="sr-only">Søk i innleggene</label>
       <Ikon navn="search" class="ico" />
@@ -52,12 +53,28 @@ const hero = variant === 'hero';
   .sok-knapp .ico { width: 16px; height: 16px; }
   .sok-knapp[aria-expanded="true"] { background: rgba(127, 140, 150, .18); border-radius: 999px; }
 
+  /* Plasseres under menyen av sokepanel.js (top, left og width settes der) */
   .sokepanel {
-    position: absolute; z-index: 30; top: calc(100% - 6px); right: 0; width: min(520px, 100%);
+    position: fixed; inset: auto; margin: 0; width: min(520px, calc(100vw - 32px)); max-height: none; overflow: visible;
     background: var(--surface); color: var(--text); border: 1px solid var(--rule); border-radius: var(--r);
     box-shadow: 0 16px 40px rgba(8, 16, 28, .35); padding: 10px 10px 4px;
   }
-  .sokepanel[hidden] { display: none; }
+  .sokepanel:not(:popover-open) { display: none; }
+  /* Over toppbildet: samme glass som menyen, så panelet ikke blir en mørk blokk */
+  :global(.hero) .sokepanel {
+    background: rgba(13, 34, 48, .62); color: #E7EEF2; border-color: rgba(255, 255, 255, .18);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15); backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: 0 16px 40px rgba(8, 16, 28, .25);
+  }
+  :global(.hero) .sokepanel form { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .2); }
+  :global(.hero) .sokepanel form:focus-within { border-color: var(--lime); }
+  :global(.hero) .sokepanel input, :global(.hero) .sokepanel-treff :global(a), :global(.hero) .sokepanel-treff :global(mark) { color: #fff; }
+  :global(.hero) .sokepanel input::placeholder { color: rgba(231, 238, 242, .7); }
+  :global(.hero) .sokepanel form > .ico, :global(.hero) .sokepanel button, :global(.hero) .sokepanel-status { color: rgba(231, 238, 242, .8); }
+  :global(.hero) .sokepanel button:hover, :global(.hero) .sokepanel button:focus-visible { color: #fff; background: rgba(255, 255, 255, .14); }
+  :global(.hero) .sokepanel-treff :global(li) { border-top-color: rgba(255, 255, 255, .16); }
+  :global(.hero) .sokepanel-treff :global(p) { color: #D3E2EA; }
+  :global(.hero) .sokepanel-treff :global(a:hover), :global(.hero) .sokepanel-treff :global(a:focus-visible) { color: var(--lime); }
   .sokepanel form { display: flex; align-items: center; gap: 8px; padding: 2px 4px 2px 10px; border: 1px solid var(--rule); border-radius: var(--r); background: var(--bg); }
   .sokepanel form:focus-within { border-color: var(--accent); }
   .sokepanel form > .ico { width: 18px; height: 18px; color: var(--soft); flex: none; }
@@ -76,6 +93,5 @@ const hero = variant === 'hero';
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   @media (max-width: 620px) {
     .sok-knapp span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .sokepanel { left: 0; width: auto; }
   }
 </style>

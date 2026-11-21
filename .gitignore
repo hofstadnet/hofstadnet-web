@@ -34,3 +34,15 @@ prototyper/
 lighthouse-rapport/
 playwright-rapport/
 test-results/
+
+# OpenTofu: lokale providere, state og planer. State ligger kryptert i R2, aldri i repoet.
+# .terraform.lock.hcl skal med i repoet.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+plan.bin
+plan.txt
+crash.log
+override.tf
+*_override.tf

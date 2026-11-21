@@ -154,8 +154,8 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
 - Browser Cache TTL er «Respect Existing Headers», så `Cache-Control` fra siden og Workeren gjelder. Flystatusen
   mellomlagres derfor bare i 60 sekunder.
 - Workeren, hodene og videresendingene er kode i repoet (`wrangler.jsonc`, `public/_headers`, `public/_redirects`).
-  Soneinnstillingene over er satt via Cloudflare-API-et og beskrevet her. De bør på sikt også inn som kode
-  (Terraform/OpenTofu).
+  Soneoppsettet over (DNS, CAA, DNSSEC, innstillinger, WAF, rate limiting, videresending fra www, KI-roboter og
+  varsler) er kode i `infra/` (OpenTofu), med kryptert state i R2 og apply etter godkjenning. Se `infra/README.md`.
 
 ### GitOps og DevSecOps
 

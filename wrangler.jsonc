@@ -1,0 +1,21 @@
+// Oppsett for Cloudflare Workers med statiske filer.
+// Bygg: npm run build   ·   Publisering: npx wrangler deploy
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hofstadnet-web",
+  "compatibility_date": "2026-11-21",
+  "main": "./worker/index.js",
+  "assets": {
+    // Den ferdig bygde siden. _headers og _redirects i denne mappen leses av Cloudflare.
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Ukjente adresser får dist/404.html
+    "not_found_handling": "404-page",
+    // Workeren kjøres bare for /api/. Alt annet leveres som statiske filer uten å kjøre kode.
+    "run_worker_first": ["/api/*"]
+  },
+  // Wrangler skal ikke sende bruksstatistikk til Cloudflare
+  "send_metrics": false,
+  // Logger fra workeren, uten utvalg, så feil i statustjenesten kan spores
+  "observability": { "enabled": true }
+}

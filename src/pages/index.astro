@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Topp from '../components/Topp.astro';
+import Bunn from '../components/Bunn.astro';
+import Statuskort from '../components/Statuskort.astro';
+import Lenker from '../components/Lenker.astro';
+import Omrader from '../components/Omrader.astro';
+import Kort from '../components/Kort.astro';
+import Flis from '../components/Flis.astro';
+import { hentInnlegg } from '../lib/innlegg';
+import toppbilde from '../assets/bilder/konk-2017.jpg';
+import '../styles/forside.css';
+
+// Forsiden viser alltid det nyeste innlegget stort, de tre neste som kort og de seks neste som fliser.
+// Resten ligger i arkivet, så forsiden vokser ikke når det kommer flere innlegg.
+const innlegg = await hentInnlegg();
+const [nyeste, ...resten] = innlegg;
+const kort = resten.slice(0, 3);
+const eldre = resten.slice(3, 9);
+---
+<Base>
+  <div class="hero">
+    <Image class="hero-bg" src={toppbilde} alt="" widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" />
+    <div class="wrap">
+      <Topp variant="hero" />
+    </div>
+    <div class="wrap hero-foot">
+      <h1>Ute til lyset<br /><em>forsvinner.</em></h1>
+      <p class="hero-tag">Tech <span aria-hidden="true">·</span> friluft <span aria-hidden="true">·</span> foto</p>
+    </div>
+  </div>
+
+  <main class="wrap" id="innhold">
+    <div class="deck">
+      <Statuskort />
+      <Lenker />
+    </div>
+
+    <Omrader innlegg={innlegg} />
+
+    <section id="blogg">
+      <div class="sec"><h2>Fra bloggen</h2><a href="/innlegg/">Alle innlegg</a></div>
+      <div class="feed">
+        {nyeste && <Kort innlegg={nyeste} stort />}
+        {kort.length > 0 && <div class="grid3">{kort.map((i) => <Kort innlegg={i} />)}</div>}
+      </div>
+      {eldre.length > 0 && (
+        <>
+          <p class="eyebrow rows-label">Eldre innlegg</p>
+          <ul class="rows">{eldre.map((i) => <Flis innlegg={i} />)}</ul>
+        </>
+      )}
+    </section>
+
+    <div class="about">
+      <div><p class="eyebrow">Hei, og velkommen</p><h2>Mitt lille hjørne av nettet.</h2></div>
+      <div>
+        <p>Til daglig jobber jeg med IT og sitter mye foran skjermen. Når jeg slipper fri, bytter jeg den gjerne ut med en skjerm over hodet, en dykkermaske eller et par tursko.</p>
+        <p>Kameraet er nesten alltid med, og noe av det havner her.</p>
+      </div>
+    </div>
+
+    <Bunn />
+  </main>
+</Base>

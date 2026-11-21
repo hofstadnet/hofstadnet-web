@@ -29,9 +29,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TILPASS: legg til språkene i repoet, f.eks. javascript-typescript, python, go, java-kotlin.
-        # «actions» analyserer workflowene og passer i alle repo.
-        language: [actions]
+        # «actions» analyserer workflowene. «javascript-typescript» dekker siden, skriptene og workeren.
+        language: [actions, javascript-typescript]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

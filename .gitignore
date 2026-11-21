@@ -1,6 +1,8 @@
 # Avhengigheter og bygg
 node_modules/
 dist/
+.astro/
+.wrangler/
 build/
 _site/
 .cache/
@@ -22,3 +24,7 @@ __pycache__/
 *.key
 *.p12
 *.pfx
+
+# Designforslagene fra arbeidet med ny forside beholdes lokalt for sammenligning og senere justering,
+# men skal ikke inn i repoet. Valgt forside (Blåtimen med uttoning) er bygget i src/.
+prototyper/

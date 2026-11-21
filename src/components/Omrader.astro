@@ -1,0 +1,20 @@
+---
+import Ikon from './Ikon.astro';
+import { omrader } from '../lib/omrader';
+import { iOmrade, type Innlegg } from '../lib/innlegg';
+// Raden med de fem områdene og antall innlegg i hvert.
+interface Props { innlegg: Innlegg[]; aktiv?: string; }
+const { innlegg, aktiv } = Astro.props;
+---
+<ul class="areas" aria-label="Områder">
+  {omrader.map((o) => (
+    <li>
+      <a href={`/omrade/${o.id}/`} aria-current={aktiv === o.id ? 'page' : undefined}>
+        <Ikon navn={o.ikon} />
+        <em>{iOmrade(innlegg, o.id).length}</em>
+        <b>{o.navn}</b>
+        <span>{o.undertekst}</span>
+      </a>
+    </li>
+  ))}
+</ul>

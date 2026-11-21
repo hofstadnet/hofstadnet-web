@@ -1,0 +1,42 @@
+---
+import '@fontsource/barlow-semi-condensed/600.css';
+import '@fontsource/barlow-semi-condensed/700.css';
+import '../styles/base.css';
+
+interface Props { tittel?: string; beskrivelse?: string; delingsbilde?: string; }
+const {
+  tittel,
+  beskrivelse = 'Tech, friluft og foto. Turer, bilder og prosjekter fra lufta, bakken og under vann.',
+  delingsbilde = '/og-image-1200x630.png',
+} = Astro.props;
+const fullTittel = tittel ? `${tittel} – Hofstad.NET` : 'Hofstad.NET – Tech · friluft · foto';
+const kanonisk = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="nb" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTittel}</title>
+    <meta name="description" content={beskrivelse} />
+    <link rel="canonical" href={kanonisk} />
+    <meta name="theme-color" content="#14243F" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="Hofstad.NET" href="/rss.xml" />
+    <meta property="og:site_name" content="Hofstad.NET" />
+    <meta property="og:title" content={tittel ?? 'Hofstad.NET'} />
+    <meta property="og:description" content={beskrivelse} />
+    <meta property="og:url" content={kanonisk} />
+    <meta property="og:image" content={new URL(delingsbilde, Astro.site)} />
+    <meta property="og:locale" content="nb_NO" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline src="/tema.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#innhold">Hopp til innhold</a>
+    <slot />
+  </body>
+</html>

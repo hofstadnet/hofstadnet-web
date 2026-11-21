@@ -1,0 +1,7 @@
+# Tekstfiler lagres med LF-linjeskift på alle maskiner
+* text=auto eol=lf
+*.jpg binary
+*.png binary
+*.ico binary
+*.webp binary
+*.woff2 binary

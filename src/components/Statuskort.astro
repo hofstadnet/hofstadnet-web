@@ -1,0 +1,20 @@
+---
+import Pil from './Pil.astro';
+import { KART } from '../lib/livetrack-status.js';
+// Flystatus: grønn prikk og «I lufta nå» når sporingen på LiveTrack24 er aktiv.
+// Statusen hentes fra sidens egen tjeneste (/api/status), så besøkende kontakter ikke LiveTrack24
+// før de selv åpner kartet. Kartet åpnes i ny fane.
+---
+<aside class="status" id="flystatus" data-flystatus="venter">
+  <p class="eyebrow">Er jeg i lufta?</p>
+  <p class="now"><span class="dot"></span><span data-status-tekst>Se status på kartet</span></p>
+  <p data-status-detalj>Live-kartet viser pågående eller siste tur.</p>
+  <a class="go" href={KART} target="_blank" rel="noopener">
+    <span>Åpne live-kartet</span><span aria-hidden="true"><Pil /></span>
+  </a>
+  <a class="alt" href="https://pgpilot.app/view/krishofs" target="_blank" rel="noopener">Åpne i pgpilot <Pil /></a>
+</aside>
+
+<script>
+  import '../scripts/status.js';
+</script>

@@ -110,12 +110,22 @@ Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
 ## Sikkerhet
 
 - Skrift, ikoner, bilder og skript ligger i repoet. Siden fungerer selv om andre tjenester er nede.
-- `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Eneste unntak er videorammer
-  fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av.
+- `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Unntakene er videorammer
+  fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av, og skriptet til Cloudflare Web
+  Analytics.
 - Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
   kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
-- Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler og ingen statistikk.
+- Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler.
 - `public/_redirects` sender adressene fra den gamle WordPress-siden videre til de nye.
+
+## Overvåking
+
+- **Besøk og lastetid:** Cloudflare Web Analytics (anonyme tall, ingen informasjonskapsler). Sidevisninger, kilder
+  og Core Web Vitals ligger under Analytics & Logs → Web Analytics.
+- **Workeren (`/api/`):** logger, sporing (traces) og feilgruppering (issues) er slått på i `wrangler.jsonc`. Se
+  Workers & Pages → hofstadnet-web → Observability.
+- **Sertifikater:** Cloudflare varsler admin@ når det utstedes et nytt sertifikat for hofstad.net
+  (Certificate Transparency). Uventede sertifikater kan tyde på at noen prøver å utgi seg for siden.
 
 Sikkerhetsfeil rapporteres via «Report a vulnerability» under Security-fanen i repoet. Se [SECURITY.md](SECURITY.md).
 

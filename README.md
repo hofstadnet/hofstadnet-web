@@ -90,6 +90,24 @@ Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
   hentes fra YouTube eller Vimeo først når den besøkende trykker.
 - **Galleri:** `<Galleri bilder={[...]} />`. Ett stort bilde med småbilder under, blaing og fullskjerm.
 
+### Flystatistikk
+
+Statistikken på siden «I lufta» regnes ut lokalt fra IGC-filene og lagres som summer i
+`src/data/flystatistikk.json`. Kjør skriptet på nytt etter nye turer og sjekk inn JSON-filen:
+
+```bash
+npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat " - (Ørjan|Erlend) \("
+```
+
+`--utelat` hopper over andres spor fra felles turer. IGC-filene sjekkes aldri inn, og JSON-filen inneholder
+ingen spor, koordinater eller startsteder.
+
+### Søk
+
+Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
+Astro-bygget. Bare innleggene blir indeksert (`data-pagefind-body` i `src/pages/innlegg/[id].astro`), og søket
+skjer helt i nettleseren.
+
 ## Mappestruktur
 
 | Sti | Innhold |
@@ -112,7 +130,10 @@ Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
 - Skrift, ikoner, bilder og skript ligger i repoet. Siden fungerer selv om andre tjenester er nede.
 - `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Unntakene er videorammer
   fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av, og skriptet til Cloudflare Web
-  Analytics.
+  Analytics. `'wasm-unsafe-eval'` er med fordi søket kjører WebAssembly fra siden selv.
+- Cloudflare-sonen har DNSSEC, CAA-poster (bare Let's Encrypt, Google og SSL.com kan utstede sertifikater),
+  DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
+  WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`), Bot Fight Mode og blokkering av KI-roboter.
 - Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
   kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
 - Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler.

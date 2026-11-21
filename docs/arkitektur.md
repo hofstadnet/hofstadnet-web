@@ -128,12 +128,17 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
 
 ### Cloudflare
 
-- DNS med DNSSEC, TLS 1.2 som minimum, «Always Use HTTPS», HSTS og CAA-poster.
+- DNS med DNSSEC (DS-posten ligger hos registraren Dynadot), TLS 1.2 som minimum, «Always Use HTTPS» og HSTS.
+- CAA-poster: bare `letsencrypt.org`, `pki.goog` og `ssl.com` kan utstede sertifikater (de Cloudflare bruker for
+  Universal SSL). Avviste forsøk meldes til admin@. Sammen med CT-varslingen gir det beskjed om falske sertifikater.
+- E-post: domenet tar bare imot (Email Routing). DMARC er `p=reject` med streng samsvar, så e-post som utgir seg
+  for å komme fra `@hofstad.net` avvises.
 - DDoS-vern er inkludert i gratisplanen.
 - WAF: gratisplanen har Cloudflares eget gratis regelsett og noen få egendefinerte regler. Fullt OWASP Core Ruleset
-  har vært forbeholdt betalte planer. **Sjekk dagens planer før du lover deg selv OWASP-dekning.** For en statisk side
-  uten skjema og innlogging er angrepsflaten uansett liten, og de egendefinerte reglene brukes på `/api/*`.
-- Rate limiting på `/api/status`.
+  har vært forbeholdt betalte planer. For en statisk side uten skjema og innlogging er angrepsflaten uansett liten.
+  Én egendefinert regel blokkerer `.php`, `/wp-admin`, `/wp-includes`, `/wp-json`, `/.env` og `/.git`.
+- Rate limiting på `/api/status`: over 20 kall på 10 sekunder fra samme IP blokkeres i 10 sekunder.
+- Bot Fight Mode og blokkering av KI-roboter som henter innhold til trening er slått på.
 - Oppsettet (DNS, regler, hoder) beskrives som kode (Terraform/OpenTofu eller `wrangler.toml`) i repoet, ikke som
   klikk i kontrollpanelet.
 

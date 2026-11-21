@@ -100,7 +100,9 @@ Statistikken på siden «I lufta» regnes ut lokalt fra IGC-filene og lagres som
 npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat "Ørjan,Erlend"
 ```
 
-`--utelat` hopper over andres spor fra felles turer. IGC-filene sjekkes aldri inn, og JSON-filen inneholder
+`--utelat` hopper over andres spor fra felles turer. Flere mapper kan gis etter hverandre, f.eks. en mappe med nye
+turer lastet ned fra pgpilot (`https://pgpilot.app/api/flights/<id>/igc` for offentlige turer). Samme tur i flere
+mapper telles én gang. IGC-filene sjekkes aldri inn, og JSON-filen inneholder
 ingen spor, koordinater eller startsteder.
 
 ### RSS, nettstedskart og strukturert data

@@ -3,15 +3,15 @@
   "generert": "2026-11-21",
   "forsteTur": "2020-04-09",
   "sisteTur": {
-    "dato": "2026-10-11",
-    "minutter": 45,
-    "hoydeM": 693,
-    "sporKm": 22.3,
+    "dato": "2026-10-30",
+    "minutter": 8,
+    "hoydeM": 601,
+    "sporKm": 4.4,
     "vinge": "Ozone Zeolite 2"
   },
   "totalt": {
-    "turer": 287,
-    "timer": 209.9,
+    "turer": 289,
+    "timer": 210.2,
     "hoyesteM": 3536,
     "besteHoydegevinstM": 2117
   },
@@ -48,8 +48,8 @@
     },
     {
       "aar": 2026,
-      "turer": 56,
-      "timer": 54.7
+      "turer": 58,
+      "timer": 54.9
     }
   ],
   "vinger": [
@@ -59,7 +59,7 @@
     },
     {
       "navn": "Ozone Zeolite 2",
-      "turer": 100
+      "turer": 102
     },
     {
       "navn": "Supair Taska",

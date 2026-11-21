@@ -6,7 +6,7 @@ const kort = document.querySelector('[data-flystatus]');
 // (sporing aktiv eller ikke), og når det sist ble sjekket.
 const tekster = {
   live: ['I lufta nå', 'Sporingen på LiveTrack24 er aktiv.'],
-  'ikke-live': ['Ingen aktiv sporing', 'Jeg er trolig på bakken.'],
+  'ikke-live': ['Ingen aktiv sporing', 'Ikke i lufta nå – kanskje under vann eller på tur.'],
   ukjent: ['Status utilgjengelig', 'Åpne kartet for å se siste tur.'],
 };
 const klokke = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit' });

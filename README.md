@@ -149,7 +149,7 @@ skjer helt i nettleseren.
   fordi søkefeltet på 404-siden sender til `/sok/`.
 - Cloudflare-sonen har DNSSEC, CAA-poster (bare Let's Encrypt, Google og SSL.com kan utstede sertifikater),
   DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
-  WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`), Bot Fight Mode og blokkering av KI-roboter.
+  WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`) og blokkering av KI-roboter.
 - Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
   kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
 - Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler.

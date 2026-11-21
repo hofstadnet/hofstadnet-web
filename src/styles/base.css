@@ -146,3 +146,28 @@ html[data-theme="light"] .mode .i-sun, html[data-theme="dark"] .mode .i-moon { d
   @view-transition { navigation: auto; }
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .18s; }
 }
+
+/* Utskrift: lys bakgrunn og mørk tekst uansett valgt visning, uten meny, søk, bunntekst og andre ting
+   som bare fungerer på skjerm. Lenker til andre nettsteder skrives ut med adressen etter lenketeksten. */
+@media print {
+  html, html[data-theme] {
+    --bg: #fff; --surface: #fff; --ink: #000; --text: #1a1a1a; --soft: #444; --rule: #bbb;
+    --accent: #1a1a1a; --hover: #000; --icon: #444;
+  }
+  @page { margin: 18mm 16mm; }
+  body { font-size: 11pt; line-height: 1.5; }
+  .skip, .top nav, .sokepanel, .foot, .back, .toc, .relaterte, .video-play, .gallery-note { display: none !important; }
+  .top { padding: 0 0 8pt; border-bottom: 1px solid var(--rule); }
+  html[data-theme] .top .on-dark { display: none !important; }
+  html[data-theme] .top .on-light { display: inline !important; }
+  .viewer { display: none !important; }
+  .gallery.is-thumbs { overflow: visible; flex-wrap: wrap; }
+  .gallery.is-thumbs a { opacity: 1 !important; }
+  .post { max-width: none; padding-top: 12pt; }
+  .post-wrap.has-toc { display: block !important; }
+  .post a { color: inherit; }
+  .post a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .85em; color: var(--soft); overflow-wrap: anywhere; }
+  .post h2, .post h3 { break-after: avoid; }
+  .post img, .post figure, .post table, .post pre { break-inside: avoid; }
+  .post p { orphans: 3; widows: 3; }
+}

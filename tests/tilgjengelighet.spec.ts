@@ -45,3 +45,23 @@ for (const sti of sider) {
     });
   }
 }
+
+// Søket og galleriet bygger elementer med JavaScript. Kjør dem med de samme hodene som i drift, så brudd på
+// Trusted Types eller CSP (f.eks. innerHTML eller en ny Worker-adresse) blir oppdaget her og ikke av besøkende.
+test('søk og galleri virker under Trusted Types', async ({ page }) => {
+  const feil: string[] = [];
+  page.on('pageerror', (e) => feil.push(`JavaScript: ${e.message}`));
+  page.on('console', (m) => {
+    if (m.type() === 'error' && !/cloudflareinsights|Failed to load resource|ERR_/i.test(m.text())) feil.push(m.text());
+  });
+
+  await page.goto('/innlegg/clug-roadie-mtb-sykkelstativ/', { waitUntil: 'networkidle' });
+  await page.locator('.v-next').click();
+  await expect(page.locator('.v-count')).toHaveText(/^2 \/ \d+$/);
+
+  await page.keyboard.press('/');
+  await page.locator('#sokepanel input').fill('sykkel');
+  await expect(page.locator('.sokepanel-treff mark').first()).toBeVisible();
+
+  expect(feil, 'feil i konsollen').toEqual([]);
+});

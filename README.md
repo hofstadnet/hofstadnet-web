@@ -172,6 +172,9 @@ skjer helt i nettleseren.
   og Core Web Vitals ligger under Analytics & Logs → Web Analytics.
 - **Workeren (`/api/`):** logger, sporing (traces) og feilgruppering (issues) er slått på i `wrangler.jsonc`. Se
   Workers & Pages → hofstadnet-web → Observability.
+- **Oppetid:** [status.hofstad.net](https://status.hofstad.net) (Upptime i repoet
+  [hofstadnet/status](https://github.com/hofstadnet/status)) sjekker forsiden, flystatusen, søket og RSS hvert
+  5. minutt. Hvis noe er nede, åpnes en issue der, og GitHub varsler eier.
 - **Sertifikater:** Cloudflare varsler admin@ når det utstedes et nytt sertifikat for hofstad.net
   (Certificate Transparency). Uventede sertifikater kan tyde på at noen prøver å utgi seg for siden.
 

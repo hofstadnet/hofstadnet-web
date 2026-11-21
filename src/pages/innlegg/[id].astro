@@ -3,8 +3,12 @@ import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import Side from '../../layouts/Side.astro';
 import Pil from '../../components/Pil.astro';
+import Innholdsfortegnelse from '../../components/Innholdsfortegnelse.astro';
 import { hentInnlegg, datoIso, datoLang, type Innlegg } from '../../lib/innlegg';
 import { omradeNavn } from '../../lib/omrader';
+
+// Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
+const MIN_OVERSKRIFTER = 3;
 
 export async function getStaticPaths() {
   const innlegg = await hentInnlegg();
@@ -14,28 +18,34 @@ export async function getStaticPaths() {
 interface Props { innlegg: Innlegg; }
 const { innlegg } = Astro.props;
 const d = innlegg.data;
-const { Content } = await render(innlegg);
+const { Content, headings } = await render(innlegg);
+const medFortegnelse = headings.filter((h) => h.depth === 2).length >= MIN_OVERSKRIFTER;
 const deling = d.bilde ? (await getImage({ src: d.bilde, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src : undefined;
 ---
 <Side tittel={d.tittel} beskrivelse={d.ingress} delingsbilde={deling}>
-  <article class="post">
-    <a class="back" href="/innlegg/"><Pil type="arrow" snudd /> Alle innlegg</a>
-    <div>
-      <span class="kicker">
-        {d.omrader.map((o, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${o}/`}>{omradeNavn(o)}</a></>))}
-        {d.type !== 'innlegg' && ` · ${d.type}`}
-      </span>
-    </div>
-    <h1>{d.tittel}</h1>
-    <p class="meta">
-      <time datetime={datoIso(d.publisert)}>{datoLang(d.publisert)}</time>
-      {d.oppdatert && <> · oppdatert <time datetime={datoIso(d.oppdatert)}>{datoLang(d.oppdatert)}</time></>}
-    </p>
-    <p class="ingress">{d.ingress}</p>
-    <Content />
-  </article>
+  <div class:list={['post-wrap', { 'has-toc': medFortegnelse }]}>
+    <article class="post">
+      <a class="back" href="/innlegg/"><Pil type="arrow" snudd /> Alle innlegg</a>
+      <div>
+        <span class="kicker">
+          {d.omrader.map((o, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${o}/`}>{omradeNavn(o)}</a></>))}
+          {d.type !== 'innlegg' && ` · ${d.type}`}
+        </span>
+      </div>
+      <h1>{d.tittel}</h1>
+      <p class="meta">
+        <time datetime={datoIso(d.publisert)}>{datoLang(d.publisert)}</time>
+        {d.oppdatert && <> · oppdatert <time datetime={datoIso(d.oppdatert)}>{datoLang(d.oppdatert)}</time></>}
+      </p>
+      <p class="ingress">{d.ingress}</p>
+      {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="topp" />}
+      <Content />
+    </article>
+    {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="side" />}
+  </div>
 </Side>
 
 <script>
   import '../../scripts/eksterne-lenker.js';
+  import '../../scripts/innholdsfortegnelse.js';
 </script>

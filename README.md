@@ -171,6 +171,8 @@ skjer helt i nettleseren.
   DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
   WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`) og blokkering av KI-roboter.
 - Domenet er verifisert for GitHub Pages i organisasjonen, så ingen andre kan ta over `status.hofstad.net`.
+- Cloudflare-oppsettet for sonen er kode i [`infra/`](infra/README.md) (OpenTofu). Endringer går via pull request:
+  plan vises på PR-en, og apply kjører etter merge når den er godkjent.
 - Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
   kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
 - Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler.

@@ -1,0 +1,112 @@
+name: Infrastruktur
+
+# Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
+#  - sjekk: formatering og validering på hver endring. Trenger ingen hemmeligheter.
+#  - plan: viser hva som vil endres, på pull requests.
+#  - apply: gjennomfører planen etter merge til main, først etter godkjenning i miljøet «cloudflare».
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['infra/**', '.github/workflows/infra.yml']
+  push:
+    branches: [main]
+    paths: ['infra/**', '.github/workflows/infra.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: infra/hofstad.net
+
+env:
+  TOFU_VERSION: 1.13.9
+
+jobs:
+  sjekk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Validering leser ikke state, men krypteringsblokken trenger en verdi
+      TF_VAR_tilstandsnokkel: bare-for-validering-ingen-hemmelighet
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - run: tofu fmt -check -recursive -diff ..
+      - id: las
+        run: |
+          if [ -f .terraform.lock.hcl ]; then echo "finnes=true" >> "$GITHUB_OUTPUT"; else echo "finnes=false" >> "$GITHUB_OUTPUT"; fi
+      - run: tofu init -backend=false -input=false
+      # Første gang lages låsefilen med sjekksummer for provideren. Den lastes opp, så den kan legges i repoet.
+      - if: steps.las.outputs.finnes == 'false'
+        run: tofu providers lock -platform=linux_amd64 -platform=windows_amd64 -platform=darwin_arm64
+      - if: steps.las.outputs.finnes == 'false'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: terraform-lock
+          path: infra/hofstad.net/.terraform.lock.hcl
+          include-hidden-files: true
+          retention-days: 7
+      - run: tofu validate
+
+  # plan og apply kjører først når repovariabelen TOFU_AKTIV er «true», etter at nøklene er lagt inn
+  plan:
+    if: github.event_name == 'pull_request' && vars.TOFU_AKTIV == 'true'
+    needs: sjekk
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      TF_VAR_tilstandsnokkel: ${{ secrets.TOFU_TILSTANDSNOKKEL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - run: tofu init -input=false
+      - run: |
+          tofu plan -input=false -lock-timeout=2m -no-color -out=plan.bin | tee plan.txt
+          {
+            echo '### OpenTofu-plan'
+            echo '```'
+            grep -E '^(Plan:|No changes|  # )' plan.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  apply:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_AKTIV == 'true'
+    needs: sjekk
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: cloudflare
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      TF_VAR_tilstandsnokkel: ${{ secrets.TOFU_TILSTANDSNOKKEL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - run: tofu init -input=false
+      - run: tofu apply -input=false -lock-timeout=2m -auto-approve -no-color

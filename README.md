@@ -96,7 +96,7 @@ Statistikken på siden «I lufta» regnes ut lokalt fra IGC-filene og lagres som
 `src/data/flystatistikk.json`. Kjør skriptet på nytt etter nye turer og sjekk inn JSON-filen:
 
 ```bash
-npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat " - (Ørjan|Erlend) \("
+npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat "Ørjan,Erlend"
 ```
 
 `--utelat` hopper over andres spor fra felles turer. IGC-filene sjekkes aldri inn, og JSON-filen inneholder

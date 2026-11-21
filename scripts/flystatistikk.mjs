@@ -1,9 +1,9 @@
 // Lager flystatistikk fra IGC-filer.
 //
-//   node scripts/flystatistikk.mjs "<mappe med .igc-filer>" [--pilot "Kristoffer"] [--utelat "Navn1|Navn2"]
+//   node scripts/flystatistikk.mjs "<mappe med .igc-filer>" [--pilot "Kristoffer"] [--utelat "Navn1,Navn2"]
 //
-// --utelat hopper over filer der filnavnet passer mønsteret, f.eks. andres spor fra felles turer som er lagret
-// med eget instrument og derfor har feil pilotnavn i loggen.
+// --utelat hopper over filer som heter «… - Navn (Vinge).igc» for navnene i listen, f.eks. andres spor fra
+// felles turer som er lagret med eget instrument og derfor har feil pilotnavn i loggen.
 //
 // Leser alle .igc-filer i mappen (også undermapper) og skriver samlede tall til src/data/flystatistikk.json.
 // Bare summer havner i repoet: ingen spor, koordinater, startsteder eller klokkeslett. Selve IGC-filene
@@ -35,7 +35,9 @@ const PAUSE = 120; // sekunder stillestående som skiller flyturen fra f.eks. kj
 const UKJENT = new Set(['', 'nil', 'nkn', 'n/a', 'unknown']);
 const ukjentVinge = (v) => UKJENT.has(v.toLowerCase()) || v.toLowerCase() === 'paraglider';
 const utelatIdx = args.indexOf('--utelat');
-const utelat = utelatIdx >= 0 ? new RegExp(args[utelatIdx + 1], 'i') : null;
+const utelat = utelatIdx >= 0 ? args[utelatIdx + 1].split(',').map((n) => n.trim().toLowerCase()).filter(Boolean) : [];
+// Filnavn på formen «… - Navn (Vinge).igc» er spor fra en annen pilot
+const andrePilot = (filnavn) => utelat.some((n) => filnavn.toLowerCase().includes(` - ${n} (`));
 
 async function filer(m) {
   const ut = [];
@@ -124,7 +126,7 @@ for (const fil of alle) {
   const navn = basename(fil);
   const { dato, pilotNavn, vinge: hodeVinge, punkter } = les(await readFile(fil, 'latin1'));
   const p = pilotNavn.toLowerCase();
-  if ((!UKJENT.has(p) && !p.includes(pilot)) || (utelat && utelat.test(navn))) { andre++; continue; }
+  if ((!UKJENT.has(p) && !p.includes(pilot)) || andrePilot(navn)) { andre++; continue; }
   const a = dato && punkter.length > 10 ? analyser(punkter) : null;
   if (!a) { tomme++; continue; }
   // Vingen står i loggens hode, ellers i parentes i filnavnet: «… - Sted (Vinge).igc»

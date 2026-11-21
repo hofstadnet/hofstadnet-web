@@ -16,9 +16,18 @@ export async function GET(context: APIContext) {
   // RSS-lesere kjører ikke skript, så skript og stilark fra komponentene (galleri, video) fjernes.
   // Til slutt gjøres eventuelle rester ufarlige ved at «<» foran script/style blir «&lt;». Det er ett tegn,
   // så fjerningen kan ikke sette sammen en ny tagg.
+  const fjernBlokker = (html: string, tagg: string) => {
+    let s = html;
+    const lav = () => s.toLowerCase();
+    for (let start = lav().indexOf(`<${tagg}`); start !== -1; start = lav().indexOf(`<${tagg}`)) {
+      const slutt = lav().indexOf(`</${tagg}`, start);
+      const ende = slutt === -1 ? -1 : s.indexOf('>', slutt);
+      s = s.slice(0, start) + (ende === -1 ? '' : s.slice(ende + 1));
+    }
+    return s;
+  };
   const utenSkript = (html: string) =>
-    html
-      .replace(/<(script|style)\b[\s\S]*?<\/\1\s*>/gi, '')
+    fjernBlokker(fjernBlokker(html, 'script'), 'style')
       .replace(/<link\b[^>]*>/gi, '')
       .replace(/<(?=\s*\/?\s*(script|style)\b)/gi, '&lt;');
   const absolutt = (html: string) =>

@@ -117,7 +117,9 @@ sjekkes også eksterne lenker, og GitHub varsler hvis noen er døde. Unntak stå
 
 ### Søk
 
-Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
+«Søk» i menyen åpner et søkefelt rett under menyen med treff mens man skriver (`src/scripts/sokepanel.js`). «/»
+åpner søket fra tastaturet, og Esc lukker det. `/sok/` er reservesiden som brukes uten JavaScript, av 404-siden
+og av søkefeltet i Google-treffet. Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
 Astro-bygget. Bare innleggene blir indeksert (`data-pagefind-body` i `src/pages/innlegg/[id].astro`), og søket
 skjer helt i nettleseren.
 

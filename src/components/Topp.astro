@@ -21,14 +21,61 @@ const hero = variant === 'hero';
     <a href="/innlegg/">Blogg</a>
     {hero && <a href="#flystatus">Flystatus</a>}
     <a href="/#lenker">Lenker</a>
-    <a href="/sok/">Søk</a>
+    <a class="sok-knapp" href="/sok/" data-sok-apne aria-controls="sokepanel" aria-expanded="false" title="Søk (/)">
+      <Ikon navn="search" class="ico" /><span>Søk</span>
+    </a>
     {hero && <a class="handle" href="https://www.instagram.com/krishofs/" target="_blank" rel="noopener">@krishofs <Pil /></a>}
     <button class="mode" type="button" role="switch" aria-checked="true" aria-label="Bytt til lys visning" data-theme-toggle>
       <Ikon navn="moon" class="ico i-moon" /><Ikon navn="sun" class="ico i-sun" />
     </button>
   </nav>
+  <div id="sokepanel" class="sokepanel" role="search" hidden>
+    <form>
+      <label for="sokepanel-felt" class="sr-only">Søk i innleggene</label>
+      <Ikon navn="search" class="ico" />
+      <input id="sokepanel-felt" type="search" placeholder="Søk i innleggene" autocomplete="off" spellcheck="false" />
+      <button type="button" data-sokepanel-lukk aria-label="Lukk søket"><Ikon navn="close" class="ico" /></button>
+    </form>
+    <p class="sokepanel-status" aria-live="polite" data-sokepanel-status></p>
+    <ol class="sokepanel-treff" data-sokepanel-treff></ol>
+  </div>
 </header>
 
 <script>
   import '../scripts/tema.js';
+  import '../scripts/sokepanel.js';
 </script>
+
+<style>
+  .top { position: relative; }
+  .sok-knapp { display: inline-flex; align-items: center; gap: 6px; }
+  .sok-knapp .ico { width: 16px; height: 16px; }
+  .sok-knapp[aria-expanded="true"] { background: rgba(127, 140, 150, .18); border-radius: 999px; }
+
+  .sokepanel {
+    position: absolute; z-index: 30; top: calc(100% - 6px); right: 0; width: min(520px, 100%);
+    background: var(--surface); color: var(--text); border: 1px solid var(--rule); border-radius: var(--r);
+    box-shadow: 0 16px 40px rgba(8, 16, 28, .35); padding: 10px 10px 4px;
+  }
+  .sokepanel[hidden] { display: none; }
+  .sokepanel form { display: flex; align-items: center; gap: 8px; padding: 2px 4px 2px 10px; border: 1px solid var(--rule); border-radius: var(--r); background: var(--bg); }
+  .sokepanel form:focus-within { border-color: var(--accent); }
+  .sokepanel form > .ico { width: 18px; height: 18px; color: var(--soft); flex: none; }
+  .sokepanel input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 0; border: 0; background: none; color: var(--ink); outline: none; }
+  .sokepanel button { all: unset; cursor: pointer; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 4px; color: var(--soft); }
+  .sokepanel button:hover, .sokepanel button:focus-visible { color: var(--ink); background: var(--rule); }
+  .sokepanel button .ico { width: 18px; height: 18px; }
+  .sokepanel-status { margin: 8px 6px; font-size: 13.5px; color: var(--soft); }
+  .sokepanel-status:empty { display: none; }
+  .sokepanel-treff { list-style: none; margin: 0; padding: 0; max-height: min(60vh, 460px); overflow-y: auto; }
+  .sokepanel-treff :global(li) { border-top: 1px solid var(--rule); }
+  .sokepanel-treff :global(a) { display: block; padding: 10px 8px 2px; font: 700 1.05rem/1.25 var(--display); color: var(--ink); text-decoration: none; text-shadow: none; border-radius: 4px; }
+  .sokepanel-treff :global(a:hover), .sokepanel-treff :global(a:focus-visible) { color: var(--hover); }
+  .sokepanel-treff :global(p) { margin: 0 8px 10px; font-size: 14px; color: var(--text); }
+  .sokepanel-treff :global(mark) { background: none; color: var(--ink); font-weight: 700; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  @media (max-width: 620px) {
+    .sok-knapp span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .sokepanel { left: 0; width: auto; }
+  }
+</style>

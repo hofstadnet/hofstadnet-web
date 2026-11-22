@@ -33,7 +33,7 @@ infra/
 
 1. **sjekk** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
 2. **plan** på pull requests: viser hva som vil endres, i oppsummeringen av kjøringen.
-3. **apply** etter merge til main. Venter på godkjenning i miljøet `cloudflare`.
+3. **apply** etter merge til main, bare når planen har endringer. Venter på godkjenning i miljøet `cloudflare`.
 
 `plan` og `apply` kjører først når repovariabelen `TOFU_ENABLED` er `true`.
 
@@ -76,6 +76,7 @@ Disse stegene gjør du selv, fordi de lager nøkler:
    `gh secret set` spør etter verdien, så den havner ikke i skallhistorikken.
 6. **Første kjøring:** Actions → Infrastruktur → Run workflow. Planen skal vise at ressursene importeres, og
    ingen endringer eller slettinger. Godkjenn apply. Etterpå kan `importer.tf` slettes i en egen PR.
+   (For hofstad.net er dette gjort: 32 ressurser ble importert 22.11.2026.)
 
 ## Lokalt
 

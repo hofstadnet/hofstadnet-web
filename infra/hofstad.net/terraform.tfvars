@@ -1,12 +1,12 @@
 # Oppsettet for hofstad.net. Ingen hemmeligheter her: alt dette er synlig i DNS eller ufarlig å vise.
 # ID-ene er ikke hemmelige. De gir ingen tilgang uten et API-token.
 
-konto_id = "b055719a9337c9d844c7b41ee78fcad9"
-sone_id  = "c42c9487b8e736815b3af9adae8fccb6"
-domene   = "hofstad.net"
+account_id = "b055719a9337c9d844c7b41ee78fcad9"
+zone_id    = "c42c9487b8e736815b3af9adae8fccb6"
+domain     = "hofstad.net"
 
 # Postene for selve siden (hofstad.net og www) lages av Workeren (custom domain i wrangler.jsonc) og er ikke med her.
-dns_poster = {
+dns_records = {
   # E-post: domenet tar bare imot, via Cloudflare Email Routing
   mx_1 = { type = "MX", name = "hofstad.net", content = "route1.mx.cloudflare.net", priority = 34 }
   mx_2 = { type = "MX", name = "hofstad.net", content = "route2.mx.cloudflare.net", priority = 91 }
@@ -28,10 +28,10 @@ dns_poster = {
   github_pages = { type = "TXT", name = "_github-pages-challenge-hofstadnet.hofstad.net", content = "\"73a60f8f2c9c365d26f1e369ef24cc\"", ttl = 300, comment = "GitHub Pages domeneverifisering for hofstadnet-organisasjonen" }
 }
 
-caa_utstedere = ["letsencrypt.org", "pki.goog", "ssl.com"]
-caa_varsel    = "mailto:admin@hofstad.net"
+caa_issuers = ["letsencrypt.org", "pki.goog", "ssl.com"]
+caa_iodef   = "mailto:admin@hofstad.net"
 
-innstillinger = {
+settings = {
   ssl                      = "full"
   min_tls_version          = "1.2"
   tls_1_3                  = "on"
@@ -42,34 +42,34 @@ innstillinger = {
   always_online            = "off"
 }
 # 0 = «Respect Existing Headers»: Cache-Control fra siden og Workeren gjelder
-tallinnstillinger = {
+number_settings = {
   browser_cache_ttl = 0
 }
 
 dnssec = true
 
-videresend_til_hoveddomene = ["www.hofstad.net"]
+redirect_to_apex = ["www.hofstad.net"]
 
-blokkerte_stier = {
-  beskrivelse = "Blokker WordPress- og skannerforsøk"
-  slutter_med = [".php"]
-  starter_med = ["/wp-admin", "/wp-includes", "/wp-json", "/.env", "/.git"]
+blocked_paths = {
+  description = "Blokker WordPress- og skannerforsøk"
+  ends_with   = [".php"]
+  starts_with = ["/wp-admin", "/wp-includes", "/wp-json", "/.env", "/.git"]
 }
 
-ratebegrensning = {
-  stier               = ["/api/status", "/api/csp"]
-  beskrivelse         = "Begrens /api/status og /api/csp per IP"
-  foresporsler        = 20
-  periode_sekunder    = 10
-  blokkering_sekunder = 10
+rate_limit = {
+  paths           = ["/api/status", "/api/csp"]
+  description     = "Begrens /api/status og /api/csp per IP"
+  requests        = 20
+  period_seconds  = 10
+  timeout_seconds = 10
 }
 
-ki_roboter     = "block"
+ai_bots        = "block"
 bot_fight_mode = false
 
-varsel_epost = "admin@hofstad.net"
+alert_email = "admin@hofstad.net"
 # Varselet «hofstadnet-web: ny feil i Workeren» (workers_observability_real_time_issue) finnes også, men står
 # utenfor koden: Cloudflare-provideren 5.29.0 godtar ikke den varseltypen ennå. Legg det inn her når den gjør det.
-varsler = {
-  ddos = { navn = "hofstad.net: HTTP DDoS-angrep", beskrivelse = "Varsel når Cloudflare stopper et DDoS-angrep mot sonen.", type = "dos_attack_l7" }
+alerts = {
+  ddos = { name = "hofstad.net: HTTP DDoS-angrep", description = "Varsel når Cloudflare stopper et DDoS-angrep mot sonen.", type = "dos_attack_l7" }
 }

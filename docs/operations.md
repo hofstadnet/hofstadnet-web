@@ -33,17 +33,18 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 - **Lighthouse** (`lighthouserc.json`, `lighthouserc.production.json`): tilgjengelighet og SEO minst 95 stopper.
   Ytelse og beste praksis under 90 gir advarsel. Ytelsesbudsjett per side: JavaScript 40 kB, CSS 25 kB, skrift 60 kB,
   bilder 400 kB, totalt 600 kB og maks 5 forespørsler til tredjeparter.
-- **Tilgjengelighet** (`tests/accessibility.spec.ts`): axe mot WCAG 2.2 AA på alle sider i nettstedskartet, i mørk og
-  lys visning, på 320 og 1280 px. Stopper også ved horisontal rulling, CSP-brudd og JavaScript-feil. Egne tester
-  søker, blar i galleriet og sender rapporter til `/api/csp`.
+- **Tilgjengelighet** (`tests/accessibility.spec.ts`): axe mot WCAG 2.2 AA på alle sider i nettstedskartet, på norsk
+  og engelsk, i mørk og lys visning, på 320 og 1280 px. Stopper også ved horisontal rulling, CSP-brudd og
+  JavaScript-feil. Egne tester søker på begge språk, sjekker språkvelgeren og `<html lang>`, blar i galleriet og
+  sender rapporter til `/api/csp`.
 - **Skjermbilder** (`tests/visual.spec.ts`): forside, innlegg og «I lufta» i mørk og lys visning på pc og mobil,
-  pluss søkepanelet. Flystatus og tall som endres med nye turer, er dekket til. Maks 1 % avvik.
+  den engelske forsiden i mørk visning på pc, og søkepanelet. Flystatus og tall som endres med nye turer, er dekket til. Maks 1 % avvik.
 
 ## Overvåking og varsler
 
 | Hva | Hvor | Varsel |
 |---|---|---|
-| Oppetid for forsiden, `/api/status`, søket og RSS | status.hofstad.net, hvert 5. minutt | Issue i `hofstadnet/status` |
+| Oppetid for forsiden, `/api/status`, søket og RSS (de norske adressene) | status.hofstad.net, hvert 5. minutt | Issue i `hofstadnet/status` |
 | Besøk og Core Web Vitals | Cloudflare Web Analytics | — |
 | Logger, sporing og feil i Workeren | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
 | Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-violation`) | E-post ved ny feiltype |

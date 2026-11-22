@@ -21,7 +21,7 @@ Dokumentasjonen beskriver hvordan siden er nå. Den oppdateres i samme pull requ
 | `public/_headers`, CSP, Trusted Types, Cloudflare-sonen, tokens og tilganger, regelsett, Dependabot | `docs/security.md`, og `SECURITY.md` når noe av det som står der endres |
 | `.github/workflows/`, tester, grenser i Lighthouse, overvåking, varsler, fremgangsmåter | `docs/operations.md` |
 | `infra/` | `infra/README.md`, og sonebeskrivelsen i `docs/security.md` |
-| Hva siden samler inn eller sender til andre | Personvernsiden |
+| Hva siden samler inn eller sender til andre | Personvernsiden på begge språk («privacy» i `src/i18n/nb.ts` og `src/i18n/en.ts`) |
 | Regler for hvordan arbeid gjøres | `docs/guidelines/`, og lenken i `AGENTS.md` |
 
 En ny arbeidsflyt må inn i tabellen i `docs/operations.md`, ellers stopper kontrollen.
@@ -39,3 +39,7 @@ En ny arbeidsflyt må inn i tabellen i `docs/operations.md`, ellers stopper kont
 - Ingen omtale av tidligere løsninger eller leverandører som ikke lenger er i bruk.
 - Stier, kommandoer, filnavn og verdier i `kode`. Kontrollen sjekker at stier i `kode` finnes.
 - Korte avsnitt og tabeller. Én ting beskrives ett sted, og andre steder lenker dit.
+- Figurer (dataflyt, flyt for endringer) tegnes med Mermaid i en ```` ```mermaid ````-blokk når de gjør teksten
+  lettere å forstå. GitHub viser dem som figurer. Skriv én linje med sammendrag under hver figur, så dokumentet kan
+  leses der Mermaid ikke vises. Stier i `kode` hører hjemme i teksten, ikke i figuren, fordi kontrollen hopper over
+  kodeblokker.

@@ -1,5 +1,6 @@
 // Felles søk med Pagefind sitt JavaScript-API. Brukes av søkefeltet i menyen (search-panel.js) og av
 // reservesiden /sok/ (search-page.js). Indeksen lastes først når noen faktisk søker.
+// Pagefind lager én indeks per språk ut fra <html lang>, og søker i indeksen for språket til siden man er på.
 
 // Trusted Types (se public/_headers) stopper skriptadresser satt fra tekst. Pagefind starter søket i en egen
 // tråd med new Worker('/pagefind/pagefind-worker.js'). Denne policyen slipper gjennom akkurat den adressen fra

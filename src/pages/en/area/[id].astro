@@ -1,0 +1,8 @@
+---
+// Innlegg per område på engelsk: /en/area/<engelsk navn>/
+import AreaPage from '../../../components/pages/AreaPage.astro';
+import { areaPaths } from '../../../lib/routes';
+
+export const getStaticPaths = () => areaPaths('en');
+---
+<AreaPage {...Astro.props} />

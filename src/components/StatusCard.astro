@@ -2,35 +2,37 @@
 import Arrow from './Arrow.astro';
 import { MAP } from '../lib/livetrack-status.js';
 import flightStats from '../data/flight-stats.json';
+import { t, type Lang } from '../i18n';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang);
+const s = text.status;
 // Siste loggførte tur fra IGC-filene (scripts/flight-stats.mjs). Oppdateres når skriptet kjøres etter nye turer.
 const lastFlight = flightStats.lastFlight;
-const formatDuration = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min % 60} m` : `${min} min`);
-// Kort dato som får plass på én rad, f.eks. «11.10.26»
-const formatDateCompact = (iso: string) => { const [y, m, d] = iso.split('-'); return `${d}.${m}.${y.slice(2)}`; };
 // Flystatus: grønn prikk og «I lufta nå» når sporingen på LiveTrack24 er aktiv. Det er bare sporingen som
 // kan sjekkes, så teksten under sier det, og når statusen sist ble sjekket. role="status" gjør at
 // skjermlesere leser opp endringer.
 // Statusen hentes fra sidens egen tjeneste (/api/status), så besøkende kontakter ikke LiveTrack24
 // før de selv åpner kartet. Kartet åpnes i ny fane.
 ---
-<aside class="status" id="flystatus" data-flight-status="pending">
-  <p class="eyebrow">Er jeg i lufta?</p>
+<aside class="status" id={text.anchors.flightStatus} data-flight-status="pending">
+  <p class="eyebrow">{s.eyebrow}</p>
   <div role="status">
-    <p class="now"><span class="dot" aria-hidden="true"></span><span data-status-text>Se status på kartet</span></p>
-    <p data-status-detail>Live-kartet viser pågående eller siste tur.</p>
+    <p class="now"><span class="dot" aria-hidden="true"></span><span data-status-text>{s.text}</span></p>
+    <p data-status-detail>{s.detail}</p>
   </div>
   {lastFlight && (
-    <dl class="last-flight" aria-label="Siste loggførte tur">
-      <div><dt>Siste tur</dt><dd><time datetime={lastFlight.date}>{formatDateCompact(lastFlight.date)}</time></dd></div>
-      <div><dt>Flytid</dt><dd>{formatDuration(lastFlight.minutes)}</dd></div>
-      <div><dt>Distanse</dt><dd>{lastFlight.trackKm.toLocaleString('nb-NO', { maximumFractionDigits: 1 })} km</dd></div>
-      <div><dt>Høyest</dt><dd>{lastFlight.altitudeM.toLocaleString('nb-NO')} m</dd></div>
+    <dl class="last-flight" aria-label={s.lastFlight}>
+      <div><dt>{s.date}</dt><dd><time datetime={lastFlight.date}>{s.formatDate(lastFlight.date)}</time></dd></div>
+      <div><dt>{s.duration}</dt><dd>{s.formatDuration(lastFlight.minutes)}</dd></div>
+      <div><dt>{s.distance}</dt><dd>{lastFlight.trackKm.toLocaleString(text.locale, { maximumFractionDigits: 1 })} km</dd></div>
+      <div><dt>{s.highest}</dt><dd>{lastFlight.altitudeM.toLocaleString(text.locale)} m</dd></div>
     </dl>
   )}
   <a class="go" href={MAP} target="_blank" rel="noopener">
-    <span>Åpne live-kartet</span><span aria-hidden="true"><Arrow /></span>
+    <span>{s.openMap}</span><span aria-hidden="true"><Arrow /></span>
   </a>
-  <a class="alt" href="https://pgpilot.app/view/krishofs" target="_blank" rel="noopener">Åpne i pgpilot <Arrow /></a>
+  <a class="alt" href="https://pgpilot.app/view/krishofs" target="_blank" rel="noopener">{s.openPgpilot} <Arrow /></a>
 </aside>
 
 <script>

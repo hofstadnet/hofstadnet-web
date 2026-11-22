@@ -2,19 +2,24 @@
 import Base from './Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import type { Lang } from '../i18n';
 import '../styles/home.css';
 import '../styles/post.css';
 
 // Felles ramme for alle sider utenom forsiden: toppmeny på vanlig bakgrunn og bunntekst.
-interface Props { title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; }
-const { title, description, shareImage, structuredData } = Astro.props;
+// Språk og lenken til det andre språket er beskrevet i Base.astro.
+interface Props {
+  lang: Lang; alternate: string; translation?: boolean;
+  title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>;
+}
+const { lang, alternate, translation, title, description, shareImage, structuredData } = Astro.props;
 ---
-<Base title={title} description={description} shareImage={shareImage} structuredData={structuredData}>
+<Base lang={lang} alternate={alternate} translation={translation} title={title} description={description} shareImage={shareImage} structuredData={structuredData}>
   <div class="wrap">
-    <Header />
+    <Header lang={lang} alternate={alternate} />
     <main id="content">
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
   </div>
 </Base>

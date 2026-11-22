@@ -1,0 +1,20 @@
+---
+import Page from '../../layouts/Page.astro';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+// Personvernsiden. Teksten står i src/i18n/nb.ts og en.ts («privacy») og skal si det samme på begge språk.
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).privacy;
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).privacy} translation title={text.title} description={text.description}>
+  <article class="post">
+    <h1>{text.title}</h1>
+    <p class="summary">{text.summary}</p>
+    {text.sections.map((s) => (
+      <>
+        <h2>{s.heading}</h2>
+        <p>{s.text}</p>
+      </>
+    ))}
+  </article>
+</Page>

@@ -1,0 +1,44 @@
+---
+import Page from '../../layouts/Page.astro';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+// Søk i innleggene med Pagefind. Søkeindeksen lages etter bygget (`pagefind --site dist`) og ligger i
+// dist/pagefind/, med én indeks per språk (ut fra <html lang>). Søket skjer helt i nettleseren, og ingenting
+// sendes til noen server. Bare innhold merket med data-pagefind-body (selve innleggene) blir indeksert.
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).search;
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).search} translation title={text.title} description={text.description}>
+  <div class="page-head">
+    <p class="eyebrow">{text.eyebrow}</p>
+    <h1>{text.heading}</h1>
+  </div>
+  <form class="search" role="search" data-search>
+    <label for="search-input" class="sr-only">{text.label}</label>
+    <input id="search-input" name="q" type="search" placeholder={text.placeholder} autocomplete="off" spellcheck="false" />
+  </form>
+  <p class="search-status" aria-live="polite" data-search-status>
+    <noscript>{text.noscript[0]} <a href={urls(lang).posts}>{text.noscript[1]}</a> {text.noscript[2]}</noscript>
+  </p>
+  <ol class="search-results" data-search-results></ol>
+</Page>
+
+<script>
+  import '../../scripts/search-page.js';
+</script>
+
+<style>
+  .search input {
+    width: 100%; font: inherit; font-size: 17px; padding: 13px 15px; border-radius: var(--r);
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  }
+  .search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .search-status { min-height: 1.5em; margin: 14px 0 6px; font-size: 14px; color: var(--soft); }
+  .search-results { list-style: none; margin: 0 0 48px; padding: 0; }
+  .search-results :global(li) { padding: 16px 0; border-top: 1px solid var(--rule); }
+  .search-results :global(a) { font: 700 1.25rem/1.2 var(--display); color: var(--ink); text-decoration: none; }
+  .search-results :global(a:hover) { color: var(--hover); }
+  .search-results :global(p) { margin: 6px 0 0; font-size: 15px; color: var(--text); }
+  .search-results :global(mark) { background: none; color: var(--ink); font-weight: 700; }
+</style>

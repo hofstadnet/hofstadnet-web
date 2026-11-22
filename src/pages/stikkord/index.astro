@@ -1,15 +1,5 @@
 ---
-import Page from '../../layouts/Page.astro';
-import Tags from '../../components/Tags.astro';
-import { getPosts, allTags } from '../../lib/posts';
-
-const tags = allTags(await getPosts());
+// Alle stikkord: /stikkord/
+import TagListPage from '../../components/pages/TagListPage.astro';
 ---
-<Page title="Stikkord" description="Alle stikkord på Hofstad.NET.">
-  <div class="page-head">
-    <p class="eyebrow">Blogg</p>
-    <h1>Stikkord</h1>
-    <p>Områdene sorterer innleggene grovt. Stikkordene knytter sammen innlegg om det samme på tvers av dem.</p>
-  </div>
-  <Tags list={tags.map((t) => ({ name: t.name, count: t.posts.length }))} large />
-</Page>
+<TagListPage lang="nb" />

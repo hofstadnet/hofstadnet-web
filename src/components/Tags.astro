@@ -1,13 +1,14 @@
 ---
 import { tagId } from '../lib/posts';
-// Stikkord som lenker til /stikkord/<id>/. Brukes nederst i innlegg og på oversikten over alle stikkord.
-interface Props { list: { name: string; count?: number }[]; large?: boolean; }
-const { list, large = false } = Astro.props;
+import { t, urls, type Lang } from '../i18n';
+// Stikkord som lenker til /stikkord/<id>/ (engelsk: /en/tags/<id>/). Brukes nederst i innlegg og på oversikten over alle stikkord.
+interface Props { lang: Lang; list: { name: string; count?: number }[]; large?: boolean; }
+const { lang, list, large = false } = Astro.props;
 ---
 {list.length > 0 && (
-  <ul class:list={['tags', { large }]} aria-label="Stikkord">
-    {list.map((t) => (
-      <li><a href={`/stikkord/${tagId(t.name)}/`}>#{t.name}{t.count !== undefined && <span> {t.count}</span>}</a></li>
+  <ul class:list={['tags', { large }]} aria-label={t(lang).tags.label}>
+    {list.map((tag) => (
+      <li><a href={urls(lang).tag(tagId(tag.name))}>#{tag.name}{tag.count !== undefined && <span> {tag.count}</span>}</a></li>
     ))}
   </ul>
 )}

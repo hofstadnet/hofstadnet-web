@@ -2,48 +2,63 @@
 import '@fontsource/barlow-semi-condensed/600.css';
 import '@fontsource/barlow-semi-condensed/700.css';
 import '../styles/base.css';
+import { t, urls, otherLang, type Lang } from '../i18n';
 
-interface Props { title?: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; }
-const {
-  title,
-  description = 'Tech, friluft og foto. Turer, bilder og prosjekter fra lufta, bakken og under vann.',
-  shareImage = '/og-image-1200x630.png',
-  structuredData,
-} = Astro.props;
+// lang: språket til siden. alternate: den samme siden på det andre språket, eller forsiden eller arkivet der når
+// siden ikke er oversatt. translation sier om alternate er en oversettelse, og bare da får siden hreflang-lenker.
+interface Props {
+  lang: Lang; alternate: string; translation?: boolean;
+  title?: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>;
+}
+const { lang, alternate, translation = false, title, structuredData } = Astro.props;
+const text = t(lang);
+const other = otherLang(lang);
+const { description = text.site.description, shareImage = '/og-image-1200x630.png' } = Astro.props;
 // Strukturert data (schema.org) for søkemotorer. type="application/ld+json" er data og kjøres aldri som skript,
 // så CSP stopper det ikke. «<» escapes så teksten ikke kan avslutte script-elementet.
 const jsonLd = structuredData ? JSON.stringify({ '@context': 'https://schema.org', ...structuredData }).replace(/</g, '\\u003c') : null;
-const fullTitle = title ? `${title} – Hofstad.NET` : 'Hofstad.NET – Tech · friluft · foto';
+const fullTitle = title ? `${title} – Hofstad.NET` : text.site.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternateUrl = new URL(alternate, Astro.site);
+const versions = { [lang]: canonical, [other]: alternateUrl } as Record<Lang, URL>;
 ---
 <!doctype html>
-<html lang="nb" data-theme="dark">
+<html lang={lang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {translation && (
+      <>
+        <link rel="alternate" hreflang="nb" href={versions.nb} />
+        <link rel="alternate" hreflang="en" href={versions.en} />
+        <link rel="alternate" hreflang="x-default" href={versions.nb} />
+      </>
+    )}
     <meta name="theme-color" content="#14243F" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="alternate" type="application/rss+xml" title="Hofstad.NET" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={text.site.feedTitle} href={urls(lang).rss} />
+    <link rel="alternate" type="application/rss+xml" title={t(other).site.otherFeedTitle} href={urls(other).rss} hreflang={other} />
     <meta property="og:site_name" content="Hofstad.NET" />
     <meta property="og:title" content={title ?? 'Hofstad.NET'} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={new URL(shareImage, Astro.site)} />
-    <meta property="og:locale" content="nb_NO" />
+    <meta property="og:locale" content={text.ogLocale} />
+    {translation && <meta property="og:locale:alternate" content={t(other).ogLocale} />}
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
     <script is:inline src="/theme.js"></script>
-    {/* Cloudflare Web Analytics: anonyme besøkstall og lastetid, uten informasjonskapsler. Se personvern.astro. */}
+    {/* Cloudflare Web Analytics: anonyme besøkstall og lastetid, uten informasjonskapsler. Se PrivacyPage.astro. */}
     <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "b491f74152bd435d8dff6126e7a1d8e9"}'></script>
   </head>
   <body>
-    <a class="skip" href="#content">Hopp til innhold</a>
+    <a class="skip" href="#content">{text.skip}</a>
     <slot />
   </body>
 </html>

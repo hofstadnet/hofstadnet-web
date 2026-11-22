@@ -14,7 +14,8 @@ Gå gjennom punktene når en endring legger til, fjerner eller bytter en kompone
 - [ ] Besøkende kontakter ikke tredjeparter før de selv ber om det. Unntaket er Cloudflare Web Analytics.
 - [ ] Eksterne data hentes av Workeren med fast adresse, mellomlagres og tåler at kilden er nede.
 - [ ] Sider fungerer uten JavaScript. Søk og galleri har en enklere løsning uten skript.
-- [ ] Adresser på siden er norske og endres ikke. Gamle adresser sendes videre i `public/_redirects`.
+- [ ] Adresser på siden er på sidens språk og endres ikke: norske på rot, engelske under `/en/`. Gamle adresser
+      sendes videre i `public/_redirects`.
 
 ## Dokumentasjon
 

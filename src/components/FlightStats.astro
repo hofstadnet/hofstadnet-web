@@ -4,27 +4,33 @@
 //
 // Søylene er SVG med bredde som attributt, ikke som style, så de virker med streng CSP.
 import data from '../data/flight-stats.json';
+import { t, type Lang } from '../i18n';
 
-const num = (n: number, decimals = 0) => n.toLocaleString('nb-NO', { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang);
+const f = text.flightStats;
+
+const num = (n: number, decimals = 0) => n.toLocaleString(text.locale, { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
 const years = [...data.perYear].reverse();
 const maxHours = Math.max(...data.perYear.map((y) => y.hours));
 const firstYear = new Date(data.firstFlight).getFullYear();
 ---
 <section class="flight-stats" aria-labelledby="flight-stats-title">
-  <p class="eyebrow">Flyloggen</p>
-  <h2 id="flight-stats-title">I lufta siden {firstYear}</h2>
+  <p class="eyebrow">{f.eyebrow}</p>
+  <h2 id="flight-stats-title">{f.title(firstYear)}</h2>
 
   <dl class="flight-stats-totals">
-    <div><dt>Turer</dt><dd>{num(data.totals.flights)}</dd></div>
-    <div><dt>Timer i lufta</dt><dd>{num(data.totals.hours)}</dd></div>
-    <div><dt>Høyeste punkt</dt><dd>{num(data.totals.highestM)} <small>moh.</small></dd></div>
-    <div><dt>Beste høydegevinst</dt><dd>{num(data.totals.bestAltitudeGainM)} <small>m</small></dd></div>
+    <div><dt>{f.flights}</dt><dd>{num(data.totals.flights)}</dd></div>
+    <div><dt>{f.hours}</dt><dd>{num(data.totals.hours)}</dd></div>
+    <div><dt>{f.highest}</dt><dd>{num(data.totals.highestM)} <small>{f.altitudeUnit}</small></dd></div>
+    <div><dt>{f.bestGain}</dt><dd>{num(data.totals.bestAltitudeGainM)} <small>m</small></dd></div>
   </dl>
 
-  <h3 class="flight-stats-subtitle">Timer per år</h3>
+  <h3 class="flight-stats-subtitle">{f.perYear}</h3>
   <table class="flight-stats-years">
     <thead>
-      <tr><th scope="col">År</th><th scope="col"><span class="sr">Søyle</span></th><th scope="col">Timer</th><th scope="col">Turer</th></tr>
+      <tr><th scope="col">{f.year}</th><th scope="col"><span class="sr">{f.bar}</span></th><th scope="col">{f.hoursColumn}</th><th scope="col">{f.flightsColumn}</th></tr>
     </thead>
     <tbody>
       {years.map((y) => (
@@ -43,8 +49,8 @@ const firstYear = new Date(data.firstFlight).getFullYear();
   </table>
 
   <p class="flight-stats-source">
-    Regnet ut fra IGC-loggene fra variometer og telefon, sist oppdatert {new Date(data.generated).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })}.
-    Flest turer med {data.wings[0]?.name}.
+    {f.source(new Date(data.generated).toLocaleDateString(text.locale, { day: 'numeric', month: 'long', year: 'numeric' }))}{' '}
+    {data.wings[0] && f.wing(data.wings[0].name)}
   </p>
 </section>
 

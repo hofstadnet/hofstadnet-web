@@ -3,6 +3,8 @@
 .post-top nav { gap: 2px; padding: 4px; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); }
 .post-top nav a { padding: 8px 14px; border-radius: 999px; font-size: 15px; }
 .post-top nav a:hover { background: var(--bg); }
+/* Smalere lenker på mobil, så menyen med språkvelgeren får plass på 320 px */
+@media (max-width: 620px) { .post-top nav a { padding: 8px 9px; font-size: 14.5px; } }
 
 /* Lys/mørk som skyvebryter, samme som på forsiden */
 .post-top .mode { position: relative; width: 60px; height: 30px; padding: 0; margin-left: 6px; border: 0; border-radius: 999px; background: var(--rule); display: inline-flex; align-items: center; justify-content: space-between; }

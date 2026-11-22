@@ -1,5 +1,8 @@
 // Video og bildegalleri på innleggssidene. Ingen eksterne avhengigheter.
+import { strings } from '../i18n/client';
+
 (function () {
+  var text = strings().gallery;
   // --- Video: forhåndsvisningen er et lokalt bilde. Selve spilleren hentes først ved klikk,
   // så det går ingen trafikk til YouTube eller Vimeo før den besøkende velger å spille av.
   var players = {
@@ -14,7 +17,7 @@
     if (!make) return;
     var f = document.createElement('iframe');
     f.src = make(box.dataset.id);
-    f.title = box.dataset.title || 'Video';
+    f.title = box.dataset.title || text.video;
     f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
     f.allowFullscreen = true;
     f.referrerPolicy = 'strict-origin-when-cross-origin';
@@ -50,21 +53,21 @@
 
     var v = el('div', { class: 'viewer' }, [
       el('div', { class: 'v-stage' }, [
-        el('button', { type: 'button', class: 'v-main', 'aria-label': 'Vis bildet i fullskjerm' }, [el('img', { alt: '' })]),
-        el('button', { type: 'button', class: 'v-nav v-prev', 'aria-label': 'Forrige bilde' }, ['‹']),
-        el('button', { type: 'button', class: 'v-nav v-next', 'aria-label': 'Neste bilde' }, ['›']),
-        el('button', { type: 'button', class: 'v-full', 'aria-label': 'Vis bildet i fullskjerm' }, [el('span', { 'aria-hidden': 'true' }, ['⤢']), ' Fullskjerm'])
+        el('button', { type: 'button', class: 'v-main', 'aria-label': text.showFullscreen }, [el('img', { alt: '' })]),
+        el('button', { type: 'button', class: 'v-nav v-prev', 'aria-label': text.previous }, ['‹']),
+        el('button', { type: 'button', class: 'v-nav v-next', 'aria-label': text.next }, ['›']),
+        el('button', { type: 'button', class: 'v-full', 'aria-label': text.showFullscreen }, [el('span', { 'aria-hidden': 'true' }, ['⤢']), ' ' + text.fullscreen])
       ]),
       el('p', { class: 'v-cap' }, [el('span', { class: 'v-text' }), el('span', { class: 'v-count' })])
     ]);
     g.parentNode.insertBefore(v, g);
     g.classList.add('is-thumbs');
 
-    var d = el('dialog', { class: 'lightbox', 'aria-label': 'Bildevisning i fullskjerm' }, [
-      el('button', { type: 'button', class: 'lb-close', 'aria-label': 'Lukk fullskjerm' }, ['×']),
-      el('button', { type: 'button', class: 'lb-prev', 'aria-label': 'Forrige bilde' }, ['‹']),
+    var d = el('dialog', { class: 'lightbox', 'aria-label': text.viewer }, [
+      el('button', { type: 'button', class: 'lb-close', 'aria-label': text.closeFullscreen }, ['×']),
+      el('button', { type: 'button', class: 'lb-prev', 'aria-label': text.previous }, ['‹']),
       el('figure', {}, [el('img', { alt: '' }), el('figcaption', {}, [el('span', { class: 'lb-text' }), el('span', { class: 'lb-count' })])]),
-      el('button', { type: 'button', class: 'lb-next', 'aria-label': 'Neste bilde' }, ['›'])
+      el('button', { type: 'button', class: 'lb-next', 'aria-label': text.next }, ['›'])
     ]);
     document.body.appendChild(d);
 

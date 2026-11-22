@@ -1,0 +1,73 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Header from '../Header.astro';
+import Footer from '../Footer.astro';
+import StatusCard from '../StatusCard.astro';
+import Links from '../Links.astro';
+import Areas from '../Areas.astro';
+import Card from '../Card.astro';
+import Tile from '../Tile.astro';
+import { getPosts } from '../../lib/posts';
+import { homePage } from '../../lib/structured-data';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+import heroImage from '../../assets/images/konk-2017.jpg';
+import '../../styles/home.css';
+
+// Forsiden viser alltid det nyeste innlegget stort, de tre neste som kort og de seks neste som fliser.
+// Resten ligger i arkivet, så forsiden vokser ikke når det kommer flere innlegg.
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang);
+const home = text.home;
+const alternate = urls(otherLang(lang)).home;
+const posts = await getPosts(lang);
+const [latest, ...rest] = posts;
+const cards = rest.slice(0, 3);
+const older = rest.slice(3, 9);
+---
+<Base lang={lang} alternate={alternate} translation structuredData={homePage(lang)}>
+  <div class="hero">
+    {/* AVIF med WebP som reserve. Kvalitet 60 er godt nok bak tekst og panel, og gjør bildet en brøkdel så stort. */}
+    <Picture class="hero-bg" src={heroImage} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
+    <div class="wrap">
+      <Header lang={lang} alternate={alternate} variant="hero" />
+    </div>
+    <div class="wrap hero-foot">
+      <h1>{home.title[0]}<br /><em>{home.title[1]}</em></h1>
+      <p class="hero-tag">{home.tagline[0]} <span aria-hidden="true">·</span> {home.tagline[1]} <span aria-hidden="true">·</span> {home.tagline[2]}</p>
+    </div>
+  </div>
+
+  <main class="wrap" id="content">
+    <div class="deck">
+      <StatusCard lang={lang} />
+      <Links lang={lang} />
+    </div>
+
+    <Areas lang={lang} posts={posts} />
+
+    <section id={text.anchors.blog}>
+      <div class="sec"><h2>{home.fromBlog}</h2><a href={urls(lang).posts}>{home.allPosts}</a></div>
+      <div class="feed">
+        {latest && <Card post={latest} large />}
+        {cards.length > 0 && <div class="grid3">{cards.map((p) => <Card post={p} />)}</div>}
+      </div>
+      {older.length > 0 && (
+        <>
+          <p class="eyebrow rows-label">{home.older}</p>
+          <ul class="rows">{older.map((p) => <Tile post={p} />)}</ul>
+        </>
+      )}
+    </section>
+
+    <div class="about">
+      <div><p class="eyebrow">{home.aboutEyebrow}</p><h2>{home.aboutTitle}</h2></div>
+      <div>
+        {home.about.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    </div>
+
+    <Footer lang={lang} />
+  </main>
+</Base>

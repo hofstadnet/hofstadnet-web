@@ -1,7 +1,12 @@
 ---
+import { t, urls, type Lang } from '../i18n';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).footer;
+const u = urls(lang);
 const year = new Date().getFullYear();
 ---
 <footer class="foot">
-  <span>© {year} Hofstad.NET · Mest ute.</span>
-  <span><a href="/rss.xml">RSS</a> · <a href="https://status.hofstad.net/" target="_blank" rel="noopener">Status</a> ·<a href="https://github.com/hofstadnet/hofstadnet-web" target="_blank" rel="noopener">Kildekode</a> · <a href="/personvern/">Personvern</a></span>
+  <span>© {year} Hofstad.NET · {text.tagline}</span>
+  <span><a href={u.rss}>{text.rss}</a> · <a href="https://status.hofstad.net/" target="_blank" rel="noopener">{text.status}</a> ·<a href="https://github.com/hofstadnet/hofstadnet-web" target="_blank" rel="noopener">{text.source}</a> · <a href={u.privacy}>{text.privacy}</a></span>
 </footer>

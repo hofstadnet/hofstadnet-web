@@ -1,0 +1,31 @@
+---
+import Page from '../../layouts/Page.astro';
+import Areas from '../Areas.astro';
+import Tile from '../Tile.astro';
+import FlightStats from '../FlightStats.astro';
+import { getPosts, inArea, shareImage } from '../../lib/posts';
+import { areaText, type AreaId } from '../../lib/areas';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+
+// Innleggene i ett område. «I lufta» har også flystatistikk.
+interface Props { lang: Lang; id: AreaId; }
+const { lang, id } = Astro.props;
+const area = areaText(id, lang);
+const all = await getPosts(lang);
+const posts = inArea(all, id);
+const image = await shareImage(posts);
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).area(id)} translation title={area.name} description={area.description} shareImage={image}>
+  <div class="page-head">
+    <p class="eyebrow">{area.subtitle}</p>
+    <h1>{area.name}</h1>
+    <p>{area.description}</p>
+  </div>
+  <Areas lang={lang} posts={all} active={id} />
+  {id === 'luft' && <FlightStats lang={lang} />}
+  {posts.length > 0 ? (
+    <ul class="rows archive">{posts.map((p) => <Tile post={p} />)}</ul>
+  ) : (
+    <p class="empty">{t(lang).area.empty}</p>
+  )}
+</Page>

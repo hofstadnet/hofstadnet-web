@@ -98,6 +98,7 @@ html[data-theme="light"] .hero .top .mode .i-sun, html[data-theme="dark"] .hero 
 .hero .top nav a:hover { color: #fff; background: rgba(255,255,255,.14); }
 .hero .top nav a.handle { color: var(--lime); border-left: 0; margin-left: 0; padding-left: 14px; font-weight: 600; }
 .hero .top nav a.handle::before { content: ""; display: inline-block; width: 1px; height: 14px; background: rgba(255,255,255,.3); margin-right: 14px; vertical-align: -2px; }
+.hero .top nav a.lang-switch { padding: 0 9px; margin-left: 4px; font-size: 13px; border-color: rgba(255,255,255,.4); }
 .hero .top .mode span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .hero .top img { filter: drop-shadow(0 1px 6px rgba(13,34,48,.45)); }
 @media (min-width: 621px) { .hero .top img { height: 52px; } }
@@ -126,7 +127,8 @@ html[data-theme="light"] .box .links span, html[data-theme="light"] .box .links 
 @media (max-width: 620px) {
   .hero .top nav a { padding: 8px 6px; font-size: 14.5px; }
   .hero .top .mode { margin-left: 2px; }
-  .hero .top nav a[href="#flystatus"] { display: none; }
+  .hero .top nav a.lang-switch { padding: 0 8px; margin-left: 2px; }
+  .hero .top nav a.status-link { display: none; }
   .hero .top > a { flex: none; }
   .box .links li:nth-child(2) a { border-top: 1px solid rgba(128,150,165,.28); }
   .hero { min-height: 600px; }

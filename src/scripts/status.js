@@ -1,15 +1,14 @@
 // Oppdaterer statuskortet på forsiden fra sidens egen statustjeneste (/api/status).
 // Uten JavaScript, eller hvis tjenesten ikke svarer, står kortet med en nøytral tekst og lenken til kartet.
+import { strings } from '../i18n/client';
+
 const card = document.querySelector('[data-flight-status]');
+const text = strings();
 
 // Statusen bygger bare på om sporingen hos LiveTrack24 er slått på. Teksten sier derfor hva som er kjent
-// (sporing aktiv eller ikke), og når det sist ble sjekket.
-const texts = {
-  live: ['I lufta nå', 'Sporingen på LiveTrack24 er aktiv.'],
-  'not-live': ['Ingen aktiv sporing', 'Ikke i lufta nå – kanskje under vann eller på tur.'],
-  unknown: ['Status utilgjengelig', 'Åpne kartet for å se siste tur.'],
-};
-const clock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit' });
+// (sporing aktiv eller ikke), og når det sist ble sjekket. Tekstene står i src/i18n/nb.ts og en.ts.
+const texts = { live: text.status.live, 'not-live': text.status['not-live'], unknown: text.status.unknown };
+const clock = new Intl.DateTimeFormat(text.locale, { hour: '2-digit', minute: '2-digit' });
 
 async function update() {
   if (!card || document.hidden) return;
@@ -28,7 +27,7 @@ async function update() {
   }
   card.dataset.flightStatus = status;
   card.querySelector('[data-status-text]').textContent = texts[status][0];
-  const detail = status !== 'unknown' && checked ? `${texts[status][1]} Sjekket kl. ${clock.format(checked)}.` : texts[status][1];
+  const detail = status !== 'unknown' && checked ? `${texts[status][1]} ${text.status.checked(clock.format(checked))}` : texts[status][1];
   card.querySelector('[data-status-detail]').textContent = detail;
 }
 

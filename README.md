@@ -1,7 +1,8 @@
 # hofstad.net
 
 Kildekoden til [hofstad.net](https://hofstad.net): en statisk side bygget med [Astro](https://astro.build) og
-levert av Cloudflare Workers. Forsiden viser flystatus, lenker til profiler og de nyeste innleggene.
+levert av Cloudflare Workers. Forsiden viser flystatus, lenker til profiler og de nyeste innleggene. Siden er på norsk,
+med en engelsk versjon under `/en/`.
 
 | Dokument | Innhold |
 |---|---|
@@ -72,7 +73,7 @@ Teksten skrives i Markdown.
 |---|---|---|
 | `title`, `summary`, `published` | Ja | Tittel, ingress og publiseringsdato. |
 | `areas` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
-| `type` | Nei | `post` (standard), `note`, `review`, `video` eller `project`. Vises på innlegget som «notat», «test», «video» eller «prosjekt» (`typeLabels` i `src/lib/posts.ts`). |
+| `type` | Nei | `post` (standard), `note`, `review`, `video` eller `project`. Vises på innlegget som «notat», «test», «video» eller «prosjekt» (`types` i `src/i18n/nb.ts` og `src/i18n/en.ts`). |
 | `tags` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
 | `image`, `imageAlt` | Nei | Hovedbilde i `src/assets/images/`. |
 | `imageFocus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
@@ -92,6 +93,37 @@ og `src/content/posts/clug-roadie-mtb-sykkelstativ.mdx`.
 - **Galleri:** `<Gallery images={[{ src, alt, caption }]} />`. Ett stort bilde med småbilder under, blaing og
   fullskjerm.
 
+### Engelsk versjon av et innlegg
+
+Den engelske versjonen er en egen fil i `src/content/posts-en/` med samme filnavn som det norske innlegget:
+`mitt-innlegg.md` i `src/content/posts/` får `mitt-innlegg.md` i `src/content/posts-en/` og adressen
+`/en/posts/mitt-innlegg/`.
+
+```markdown
+---
+title: "The title"
+summary: "One or two sentences shown on cards and at the top of the post."
+imageAlt: "What the image shows"
+tags: [bike, gear]
+---
+
+The text in Markdown.
+```
+
+| Felt | Påkrevd | Forklaring |
+|---|---|---|
+| `title`, `summary` | Ja | Tittel og ingress på engelsk. |
+| `imageAlt` | Nei | Alt-tekst til hovedbildet. Uten den brukes den norske. |
+| `tags` | Nei | Engelske stikkord. De får sider under `/en/tags/` og er uavhengige av de norske. |
+
+Alt annet (datoer, områder, type, bilde, utsnitt, video og utkast) hentes fra det norske innlegget, og andre felt
+stopper bygget. Det samme gjør en engelsk fil uten norsk innlegg med samme navn. Engelske lister viser bare innlegg
+som er oversatt. Uten oversettelse lenker språkvelgeren på det norske innlegget til `/en/posts/`.
+
+Innlegg med video eller galleri lagres som `.mdx` også på engelsk, med de samme komponentene og bildene, men med
+engelske titler, bildetekster og alt-tekster. Sett `lang="en"` på `<Gallery>` og `<Video>`, så knapper og
+forklaringer blir engelske også i RSS. Eksempel: `src/content/posts-en/clug-roadie-mtb-sykkelstativ.mdx`.
+
 ### Flystatistikk
 
 Statistikken på «I lufta» og «Siste tur» på forsiden regnes ut lokalt fra IGC-filer og lagres som summer i
@@ -110,10 +142,13 @@ npm run flight-stats -- "<mappe med IGC-filer>" --exclude "<navn>,<navn>"
 | Sti | Innhold |
 |---|---|
 | `src/content/posts/` | Innleggene, én fil per innlegg |
+| `src/content/posts-en/` | Engelske versjoner av innleggene, med samme filnavn |
 | `src/content.config.ts` | Innholdsmodellen innleggene valideres mot |
-| `src/pages/` | Forside, innlegg, arkiv, områder, stikkord, søk, RSS, personvern og 404. Filnavnene følger adressene. |
+| `src/pages/` | Tynne ruter for forside, innlegg, arkiv, områder, stikkord, søk, RSS, personvern og 404, norsk på rot og engelsk i `src/pages/en/`. Filnavnene følger adressene. |
+| `src/components/pages/` | Innholdet i hver side, felles for begge språk |
 | `src/components/`, `src/layouts/` | Byggeklossene sidene er satt sammen av |
-| `src/lib/` | Områder, hjelpefunksjoner for innlegg, strukturert data og tolking av flystatus |
+| `src/i18n/` | Tekster på norsk og engelsk (`src/i18n/nb.ts`, `src/i18n/en.ts`), adresser per språk (`src/i18n/urls.ts`) og tekstene til skriptene (`src/i18n/client.ts`) |
+| `src/lib/` | Områder, hjelpefunksjoner for innlegg, ruter, RSS, strukturert data og tolking av flystatus |
 | `src/scripts/`, `src/styles/` | Skript og stilark |
 | `src/assets/images/` | Bilder som optimaliseres ved bygg |
 | `src/data/` | Flystatistikk |
@@ -133,7 +168,7 @@ infrastrukturkoden, byggeskript og arbeidsflyter.
 Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
 
 - bildene i `src/assets/images/`
-- innleggene i `src/content/posts/`
+- innleggene i `src/content/posts/` og `src/content/posts-en/`
 - logoen og ikonene med Hofstad.NET-merket i `public/`, `public/assets/logo/` og delingsbildet
   `public/og-image-1200x630.png`
 

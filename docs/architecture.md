@@ -16,21 +16,46 @@ Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [securi
 | Søk | [Pagefind](https://pagefind.app/) | Indeks bygges sammen med siden. Søket skjer i nettleseren. |
 | Skrift, ikoner, skript | Ligger i repoet | Siden fungerer selv om andre tjenester er nede. |
 | Visning | Følger systemet, mørk som reserve | Valg i bryteren lagres lokalt i nettleseren. |
+| Språk | Norsk på rot, engelsk under `/en/` | Adressen bestemmer språket. Ingen videresending og ingenting lagres. |
 
 ## Dataflyt
 
+```mermaid
+flowchart LR
+  visitor["Besøkende / nettleser"]
+  subgraph cloudflare["Cloudflare"]
+    edge["Cloudflare<br/>DNS, TLS, WAF, rate limiting, DDoS"]
+    static["Statiske filer<br/>dist/, norsk og /en/"]
+    worker["Worker<br/>/api/status, /api/csp"]
+    logs["Workers Logs<br/>anonymiserte CSP-rapporter"]
+    analytics["Cloudflare Web Analytics"]
+  end
+  subgraph thirdparty["Tredjeparter"]
+    livetrack["LiveTrack24<br/>offentlig statusrute, mellomlagret 60 s"]
+  end
+  visitor -->|"forespørsler"| edge
+  edge -->|"HTML, CSS, JS, bilder, søkeindeks"| static
+  edge -->|"/api/*"| worker
+  worker -->|"henter status"| livetrack
+  worker -->|"rapporter uten IP"| logs
+  visitor -->|"anonyme sidevisninger og lastetider, uten informasjonskapsler"| analytics
 ```
-Besøkende ──► Cloudflare (DNS, TLS, WAF, rate limiting, DDoS)
-                 ├── statiske filer fra dist/ (HTML, CSS, JS, bilder, søkeindeks)
-                 ├── /api/status ──► Worker ──► LiveTrack24 (offentlig statusrute, mellomlagret 60 s)
-                 └── /api/csp    ──► Worker ──► Workers Logs (anonymiserte rapporter)
 
-Nettleseren ──► static.cloudflareinsights.com / cloudflareinsights.com (Web Analytics, uten informasjonskapsler)
+Besøkende når bare Cloudflare. Statiske filer leveres direkte, `/api/` går til Workeren, som henter flystatus fra
+LiveTrack24 og logger CSP-rapporter, og nettleseren sender anonyme måletall til Web Analytics.
 
-Endring: pull request ──► GitHub Actions (bygg, tester, sikkerhet, plan) ──► merge til main
-         ├── Workers Builds bygger og publiserer siden
-         └── infra.yml kjører OpenTofu apply etter godkjenning, hvis infra/ er endret
+```mermaid
+flowchart LR
+  dependabot["Dependabot"] -->|"oppdateringer"| pr["Pull request"]
+  pr --> actions["GitHub Actions<br/>bygg, tester, sikkerhet, OpenTofu-plan"]
+  actions -->|"grønne sjekker"| main["Merge til main"]
+  main --> builds["Workers Builds publiserer siden"]
+  main -->|"endringer i infra/"| apply["infra.yml apply<br/>krever godkjenning i miljøet cloudflare"]
+  apply --> zone["Cloudflare-sonen"]
 ```
+
+Endringer, også fra Dependabot, går via pull request og sjekker i GitHub Actions. Etter merge til `main` publiserer
+Workers Builds siden, og `infra.yml` oppdaterer Cloudflare-sonen etter godkjenning når `infra/` er endret.
 
 ## Komponenter
 
@@ -42,15 +67,19 @@ nye.
 
 Adresser:
 
-| Adresse | Innhold |
-|---|---|
-| `/` | Forside med flystatus, lenker og nyeste innlegg |
-| `/innlegg/` og `/innlegg/<filnavn>/` | Arkiv og innlegg |
-| `/omrade/<id>/` | Innlegg per område. «I lufta» har også flystatistikk. |
-| `/stikkord/` og `/stikkord/<stikkord>/` | Innlegg per stikkord |
-| `/sok/` | Søk uten JavaScript, brukt av 404-siden og søkefeltet i Google |
-| `/personvern/` | Hva siden samler inn |
-| `/rss.xml`, `/sitemap-index.xml` | RSS med hele innleggene, og nettstedskart med `lastmod` |
+| Norsk | Engelsk | Innhold |
+|---|---|---|
+| `/` | `/en/` | Forside med flystatus, lenker og nyeste innlegg |
+| `/innlegg/` og `/innlegg/<filnavn>/` | `/en/posts/` og `/en/posts/<filnavn>/` | Arkiv og innlegg. Samme filnavn på begge språk. |
+| `/omrade/<id>/` | `/en/area/<navn>/` | Innlegg per område. «I lufta» har også flystatistikk. Engelske navn: `air`, `nature`, `water`, `photo-video`, `screen`. |
+| `/stikkord/` og `/stikkord/<stikkord>/` | `/en/tags/` og `/en/tags/<stikkord>/` | Innlegg per stikkord. Stikkordene er ulike på hvert språk. |
+| `/sok/` | `/en/search/` | Søk uten JavaScript, brukt av 404-siden og søkefeltet i Google |
+| `/personvern/` | `/en/privacy/` | Hva siden samler inn |
+| `/rss.xml` | `/en/rss.xml` | RSS med hele innleggene |
+| `/404.html` | `/en/404.html` | Vises for ukjente adresser. Cloudflare leverer den nærmeste, så adresser under `/en/` får den engelske. |
+| `/sitemap-index.xml` | | Nettstedskart for begge språk, med `lastmod` og lenker mellom språkversjonene |
+
+Sidene i `src/pages/` er tynne ruter per språk. Innholdet ligger i `src/components/pages/` og får språket fra ruten.
 
 ### Worker (`worker/`)
 
@@ -83,15 +112,34 @@ Feltene er beskrevet i [README](../README.md#skrive-et-innlegg). Innleggene sort
 
 - **Område** svarer på «hva handler det om»: I lufta, Ute i naturen, Under overflaten, Bak kameraet og Foran
   skjermen. ID-ene (`luft`, `natur`, `vann`, `foto-video`, `skjerm`) er faste og brukes i adresser. Navnene endres i
-  `src/lib/areas.ts`. Innlegg om nettsider hører til «Foran skjermen», også når de handler om flyging.
+  `src/i18n/nb.ts` og `src/i18n/en.ts`. Innlegg om nettsider hører til «Foran skjermen», også når de handler om flyging.
 - **Type** svarer på «hva slags innhold»: innlegg (`post`), notat (`note`), test (`review`), video (`video`) eller
   prosjekt (`project`).
 - **Stikkord** er frie, gir egne sider og brukes til «Les også».
 
+### Språk
+
+Siden er på norsk (`lang="nb"`) på rot og på engelsk (`lang="en"`) under `/en/`, med adresser på sidens språk.
+
+- **Tekster:** alle tekster i komponentene står i `src/i18n/nb.ts` og `src/i18n/en.ts`, med de samme nøklene. `t(lang)`
+  i `src/i18n/index.ts` gir ordboken for et språk, og datoer og tall formateres med `nb-NO` eller `en-GB`.
+  Skriptene i nettleseren leser språket fra `<html lang>` og henter tekstene fra de samme ordbøkene via
+  `src/i18n/client.ts`, så ingen tekster ligger i HTML-attributter.
+- **Adresser:** `src/i18n/urls.ts` gir adressene per sidetype og språk, og finner den samme siden på det andre
+  språket. Den brukes også av nettstedskartet i `astro.config.mjs`.
+- **Innlegg:** engelske versjoner ligger i `src/content/posts-en/` med samme filnavn, og har bare tittel, ingress,
+  alt-tekst, stikkord og tekst. Resten hentes fra det norske innlegget (`getPosts` i `src/lib/posts.ts`). Engelske
+  innlegg og lister finnes bare for oversatte innlegg.
+- **Språkvelger:** «EN» eller «NO» ved siden av lys/mørk-knappen lenker til den samme siden på det andre språket.
+  Uten oversettelse lenker den til arkivet (innlegg), oversikten over stikkord (enkeltstikkord) eller forsiden (404).
+- **For søkemotorer:** sider med oversettelse har `<link rel="alternate" hreflang>` for `nb`, `en` og `x-default`
+  (norsk), og `og:locale:alternate`. Nettstedskartet har de samme lenkene. Den strukturerte dataen har `inLanguage`.
+
 ### Søk
 
 `npm run build` lager søkeindeksen i `dist/pagefind/` etter Astro-bygget. Bare innleggene indekseres
-(`data-pagefind-body` i `src/pages/innlegg/[id].astro`). «Søk» i menyen åpner et panel med treff mens man skriver
+(`data-pagefind-body` i `src/components/pages/PostPage.astro`). Pagefind lager én indeks per språk ut fra
+`<html lang>`, så søket på en engelsk side gir engelske innlegg, og søket på en norsk side norske. «Søk» i menyen åpner et panel med treff mens man skriver
 (`src/scripts/search-panel.js`), og `/` åpner det fra tastaturet. Utdragene bygges som DOM-noder, ikke HTML, så søket
 fungerer under Trusted Types.
 
@@ -118,6 +166,19 @@ posisjonsdata.
 
 Åpen lisens (MPL-2.0) og innebygd kryptering av state. Språket og Cloudflare-provideren er de samme som for
 Terraform. Detaljer i [infra/README.md](../infra/README.md).
+
+### Engelsk under /en/, med egen samling for innleggene
+
+Norsk er hovedspråket og beholder adressene på rot, så lenker, Upptime-sjekker og videresendinger i
+`public/_redirects` er uendret. Engelsk ligger under `/en/` med engelske adresser. Alternativene var et eget domene
+eller underdomene (mer oppsett i Cloudflare for én forfatter) og samme adresser med språkvalg i nettleseren (krever
+skript eller informasjonskapsler, og søkemotorer ser bare ett språk).
+
+De engelske innleggene er en egen samling med samme filnavn, ikke felt i de norske filene. Hver fil er da et vanlig
+innlegg på ett språk, et innlegg kan stå uten oversettelse, og datoer, bilder og områder skrives bare ett sted.
+
+Siden sender ikke videre ut fra `Accept-Language`. Adressen alene bestemmer språket: det virker likt for alle, også
+for søkemotorer og lenker som deles, og det trengs verken Worker for sidene eller informasjonskapsler.
 
 ### Videre utvikling
 

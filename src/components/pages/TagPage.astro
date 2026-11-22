@@ -1,0 +1,24 @@
+---
+import Page from '../../layouts/Page.astro';
+import Tile from '../Tile.astro';
+import Arrow from '../Arrow.astro';
+import { shareImage, type Tag } from '../../lib/posts';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+
+// Én side per stikkord, med alle innleggene som har det. Stikkordene er ulike på hvert språk, så språkvelgeren
+// lenker til oversikten over stikkord på det andre språket, og siden har ingen hreflang-lenker.
+interface Props { lang: Lang; tag: Tag; }
+const { lang, tag } = Astro.props;
+const text = t(lang).tags;
+const u = urls(lang);
+const image = await shareImage(tag.posts);
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).tags} title={`#${tag.name}`} description={text.tagDescription(tag.name)} shareImage={image}>
+  <div class="page-head">
+    <p class="eyebrow"><a href={u.tags}>{text.title}</a></p>
+    <h1>#{tag.name}</h1>
+    <p>{text.count(tag.posts.length)}</p>
+  </div>
+  <ul class="rows archive">{tag.posts.map((p) => <Tile post={p} />)}</ul>
+  <p><a href={u.tags}>{text.all} <Arrow type="arrow" /></a></p>
+</Page>

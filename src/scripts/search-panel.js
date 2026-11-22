@@ -7,6 +7,9 @@
 // Tastatur: «/» åpner søket (når man ikke skriver i et felt), Esc lukker og setter fokus tilbake på knappen,
 // pil opp og ned flytter mellom feltet og treffene, Enter går til første treff.
 import { search, resultList } from './search-engine.js';
+import { strings } from '../i18n/client';
+
+const text = strings().search;
 
 const button = document.querySelector('[data-search-open]');
 const panel = document.getElementById('search-panel');
@@ -48,16 +51,16 @@ async function run() {
   const current = ++counter;
   const q = input.value.trim();
   if (!q) { list.replaceChildren(); status.textContent = ''; return; }
-  status.textContent = 'Søker …';
+  status.textContent = text.searching;
   try {
     const response = await search(q, 8);
     if (response === null || current !== counter) return;
     list.replaceChildren(...resultList(response.results));
-    if (response.count === 0) status.textContent = `Ingen treff for «${q}».`;
-    else if (response.count > response.results.length) status.textContent = `Viser ${response.results.length} av ${response.count} treff.`;
-    else status.textContent = `${response.count} treff.`;
+    if (response.count === 0) status.textContent = text.noResults(q);
+    else if (response.count > response.results.length) status.textContent = text.showing(response.results.length, response.count);
+    else status.textContent = text.results(response.count);
   } catch {
-    status.textContent = 'Søket er ikke tilgjengelig akkurat nå.';
+    status.textContent = text.unavailable;
   }
 }
 

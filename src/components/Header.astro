@@ -1,13 +1,21 @@
 ---
 import Icon from './Icon.astro';
 import Arrow from './Arrow.astro';
+import { t, urls, otherLang, type Lang } from '../i18n';
 // Toppmeny. På forsiden ligger den over bildet («hero»), på andre sider på vanlig bakgrunn.
-interface Props { variant?: 'hero' | 'page'; }
-const { variant = 'page' } = Astro.props;
+// Språkvelgeren ved siden av lys/mørk-knappen lenker til den samme siden på det andre språket (alternate).
+// Valget lagres ikke; adressen bestemmer språket. Navnet for skjermlesere begynner med den synlige teksten
+// («EN – English version»), så det stemmer med det som står på knappen (WCAG 2.5.3).
+interface Props { lang: Lang; alternate: string; variant?: 'hero' | 'page'; }
+const { lang, alternate, variant = 'page' } = Astro.props;
 const hero = variant === 'hero';
+const text = t(lang);
+const u = urls(lang);
+const other = otherLang(lang);
+const otherText = t(other).language;
 ---
 <header class:list={['top', { 'post-top': !hero }]}>
-  <a href="/" aria-label="Hofstad.NET, forsiden">
+  <a href={u.home} aria-label={text.header.home}>
     {hero ? (
       <img src="/assets/logo/logo-horisontal-mork.svg" alt="Hofstad.NET" width="190" height="52" />
     ) : (
@@ -17,25 +25,26 @@ const hero = variant === 'hero';
       </>
     )}
   </a>
-  <nav aria-label="Hovedmeny">
-    <a href="/innlegg/">Blogg</a>
-    {hero && <a href="#flystatus">Flystatus</a>}
-    <a href="/#lenker">Lenker</a>
-    <a class="search-button" href="/sok/" data-search-open aria-controls="search-panel" aria-expanded="false" title="Søk (/)">
-      <Icon name="search" class="ico" /><span>Søk</span>
+  <nav aria-label={text.header.menu}>
+    <a href={u.posts}>{text.header.blog}</a>
+    {hero && <a class="status-link" href={`#${text.anchors.flightStatus}`}>{text.header.flightStatus}</a>}
+    <a href={`${u.home}#${text.anchors.links}`}>{text.header.links}</a>
+    <a class="search-button" href={u.search} data-search-open aria-controls="search-panel" aria-expanded="false" title={text.header.searchTitle}>
+      <Icon name="search" class="ico" /><span>{text.header.search}</span>
     </a>
     {hero && <a class="handle" href="https://www.instagram.com/krishofs/" target="_blank" rel="noopener">@krishofs <Arrow /></a>}
-    <button class="mode" type="button" role="switch" aria-checked="true" aria-label="Bytt til lys visning" data-theme-toggle>
+    <a class="lang-switch" href={alternate} hreflang={other} lang={other} aria-label={`${otherText.short} – ${otherText.label}`}>{otherText.short}</a>
+    <button class="mode" type="button" role="switch" aria-checked="true" aria-label={text.client.theme.toLight} data-theme-toggle>
       <Icon name="moon" class="ico i-moon" /><Icon name="sun" class="ico i-sun" />
     </button>
   </nav>
   {/* popover: panelet vises i nettleserens øverste lag, over toppbildet og kortene, uansett lagrekkefølge */}
   <div id="search-panel" class="search-panel" role="search" popover="manual">
     <form>
-      <label for="search-panel-input" class="sr-only">Søk i innleggene</label>
+      <label for="search-panel-input" class="sr-only">{text.header.searchLabel}</label>
       <Icon name="search" class="ico" />
-      <input id="search-panel-input" type="search" placeholder="Søk i innleggene" autocomplete="off" spellcheck="false" />
-      <button type="button" data-search-panel-close aria-label="Lukk søket"><Icon name="close" class="ico" /></button>
+      <input id="search-panel-input" type="search" placeholder={text.header.searchLabel} autocomplete="off" spellcheck="false" />
+      <button type="button" data-search-panel-close aria-label={text.header.searchClose}><Icon name="close" class="ico" /></button>
     </form>
     <p class="search-panel-status" aria-live="polite" data-search-panel-status></p>
     <ol class="search-panel-results" data-search-panel-results></ol>
@@ -79,6 +88,8 @@ const hero = variant === 'hero';
   .search-panel form { display: flex; align-items: center; gap: 8px; padding: 2px 4px 2px 14px; border: 1px solid var(--rule); border-radius: 999px; background: var(--bg); }
   .search-panel form:focus-within { border-color: var(--accent); }
   .search-panel form > .ico { width: 18px; height: 18px; color: var(--soft); flex: none; }
+  /* Bare vår egen lukkeknapp (×), ikke nettleserens tømmeknapp i søkefeltet */
+  .search-panel input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
   .search-panel input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 8px 0; border: 0; background: none; color: var(--ink); outline: none; }
   .search-panel button { all: unset; cursor: pointer; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; color: var(--soft); }
   .search-panel button:hover, .search-panel button:focus-visible { color: var(--ink); background: var(--rule); }

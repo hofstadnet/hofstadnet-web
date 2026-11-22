@@ -43,4 +43,7 @@ Gå gjennom punktene som gjelder endringen, før pull requesten lages. Bakgrunne
 
 ## Personvern
 
-- [ ] Endringer i hva siden samler inn eller sender til andre, er beskrevet på personvernsiden.
+- [ ] Endringer i hva siden samler inn eller sender til andre, er beskrevet på personvernsiden, på både norsk og
+      engelsk («privacy» i `src/i18n/nb.ts` og `src/i18n/en.ts`).
+- [ ] Språket velges bare med adressen. Valget lagres ikke, og det finnes ingen videresending ut fra nettleserens
+      språk.

@@ -5,11 +5,13 @@ levert av Cloudflare Workers. Forsiden viser flystatus, lenker til profiler og d
 
 | Dokument | Innhold |
 |---|---|
-| [docs/arkitektur.md](docs/arkitektur.md) | Komponenter, dataflyt og beslutninger |
-| [docs/sikkerhet.md](docs/sikkerhet.md) | Sikkerhetsmodell: hoder, Cloudflare, tilganger og forsyningskjede |
-| [docs/drift.md](docs/drift.md) | Publisering, arbeidsflyter, overvåking og fremgangsmåter |
+| [docs/architecture.md](docs/architecture.md) | Komponenter, dataflyt og beslutninger |
+| [docs/security.md](docs/security.md) | Sikkerhetsmodell: hoder, Cloudflare, tilganger og forsyningskjede |
+| [docs/operations.md](docs/operations.md) | Publisering, arbeidsflyter, overvåking og fremgangsmåter |
 | [infra/README.md](infra/README.md) | Cloudflare-oppsettet som kode (OpenTofu) |
 | [SECURITY.md](SECURITY.md) | Rapportering av sårbarheter |
+| [docs/guidelines/](docs/guidelines/README.md) | Retningslinjer: navngivning, dokumentasjon, sikkerhet, UX og nye innlegg |
+| [AGENTS.md](AGENTS.md) | Instruksjoner for kodeagenter. `CLAUDE.md` henter den samme filen. |
 
 ## Kom i gang
 

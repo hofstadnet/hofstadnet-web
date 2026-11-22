@@ -1,7 +1,7 @@
 # Arkitektur
 
-Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [sikkerhet.md](sikkerhet.md), og drift i
-[drift.md](drift.md).
+Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [security.md](security.md), og drift i
+[operations.md](operations.md).
 
 ## Oversikt
 
@@ -61,7 +61,7 @@ hofstad.net og www.hofstad.net. `workers_dev` er slått av.
   Svaret mellomlagres i 60 sekunder, så besøk blir ikke til trafikk mot LiveTrack24. Tolkingen ligger i
   `src/lib/livetrack-status.js`. Ukjente svar logges, og siden viser da en nøytral tekst.
 - **`POST /api/csp`** tar imot rapporter når nettleseren stopper noe på grunn av Content-Security-Policy eller
-  Trusted Types (`worker/csp-rapport.js`). Se [sikkerhet.md](sikkerhet.md#rapporter-om-brudd).
+  Trusted Types (`worker/csp-rapport.js`). Se [security.md](security.md#rapporter-om-brudd).
 
 Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har rate limiting i Cloudflare.
 

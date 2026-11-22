@@ -30,7 +30,7 @@ generally out of scope, unless they lead to a concrete attack.
 - The site sends a strict Content-Security-Policy with Trusted Types and reports violations to `/api/csp` without
   storing IP addresses or page content.
 
-More detail (in Norwegian): [docs/sikkerhet.md](docs/sikkerhet.md).
+More detail (in Norwegian): [docs/security.md](docs/security.md).
 
 [`/.well-known/security.txt`](https://hofstad.net/.well-known/security.txt) points here. The build fails when it is
 within 30 days of expiring.

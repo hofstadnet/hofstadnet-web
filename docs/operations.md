@@ -84,7 +84,7 @@ Infrastruktur → Run workflow på `main`, og apply godkjennes.
 ### Fornye tokenene
 
 1. Rull eller lag `hofstadnet-tofu` på nytt under Manage Account → Account API Tokens, med tilgangene i
-   [sikkerhet.md](sikkerhet.md#tilganger-og-nøkler). Legg verdien inn med `gh secret set CLOUDFLARE_API_TOKEN`.
+   [security.md](security.md#tilganger-og-nøkler). Legg verdien inn med `gh secret set CLOUDFLARE_API_TOKEN`.
 2. Gjør det samme for R2-tokenet `hofstadnet-tofu-state` (R2 → Manage API tokens), med `gh secret set
    R2_ACCESS_KEY_ID` og `gh secret set R2_SECRET_ACCESS_KEY`.
 3. Kjør Infrastruktur → Run workflow. Planen skal vise «No changes».

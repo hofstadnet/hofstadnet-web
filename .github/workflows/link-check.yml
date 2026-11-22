@@ -1,4 +1,4 @@
-name: Lenkesjekk
+name: Link check
 
 # Finner døde lenker med lychee.
 #  - På pull requests: bare lenker innad på siden (raskt og stabilt, avhenger ikke av andre nettsteder).
@@ -16,11 +16,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: lenkesjekk-${{ github.ref }}
+  group: link-check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lenker:
+  links:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

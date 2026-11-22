@@ -69,7 +69,7 @@ Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har ra
 
 - **Status nå:** forsiden henter `/api/status` og viser «I lufta nå» når sporingen hos LiveTrack24 er aktiv.
   Live-kartet åpnes hos LiveTrack24 i ny fane. Besøkende kontakter ikke LiveTrack24 før de åpner kartet.
-- **Siste tur og statistikk:** regnes ut lokalt fra IGC-filer med `npm run flystatistikk` og lagres som summer i
+- **Siste tur og statistikk:** regnes ut lokalt fra IGC-filer med `npm run flight-stats` og lagres som summer i
   `src/data/flystatistikk.json`. Filen inneholder ingen spor eller koordinater.
 
 pgpilot.app brukes som vanlig lenke. Tjenesten har ikke noe offentlig API for live-status, og siden kan ikke bygges

@@ -1,5 +1,5 @@
 // Kontrollerer at dokumentasjonen stemmer med repoet. Kjøres i bygget (ci.yml) og lokalt med
-// «node scripts/sjekk-dokumentasjon.mjs». Feiler når:
+// «node scripts/check-docs.mjs». Feiler når:
 //  - en sti i `kode` eller en relativ lenke peker på en fil eller mappe som ikke finnes
 //  - en lenke til en overskrift (#anker) i et annet dokument ikke finner overskriften
 //  - «npm run <navn>» nevner et skript som ikke finnes i package.json
@@ -14,7 +14,7 @@ const DOKUMENTER = ['README.md', 'AGENTS.md', 'SECURITY.md', 'infra/README.md', 
 
 // Stier som bare finnes etter bygg, utenfor repoet eller er eksempler i teksten
 const IKKE_I_REPOET = [
-  /^dist(\/|$)/, /^node_modules/, /^playwright-rapport/, /^lighthouse-rapport/, /^\.terraform\//,
+  /^dist(\/|$)/, /^node_modules/, /^playwright-report/, /^lighthouse-report/, /^\.terraform\//,
   /^hofstad\.net\/terraform\.tfstate$/, // nøkkelen til state i R2
   /^hofstadnet\/status$/, // et annet repo
   /^mitt-innlegg\.md$/, /^importer\.tf$/, // eksempler

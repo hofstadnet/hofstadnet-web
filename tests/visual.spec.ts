@@ -1,18 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 
 // Visuelle regresjonstester: skjermbilder av de viktigste sidene i mørk og lys visning, på pc og mobil,
-// sammenlignes med godkjente bilder i tests/skjermbilder/. CSS-endringer som flytter eller ødelegger noe,
+// sammenlignes med godkjente bilder i tests/screenshots/. CSS-endringer som flytter eller ødelegger noe,
 // stopper da i pull requesten.
 //
 // Bildene lages og sammenlignes bare på Linux (CI), fordi skrift tegnes litt ulikt på Windows og macOS.
-// Nye eller endrede bilder: kjør workflowen Kvalitet manuelt med «oppdater_skjermbilder», last ned
-// artefakten «skjermbilder» og legg bildene i tests/skjermbilder/ i en PR.
+// Nye eller endrede bilder: kjør arbeidsflyten Quality manuelt med «update_screenshots», last ned
+// artefakten «screenshots» og legg bildene i tests/screenshots/ i en PR.
 //
 // Ting som endrer seg uten at koden endres, dekkes til (samme størrelse, ensfarget): flystatusen fra
 // LiveTrack24 og tallene for siste tur og flystatistikk. Oppsettet rundt dem sjekkes fortsatt.
 
 test.skip(process.platform !== 'linux', 'Skjermbildene er laget på Linux');
-test.skip(process.env.PRODUKSJON === '1', 'Sammenligner bare bygget fra repoet');
+test.skip(process.env.PRODUCTION === '1', 'Sammenligner bare bygget fra repoet');
 
 const sider = [
   { navn: 'forside', sti: '/' },

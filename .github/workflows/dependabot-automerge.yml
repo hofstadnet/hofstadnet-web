@@ -49,6 +49,6 @@ jobs:
             (steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' ||
              steps.metadata.outputs.package-ecosystem == 'github_actions'))
         env:
-          TYPE: ${{ steps.metadata.outputs.update-type }}
-          OKOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
-        run: echo "::notice::$OKOSYSTEM ($TYPE) merges manuelt."
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+        run: echo "::notice::$ECOSYSTEM ($UPDATE_TYPE) merges manuelt."

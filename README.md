@@ -29,12 +29,12 @@ npm run dev
 |---|---|
 | `npm run dev` | Lokal utvikling med automatisk oppdatering. Utkast vises. |
 | `npm run build` | Typesjekker, bygger siden til `dist/` og lager søkeindeksen. |
-| `npm run forhandsvis` | Viser `dist/` med de samme sikkerhetshodene som i drift, og svarer på `/api/`. |
-| `npm run test:tilgjengelighet` | Playwright: tilgjengelighet, CSP, søk, galleri, `/api/csp` og skjermbilder. |
+| `npm run preview` | Viser `dist/` med de samme sikkerhetshodene som i drift, og svarer på `/api/`. |
+| `npm run test:e2e` | Playwright: tilgjengelighet, CSP, søk, galleri, `/api/csp` og skjermbilder. |
 | `npm run test:lighthouse` | Lighthouse med poenggrenser og ytelsesbudsjett. |
-| `npm run flystatistikk` | Regner ut flystatistikken fra IGC-filer (se under). |
-| `node scripts/sjekk-csp.mjs` | Kontrollerer at den bygde siden ikke har innebygd kode. |
-| `node scripts/sjekk-dokumentasjon.mjs` | Kontrollerer at stier, kommandoer og arbeidsflyter i dokumentasjonen finnes. |
+| `npm run flight-stats` | Regner ut flystatistikken fra IGC-filer (se under). |
+| `node scripts/check-csp.mjs` | Kontrollerer at den bygde siden ikke har innebygd kode. |
+| `node scripts/check-docs.mjs` | Kontrollerer at stier, kommandoer og arbeidsflyter i dokumentasjonen finnes. |
 
 Testene trenger Chromium én gang: `npx playwright install chromium`. Skjermbildetestene kjører bare på Linux, fordi
 skrift tegnes ulikt på andre systemer.
@@ -97,7 +97,7 @@ Statistikken på «I lufta» og «Siste tur» på forsiden regnes ut lokalt fra 
 `src/data/flystatistikk.json`. Kjør skriptet etter nye turer og sjekk inn JSON-filen:
 
 ```bash
-npm run flystatistikk -- "<mappe med IGC-filer>" --utelat "<navn>,<navn>"
+npm run flight-stats -- "<mappe med IGC-filer>" --utelat "<navn>,<navn>"
 ```
 
 - Flere mapper kan gis etter hverandre. Samme tur i flere mapper telles én gang.

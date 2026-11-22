@@ -18,7 +18,8 @@ Cloudflare-sonen som kode i `infra/` (OpenTofu).
 
 ## Regler
 
-- Følg [retningslinjene](docs/guidelines/README.md): navngivning, dokumentasjon, sikkerhet, UX og nye innlegg.
+- Følg [retningslinjene](docs/guidelines/README.md): navngivning, dokumentasjon, sikkerhet, UX, arkitektur, testing og
+  nye innlegg. De bygger på de felles retningslinjene i https://github.com/hofstadnet/guidelines.
 - Alle endringer går via pull request med grønne sjekker. Ikke push til `main`.
 - Oppdater dokumentasjonen i samme pull request som endringen ([documentation.md](docs/guidelines/documentation.md)).
 - Endringer i Cloudflare gjøres i `infra/`, aldri i dashbordet.

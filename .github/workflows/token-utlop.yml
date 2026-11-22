@@ -1,0 +1,81 @@
+name: Tokenutløp
+
+# Sjekker hver mandag når Cloudflare-tokenet til OpenTofu (CLOUDFLARE_API_TOKEN) utløper, og om det fortsatt
+# virker. Under 30 dager igjen, eller et token som ikke virker, gir en issue (bare én om gangen). Sjekken bruker
+# tokenet selv (tokens/verify) og trenger ingen nye rettigheter.
+# R2-tokenet (hofstadnet-tofu-state) kan ikke sjekkes på samme måte, men ble laget samme dag med samme utløp.
+
+on:
+  schedule:
+    - cron: '41 5 * * 1' # mandager 05:41 UTC
+  workflow_dispatch:
+    inputs:
+      varsel_dager:
+        description: 'Varsle når færre enn så mange dager er igjen (sett høyt for å teste issuen)'
+        default: '30'
+
+permissions:
+  contents: read
+
+jobs:
+  sjekk:
+    if: vars.TOFU_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    env:
+      KONTO: b055719a9337c9d844c7b41ee78fcad9
+      VARSEL_DAGER: ${{ inputs.varsel_dager || '30' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Sjekk tokenet hos Cloudflare
+        id: token
+        run: |
+          set -euo pipefail
+          svar=$(curl -sS --max-time 30 -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$KONTO/tokens/verify" || echo '{}')
+          status=$(jq -r '.result.status // "ugyldig"' <<<"$svar")
+          utlop=$(jq -r '.result.expires_on // ""' <<<"$svar")
+          if [ "$status" != "active" ]; then
+            melding="Cloudflare-tokenet til OpenTofu virker ikke lenger (status: $status)."
+          elif [ -z "$utlop" ]; then
+            melding=""
+            echo "Tokenet er aktivt og har ingen utløpsdato."
+          else
+            dager=$(( ( $(date -d "$utlop" +%s) - $(date +%s) ) / 86400 ))
+            echo "Tokenet er aktivt og utløper $utlop (om $dager dager)."
+            if ! [[ "$VARSEL_DAGER" =~ ^[0-9]+$ ]]; then VARSEL_DAGER=30; fi
+            if [ "$dager" -le "$VARSEL_DAGER" ]; then
+              melding="Cloudflare-tokenet til OpenTofu utløper ${utlop%%T*} (om $dager dager)."
+            else
+              melding=""
+            fi
+          fi
+          echo "melding=$melding" >> "$GITHUB_OUTPUT"
+          echo "### Tokenutløp" >> "$GITHUB_STEP_SUMMARY"
+          echo "Status: $status. Utløper: ${utlop:-ingen dato}." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Opprett issue
+        if: steps.token.outputs.melding != ''
+        env:
+          MELDING: ${{ steps.token.outputs.melding }}
+        run: |
+          set -euo pipefail
+          tittel="Forny Cloudflare-tokenene til OpenTofu"
+          if gh issue list --state open --search "in:title \"$tittel\"" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Det finnes allerede en åpen issue."
+            exit 0
+          fi
+          gh issue create --title "$tittel" --body "$MELDING
+
+          Slik fornyer du (se også infra/README.md):
+          1. Cloudflare → Manage Account → Account API tokens → \`hofstadnet-tofu\` → Roll, eller lag et nytt med samme rettigheter.
+          2. \`gh secret set CLOUDFLARE_API_TOKEN\`
+          3. Gjør det samme for R2-tokenet \`hofstadnet-tofu-state\` (R2 → Manage API tokens): \`gh secret set R2_ACCESS_KEY_ID\` og \`gh secret set R2_SECRET_ACCESS_KEY\`.
+          4. Kjør Actions → Infrastruktur → Run workflow. Planen skal vise «No changes».
+
+          Byggetokenet \`hofstadnet-web-builds\` har ingen utløpsdato."

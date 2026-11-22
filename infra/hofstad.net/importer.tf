@@ -27,8 +27,7 @@ locals {
     iodef                       = "ac6d7a13e49dc680398dc75960688fe2"
   }
   varsel_id = {
-    worker_feil = "3c0f01e1a1ff49379638b203ed04d615"
-    ddos        = "e61e50b84f1b404984b9bde4fa9d9d23"
+    ddos = "e61e50b84f1b404984b9bde4fa9d9d23"
   }
 }
 

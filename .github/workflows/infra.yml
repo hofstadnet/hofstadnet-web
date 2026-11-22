@@ -2,8 +2,9 @@ name: Infrastruktur
 
 # Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
 #  - sjekk: formatering og validering på hver endring. Trenger ingen hemmeligheter.
-#  - plan: viser hva som vil endres, på pull requests.
-#  - apply: gjennomfører planen etter merge til main, først etter godkjenning i miljøet «cloudflare».
+#  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply.
+#  - apply: gjennomfører endringene etter merge til main, først etter godkjenning i miljøet «cloudflare».
+#    Se planen i samme kjøring før du godkjenner.
 
 on:
   pull_request:
@@ -62,7 +63,7 @@ jobs:
 
   # plan og apply kjører først når repovariabelen TOFU_ENABLED er «true», etter at nøklene er lagt inn
   plan:
-    if: github.event_name == 'pull_request' && vars.TOFU_ENABLED == 'true'
+    if: vars.TOFU_ENABLED == 'true'
     needs: sjekk
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -80,7 +81,9 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
           tofu_wrapper: false
       - run: tofu init -input=false
+      # pipefail: uten den ville en feilet plan blitt grønn, fordi tee alltid lykkes
       - run: |
+          set -o pipefail
           tofu plan -input=false -lock-timeout=2m -no-color -out=plan.bin | tee plan.txt
           {
             echo '### OpenTofu-plan'
@@ -91,7 +94,7 @@ jobs:
 
   apply:
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true'
-    needs: sjekk
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: cloudflare

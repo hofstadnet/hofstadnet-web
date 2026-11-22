@@ -3,14 +3,14 @@
 //  - en sti i `kode` eller en relativ lenke peker på en fil eller mappe som ikke finnes
 //  - en lenke til en overskrift (#anker) i et annet dokument ikke finner overskriften
 //  - «npm run <navn>» nevner et skript som ikke finnes i package.json
-//  - en arbeidsflyt i .github/workflows/ ikke er nevnt i docs/drift.md, eller en nevnt arbeidsflyt ikke finnes
+//  - en arbeidsflyt i .github/workflows/ ikke er nevnt i docs/operations.md, eller en nevnt arbeidsflyt ikke finnes
 //
 // Sjekken fanger ikke opp at en beskrivelse er feil, bare at den peker på noe som ikke finnes. Innholdet holdes
-// oppdatert ved gjennomgang i pull requesten (se .claude/skills/dokumentasjon/SKILL.md).
+// oppdatert ved gjennomgang i pull requesten (se docs/guidelines/documentation.md).
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, normalize } from 'node:path';
+import { dirname, join, normalize, sep } from 'node:path';
 
-const DOKUMENTER = ['README.md', 'SECURITY.md', 'infra/README.md', ...readdirSync('docs').filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`)];
+const DOKUMENTER = ['README.md', 'AGENTS.md', 'SECURITY.md', 'infra/README.md', ...readdirSync('docs', { recursive: true }).filter((f) => f.endsWith('.md')).map((f) => `docs/${f.split(sep).join('/')}`)];
 
 // Stier som bare finnes etter bygg, utenfor repoet eller er eksempler i teksten
 const IKKE_I_REPOET = [
@@ -18,6 +18,7 @@ const IKKE_I_REPOET = [
   /^hofstad\.net\/terraform\.tfstate$/, // nøkkelen til state i R2
   /^hofstadnet\/status$/, // et annet repo
   /^mitt-innlegg\.md$/, /^importer\.tf$/, // eksempler
+  /^actions\//, // GitHub-actions, ikke filer
 ];
 // Mapper en sti også kan være relativ til
 const MAPPER = ['', 'public', 'public/.well-known', 'infra', 'infra/hofstad.net', '.github/workflows'];
@@ -65,9 +66,9 @@ for (const dok of DOKUMENTER) {
   }
 }
 
-const drift = readFileSync('docs/drift.md', 'utf8');
+const drift = readFileSync('docs/operations.md', 'utf8');
 for (const fil of arbeidsflyter) {
-  if (!drift.includes(fil)) feil.push(`docs/drift.md: arbeidsflyten ${fil} er ikke beskrevet`);
+  if (!drift.includes(fil)) feil.push(`docs/operations.md: arbeidsflyten ${fil} er ikke beskrevet`);
 }
 
 if (feil.length) {

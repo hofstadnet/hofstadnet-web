@@ -9,9 +9,8 @@ _site/
 __pycache__/
 .venv/
 
-# Lokalt oppsett. Skills for Claude Code (.claude/skills/) deles i repoet, resten er lokalt.
-.claude/*
-!.claude/skills/
+# Lokalt oppsett for editorer og KI-verktøy. Felles instruksjoner ligger i AGENTS.md og docs/guidelines/.
+.claude/
 .vscode/
 .idea/
 .DS_Store

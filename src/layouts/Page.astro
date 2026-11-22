@@ -1,20 +1,20 @@
 ---
 import Base from './Base.astro';
-import Topp from '../components/Topp.astro';
-import Bunn from '../components/Bunn.astro';
-import '../styles/forside.css';
-import '../styles/innlegg.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/home.css';
+import '../styles/post.css';
 
 // Felles ramme for alle sider utenom forsiden: toppmeny på vanlig bakgrunn og bunntekst.
-interface Props { tittel: string; beskrivelse?: string; delingsbilde?: string; strukturert?: Record<string, unknown>; }
-const { tittel, beskrivelse, delingsbilde, strukturert } = Astro.props;
+interface Props { title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; }
+const { title, description, shareImage, structuredData } = Astro.props;
 ---
-<Base tittel={tittel} beskrivelse={beskrivelse} delingsbilde={delingsbilde} strukturert={strukturert}>
+<Base title={title} description={description} shareImage={shareImage} structuredData={structuredData}>
   <div class="wrap">
-    <Topp />
-    <main id="innhold">
+    <Header />
+    <main id="content">
       <slot />
     </main>
-    <Bunn />
+    <Footer />
   </div>
 </Base>

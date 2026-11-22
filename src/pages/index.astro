@@ -1,31 +1,31 @@
 ---
 import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Topp from '../components/Topp.astro';
-import Bunn from '../components/Bunn.astro';
-import Statuskort from '../components/Statuskort.astro';
-import Lenker from '../components/Lenker.astro';
-import Omrader from '../components/Omrader.astro';
-import Kort from '../components/Kort.astro';
-import Flis from '../components/Flis.astro';
-import { hentInnlegg } from '../lib/innlegg';
-import { forside } from '../lib/strukturert';
-import toppbilde from '../assets/bilder/konk-2017.jpg';
-import '../styles/forside.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import StatusCard from '../components/StatusCard.astro';
+import Links from '../components/Links.astro';
+import Areas from '../components/Areas.astro';
+import Card from '../components/Card.astro';
+import Tile from '../components/Tile.astro';
+import { getPosts } from '../lib/posts';
+import { homePage } from '../lib/structured-data';
+import heroImage from '../assets/images/konk-2017.jpg';
+import '../styles/home.css';
 
 // Forsiden viser alltid det nyeste innlegget stort, de tre neste som kort og de seks neste som fliser.
 // Resten ligger i arkivet, så forsiden vokser ikke når det kommer flere innlegg.
-const innlegg = await hentInnlegg();
-const [nyeste, ...resten] = innlegg;
-const kort = resten.slice(0, 3);
-const eldre = resten.slice(3, 9);
+const posts = await getPosts();
+const [latest, ...rest] = posts;
+const cards = rest.slice(0, 3);
+const older = rest.slice(3, 9);
 ---
-<Base strukturert={forside()}>
+<Base structuredData={homePage()}>
   <div class="hero">
     {/* AVIF med WebP som reserve. Kvalitet 60 er godt nok bak tekst og panel, og gjør bildet en brøkdel så stort. */}
-    <Picture class="hero-bg" src={toppbilde} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
+    <Picture class="hero-bg" src={heroImage} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
     <div class="wrap">
-      <Topp variant="hero" />
+      <Header variant="hero" />
     </div>
     <div class="wrap hero-foot">
       <h1>Ute til lyset<br /><em>forsvinner.</em></h1>
@@ -33,24 +33,24 @@ const eldre = resten.slice(3, 9);
     </div>
   </div>
 
-  <main class="wrap" id="innhold">
+  <main class="wrap" id="content">
     <div class="deck">
-      <Statuskort />
-      <Lenker />
+      <StatusCard />
+      <Links />
     </div>
 
-    <Omrader innlegg={innlegg} />
+    <Areas posts={posts} />
 
     <section id="blogg">
       <div class="sec"><h2>Fra bloggen</h2><a href="/innlegg/">Alle innlegg</a></div>
       <div class="feed">
-        {nyeste && <Kort innlegg={nyeste} stort />}
-        {kort.length > 0 && <div class="grid3">{kort.map((i) => <Kort innlegg={i} />)}</div>}
+        {latest && <Card post={latest} large />}
+        {cards.length > 0 && <div class="grid3">{cards.map((p) => <Card post={p} />)}</div>}
       </div>
-      {eldre.length > 0 && (
+      {older.length > 0 && (
         <>
           <p class="eyebrow rows-label">Eldre innlegg</p>
-          <ul class="rows">{eldre.map((i) => <Flis innlegg={i} />)}</ul>
+          <ul class="rows">{older.map((p) => <Tile post={p} />)}</ul>
         </>
       )}
     </section>
@@ -63,6 +63,6 @@ const eldre = resten.slice(3, 9);
       </div>
     </div>
 
-    <Bunn />
+    <Footer />
   </main>
 </Base>

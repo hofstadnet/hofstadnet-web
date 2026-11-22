@@ -24,10 +24,10 @@
 
   // Lager et element med attributter og barn (tekst eller elementer). Brukes i stedet for innerHTML,
   // så Trusted Types (se public/_headers) kan forby innsetting av HTML på hele siden.
-  function el(tag, attr, barn) {
+  function el(tag, attr, children) {
     var e = document.createElement(tag);
     Object.keys(attr || {}).forEach(function (k) { e.setAttribute(k, attr[k]); });
-    (barn || []).forEach(function (b) { e.append(b); });
+    (children || []).forEach(function (b) { e.append(b); });
     return e;
   }
 

@@ -1,13 +1,13 @@
 ---
-tittel: "Nytt design på Hofstad.NET"
-ingress: "Den gamle WordPress-bloggen er byttet ut med en enklere side: bilder først, flystatus øverst og lenker til der jeg ellers er å finne."
-publisert: 2026-11-21
-omrader: [skjerm]
-type: prosjekt
-stikkord: [nettsiden, prosjektlogg]
-bilde: ../../assets/bilder/hofstadnet.png
-bildeAlt: "Hofstad.NET-logoen på blå bakgrunn"
-bildeFokus: left
+title: "Nytt design på Hofstad.NET"
+summary: "Den gamle WordPress-bloggen er byttet ut med en enklere side: bilder først, flystatus øverst og lenker til der jeg ellers er å finne."
+published: 2026-11-21
+areas: [skjerm]
+type: project
+tags: [nettsiden, prosjektlogg]
+image: ../../assets/images/hofstadnet.png
+imageAlt: "Hofstad.NET-logoen på blå bakgrunn"
+imageFocus: left
 ---
 
 Hofstad.NET har stått nesten urørt siden 2020. Siden lå på WordPress hos et webhotell, og det meste av jobben gikk

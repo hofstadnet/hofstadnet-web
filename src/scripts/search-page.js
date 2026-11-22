@@ -1,35 +1,35 @@
 // Reservesiden /sok/. Brukes når søkefeltet i menyen ikke er tilgjengelig, av søket på 404-siden og av
 // søkefeltet i Google-treffet (strukturert data). Leser ?q= fra adressen.
-import { sok, treffliste } from './sok-motor.js';
+import { search, resultList } from './search-engine.js';
 
-const skjema = document.querySelector('[data-sok]');
-const felt = document.getElementById('sok-felt');
-const status = document.querySelector('[data-sok-status]');
-const liste = document.querySelector('[data-sok-treff]');
+const form = document.querySelector('[data-search]');
+const input = document.getElementById('search-input');
+const status = document.querySelector('[data-search-status]');
+const list = document.querySelector('[data-search-results]');
 
-let teller = 0;
-async function kjor(ord) {
-  const denne = ++teller;
-  const q = ord.trim();
+let counter = 0;
+async function run(terms) {
+  const current = ++counter;
+  const q = terms.trim();
   const url = new URL(location.href);
   if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
   history.replaceState(null, '', url);
 
-  if (!q) { liste.replaceChildren(); status.textContent = ''; return; }
+  if (!q) { list.replaceChildren(); status.textContent = ''; return; }
   status.textContent = 'Søker …';
   try {
-    const svar = await sok(q);
-    if (svar === null || denne !== teller) return;
-    liste.replaceChildren(...treffliste(svar.treff));
-    status.textContent = svar.antall === 0 ? `Ingen treff for «${q}».` : `${svar.antall} treff for «${q}».`;
+    const response = await search(q);
+    if (response === null || current !== counter) return;
+    list.replaceChildren(...resultList(response.results));
+    status.textContent = response.count === 0 ? `Ingen treff for «${q}».` : `${response.count} treff for «${q}».`;
   } catch {
     status.textContent = 'Søket er ikke tilgjengelig akkurat nå.';
   }
 }
 
-if (skjema && felt && status && liste) {
-  skjema.addEventListener('submit', (e) => { e.preventDefault(); kjor(felt.value); });
-  felt.addEventListener('input', () => kjor(felt.value));
-  const fraAdresse = new URLSearchParams(location.search).get('q');
-  if (fraAdresse) { felt.value = fraAdresse; kjor(fraAdresse); }
+if (form && input && status && list) {
+  form.addEventListener('submit', (e) => { e.preventDefault(); run(input.value); });
+  input.addEventListener('input', () => run(input.value));
+  const fromUrl = new URLSearchParams(location.search).get('q');
+  if (fromUrl) { input.value = fromUrl; run(fromUrl); }
 }

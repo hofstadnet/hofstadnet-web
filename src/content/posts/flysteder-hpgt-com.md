@@ -1,12 +1,12 @@
 ---
-tittel: "flysteder.hpgt.com: hvor står vinden i dag?"
-ingress: "Et kart over flystedene i Harstad, Kvæfjord og omegn, med vindretning og varsel for hvert sted."
-publisert: 2026-09-24
-omrader: [skjerm]
-type: prosjekt
-stikkord: [hpgt, flysteder, vaer]
-bilde: ../../assets/bilder/flysteder.jpg
-bildeAlt: "Kartet på flysteder.hpgt.com med flysteder og vindstatus"
+title: "flysteder.hpgt.com: hvor står vinden i dag?"
+summary: "Et kart over flystedene i Harstad, Kvæfjord og omegn, med vindretning og varsel for hvert sted."
+published: 2026-09-24
+areas: [skjerm]
+type: project
+tags: [hpgt, flysteder, vaer]
+image: ../../assets/images/flysteder.jpg
+imageAlt: "Kartet på flysteder.hpgt.com med flysteder og vindstatus"
 ---
 
 Det første spørsmålet før en flytur er alltid det samme: hvor står vinden, og hvilket flysted passer da?

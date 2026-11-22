@@ -1,73 +1,73 @@
 {
-  "kilde": "IGC-filer fra variometer og telefon",
-  "generert": "2026-11-21",
-  "forsteTur": "2020-04-09",
-  "sisteTur": {
-    "dato": "2026-10-30",
-    "minutter": 8,
-    "hoydeM": 601,
-    "sporKm": 4.4,
-    "vinge": "Ozone Zeolite 2"
+  "source": "IGC-filer fra variometer og telefon",
+  "generated": "2026-11-21",
+  "firstFlight": "2020-04-09",
+  "lastFlight": {
+    "date": "2026-10-30",
+    "minutes": 8,
+    "altitudeM": 601,
+    "trackKm": 4.4,
+    "wing": "Ozone Zeolite 2"
   },
-  "totalt": {
-    "turer": 289,
-    "timer": 210.2,
-    "hoyesteM": 3536,
-    "besteHoydegevinstM": 2117
+  "totals": {
+    "flights": 289,
+    "hours": 210.2,
+    "highestM": 3536,
+    "bestAltitudeGainM": 2117
   },
-  "perAar": [
+  "perYear": [
     {
-      "aar": 2020,
-      "turer": 34,
-      "timer": 18.3
+      "year": 2020,
+      "flights": 34,
+      "hours": 18.3
     },
     {
-      "aar": 2021,
-      "turer": 51,
-      "timer": 26.1
+      "year": 2021,
+      "flights": 51,
+      "hours": 26.1
     },
     {
-      "aar": 2022,
-      "turer": 27,
-      "timer": 10.3
+      "year": 2022,
+      "flights": 27,
+      "hours": 10.3
     },
     {
-      "aar": 2023,
-      "turer": 46,
-      "timer": 28.4
+      "year": 2023,
+      "flights": 46,
+      "hours": 28.4
     },
     {
-      "aar": 2024,
-      "turer": 29,
-      "timer": 33.2
+      "year": 2024,
+      "flights": 29,
+      "hours": 33.2
     },
     {
-      "aar": 2025,
-      "turer": 44,
-      "timer": 39
+      "year": 2025,
+      "flights": 44,
+      "hours": 39
     },
     {
-      "aar": 2026,
-      "turer": 58,
-      "timer": 54.9
+      "year": 2026,
+      "flights": 58,
+      "hours": 54.9
     }
   ],
-  "vinger": [
+  "wings": [
     {
-      "navn": "Skywalk Spice 2",
-      "turer": 136
+      "name": "Skywalk Spice 2",
+      "flights": 136
     },
     {
-      "navn": "Ozone Zeolite 2",
-      "turer": 102
+      "name": "Ozone Zeolite 2",
+      "flights": 102
     },
     {
-      "navn": "Supair Taska",
-      "turer": 47
+      "name": "Supair Taska",
+      "flights": 47
     },
     {
-      "navn": "Nova Bantam 14",
-      "turer": 1
+      "name": "Nova Bantam 14",
+      "flights": 1
     }
   ]
 }

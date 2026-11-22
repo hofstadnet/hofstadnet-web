@@ -3,27 +3,27 @@ import '@fontsource/barlow-semi-condensed/600.css';
 import '@fontsource/barlow-semi-condensed/700.css';
 import '../styles/base.css';
 
-interface Props { tittel?: string; beskrivelse?: string; delingsbilde?: string; strukturert?: Record<string, unknown>; }
+interface Props { title?: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; }
 const {
-  tittel,
-  beskrivelse = 'Tech, friluft og foto. Turer, bilder og prosjekter fra lufta, bakken og under vann.',
-  delingsbilde = '/og-image-1200x630.png',
-  strukturert,
+  title,
+  description = 'Tech, friluft og foto. Turer, bilder og prosjekter fra lufta, bakken og under vann.',
+  shareImage = '/og-image-1200x630.png',
+  structuredData,
 } = Astro.props;
 // Strukturert data (schema.org) for søkemotorer. type="application/ld+json" er data og kjøres aldri som skript,
 // så CSP stopper det ikke. «<» escapes så teksten ikke kan avslutte script-elementet.
-const jsonLd = strukturert ? JSON.stringify({ '@context': 'https://schema.org', ...strukturert }).replace(/</g, '\\u003c') : null;
-const fullTittel = tittel ? `${tittel} – Hofstad.NET` : 'Hofstad.NET – Tech · friluft · foto';
-const kanonisk = new URL(Astro.url.pathname, Astro.site);
+const jsonLd = structuredData ? JSON.stringify({ '@context': 'https://schema.org', ...structuredData }).replace(/</g, '\\u003c') : null;
+const fullTitle = title ? `${title} – Hofstad.NET` : 'Hofstad.NET – Tech · friluft · foto';
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
 <html lang="nb" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{fullTittel}</title>
-    <meta name="description" content={beskrivelse} />
-    <link rel="canonical" href={kanonisk} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#14243F" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -31,19 +31,19 @@ const kanonisk = new URL(Astro.url.pathname, Astro.site);
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title="Hofstad.NET" href="/rss.xml" />
     <meta property="og:site_name" content="Hofstad.NET" />
-    <meta property="og:title" content={tittel ?? 'Hofstad.NET'} />
-    <meta property="og:description" content={beskrivelse} />
-    <meta property="og:url" content={kanonisk} />
-    <meta property="og:image" content={new URL(delingsbilde, Astro.site)} />
+    <meta property="og:title" content={title ?? 'Hofstad.NET'} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(shareImage, Astro.site)} />
     <meta property="og:locale" content="nb_NO" />
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd && <script is:inline type="application/ld+json" set:html={jsonLd} />}
-    <script is:inline src="/tema.js"></script>
+    <script is:inline src="/theme.js"></script>
     {/* Cloudflare Web Analytics: anonyme besøkstall og lastetid, uten informasjonskapsler. Se personvern.astro. */}
     <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "b491f74152bd435d8dff6126e7a1d8e9"}'></script>
   </head>
   <body>
-    <a class="skip" href="#innhold">Hopp til innhold</a>
+    <a class="skip" href="#content">Hopp til innhold</a>
     <slot />
   </body>
 </html>

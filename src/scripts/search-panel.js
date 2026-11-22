@@ -6,101 +6,101 @@
 //
 // Tastatur: «/» åpner søket (når man ikke skriver i et felt), Esc lukker og setter fokus tilbake på knappen,
 // pil opp og ned flytter mellom feltet og treffene, Enter går til første treff.
-import { sok, treffliste } from './sok-motor.js';
+import { search, resultList } from './search-engine.js';
 
-const knapp = document.querySelector('[data-sok-apne]');
-const panel = document.getElementById('sokepanel');
-const meny = knapp?.closest('header');
-const felt = panel?.querySelector('input');
-const status = panel?.querySelector('[data-sokepanel-status]');
-const liste = panel?.querySelector('[data-sokepanel-treff]');
-const lukk = panel?.querySelector('[data-sokepanel-lukk]');
+const button = document.querySelector('[data-search-open]');
+const panel = document.getElementById('search-panel');
+const menu = button?.closest('header');
+const input = panel?.querySelector('input');
+const status = panel?.querySelector('[data-search-panel-status]');
+const list = panel?.querySelector('[data-search-panel-results]');
+const closeButton = panel?.querySelector('[data-search-panel-close]');
 
-const stottet = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
-const erApen = () => panel.matches(':popover-open');
+const supported = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
+const isOpen = () => panel.matches(':popover-open');
 
 // Høyrekanten flukter med menyen, og panelet ligger rett under den
-function plasser() {
-  const m = meny.getBoundingClientRect();
-  const bredde = Math.min(520, m.width);
-  panel.style.width = `${bredde}px`;
-  panel.style.left = `${Math.max(8, m.right - bredde)}px`;
+function position() {
+  const m = menu.getBoundingClientRect();
+  const width = Math.min(520, m.width);
+  panel.style.width = `${width}px`;
+  panel.style.left = `${Math.max(8, m.right - width)}px`;
   panel.style.top = `${Math.max(8, m.bottom - 6)}px`;
 }
 
-function apne() {
-  if (!erApen()) panel.showPopover();
-  plasser();
-  knapp.setAttribute('aria-expanded', 'true');
-  felt.focus();
-  felt.select();
+function open() {
+  if (!isOpen()) panel.showPopover();
+  position();
+  button.setAttribute('aria-expanded', 'true');
+  input.focus();
+  input.select();
 }
 
-function steng(tilbakeTilKnapp = true) {
-  if (!erApen()) return;
+function close(returnFocus = true) {
+  if (!isOpen()) return;
   panel.hidePopover();
-  knapp.setAttribute('aria-expanded', 'false');
-  if (tilbakeTilKnapp) knapp.focus();
+  button.setAttribute('aria-expanded', 'false');
+  if (returnFocus) button.focus();
 }
 
-let teller = 0;
-async function kjor() {
-  const denne = ++teller;
-  const q = felt.value.trim();
-  if (!q) { liste.replaceChildren(); status.textContent = ''; return; }
+let counter = 0;
+async function run() {
+  const current = ++counter;
+  const q = input.value.trim();
+  if (!q) { list.replaceChildren(); status.textContent = ''; return; }
   status.textContent = 'Søker …';
   try {
-    const svar = await sok(q, 8);
-    if (svar === null || denne !== teller) return;
-    liste.replaceChildren(...treffliste(svar.treff));
-    if (svar.antall === 0) status.textContent = `Ingen treff for «${q}».`;
-    else if (svar.antall > svar.treff.length) status.textContent = `Viser ${svar.treff.length} av ${svar.antall} treff.`;
-    else status.textContent = `${svar.antall} treff.`;
+    const response = await search(q, 8);
+    if (response === null || current !== counter) return;
+    list.replaceChildren(...resultList(response.results));
+    if (response.count === 0) status.textContent = `Ingen treff for «${q}».`;
+    else if (response.count > response.results.length) status.textContent = `Viser ${response.results.length} av ${response.count} treff.`;
+    else status.textContent = `${response.count} treff.`;
   } catch {
     status.textContent = 'Søket er ikke tilgjengelig akkurat nå.';
   }
 }
 
 // Eldre nettlesere uten popover får vanlig lenke til /sok/
-if (stottet && knapp && panel && meny && felt && status && liste) {
-  knapp.setAttribute('role', 'button');
-  knapp.addEventListener('click', (e) => {
+if (supported && button && panel && menu && input && status && list) {
+  button.setAttribute('role', 'button');
+  button.addEventListener('click', (e) => {
     e.preventDefault();
-    if (erApen()) steng(); else apne();
+    if (isOpen()) close(); else open();
   });
-  lukk?.addEventListener('click', () => steng());
-  felt.addEventListener('input', kjor);
+  closeButton?.addEventListener('click', () => close());
+  input.addEventListener('input', run);
   panel.querySelector('form')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const forste = liste.querySelector('a');
-    if (forste) location.href = forste.href;
+    const first = list.querySelector('a');
+    if (first) location.href = first.href;
   });
 
   document.addEventListener('keydown', (e) => {
-    const iFelt = e.target instanceof HTMLElement && (e.target.isContentEditable || /^(input|textarea|select)$/i.test(e.target.tagName));
-    if (e.key === '/' && !iFelt && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apne(); }
-    else if (e.key === 'Escape' && erApen()) steng();
-    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && erApen() && panel.contains(e.target)) {
+    const inField = e.target instanceof HTMLElement && (e.target.isContentEditable || /^(input|textarea|select)$/i.test(e.target.tagName));
+    if (e.key === '/' && !inField && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); open(); }
+    else if (e.key === 'Escape' && isOpen()) close();
+    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && isOpen() && panel.contains(e.target)) {
       // Pil opp og ned flytter mellom søkefeltet og treffene
-      const steder = [felt, ...liste.querySelectorAll('a')];
-      const her = steder.indexOf(e.target);
-      if (her === -1) return;
-      const neste = e.key === 'ArrowDown' ? Math.min(her + 1, steder.length - 1) : Math.max(her - 1, 0);
+      const stops = [input, ...list.querySelectorAll('a')];
+      const here = stops.indexOf(e.target);
+      if (here === -1) return;
+      const next = e.key === 'ArrowDown' ? Math.min(here + 1, stops.length - 1) : Math.max(here - 1, 0);
       e.preventDefault();
-      steder[neste].focus();
+      stops[next].focus();
     }
   });
 
   // Klikk utenfor lukker. Ved rulling og ny vindusstørrelse følger panelet menyen.
   document.addEventListener('click', (e) => {
-    if (erApen() && !panel.contains(e.target) && !knapp.contains(e.target)) steng(false);
+    if (isOpen() && !panel.contains(e.target) && !button.contains(e.target)) close(false);
   });
-  let venter = false;
-  const folg = () => {
-    if (venter || !erApen()) return;
-    venter = true;
-    requestAnimationFrame(() => { venter = false; plasser(); });
+  let pending = false;
+  const follow = () => {
+    if (pending || !isOpen()) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; position(); });
   };
-  addEventListener('scroll', folg, { passive: true });
-  addEventListener('resize', folg);
+  addEventListener('scroll', follow, { passive: true });
+  addEventListener('resize', follow);
 }

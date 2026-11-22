@@ -3,24 +3,24 @@
 // Fornyes ved å sette Expires i public/.well-known/security.txt til høyst ett år frem.
 import { readFile } from 'node:fs/promises';
 
-const FIL = 'public/.well-known/security.txt';
-const DAGER = 30;
+const FILE = 'public/.well-known/security.txt';
+const MIN_DAYS = 30;
 
-const tekst = await readFile(FIL, 'utf8');
-const treff = tekst.match(/^Expires:\s*(.+)$/m);
-if (!treff) {
-  console.error(`${FIL} mangler Expires.`);
+const text = await readFile(FILE, 'utf8');
+const match = text.match(/^Expires:\s*(.+)$/m);
+if (!match) {
+  console.error(`${FILE} mangler Expires.`);
   process.exit(1);
 }
 
-const utloper = new Date(treff[1].trim());
-const igjen = Math.floor((utloper.getTime() - Date.now()) / 86_400_000);
-if (Number.isNaN(igjen)) {
-  console.error(`${FIL}: Expires er ikke en gyldig dato (${treff[1].trim()}).`);
+const expires = new Date(match[1].trim());
+const daysLeft = Math.floor((expires.getTime() - Date.now()) / 86_400_000);
+if (Number.isNaN(daysLeft)) {
+  console.error(`${FILE}: Expires er ikke en gyldig dato (${match[1].trim()}).`);
   process.exit(1);
 }
-if (igjen < DAGER) {
-  console.error(`${FIL} utløper om ${igjen} dager. Sett Expires til høyst ett år frem.`);
+if (daysLeft < MIN_DAYS) {
+  console.error(`${FILE} utløper om ${daysLeft} dager. Sett Expires til høyst ett år frem.`);
   process.exit(1);
 }
-console.log(`security.txt er gyldig i ${igjen} dager til.`);
+console.log(`security.txt er gyldig i ${daysLeft} dager til.`);

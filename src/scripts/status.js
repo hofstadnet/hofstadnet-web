@@ -1,39 +1,39 @@
 // Oppdaterer statuskortet på forsiden fra sidens egen statustjeneste (/api/status).
 // Uten JavaScript, eller hvis tjenesten ikke svarer, står kortet med en nøytral tekst og lenken til kartet.
-const kort = document.querySelector('[data-flystatus]');
+const card = document.querySelector('[data-flight-status]');
 
 // Statusen bygger bare på om sporingen hos LiveTrack24 er slått på. Teksten sier derfor hva som er kjent
 // (sporing aktiv eller ikke), og når det sist ble sjekket.
-const tekster = {
+const texts = {
   live: ['I lufta nå', 'Sporingen på LiveTrack24 er aktiv.'],
-  'ikke-live': ['Ingen aktiv sporing', 'Ikke i lufta nå – kanskje under vann eller på tur.'],
-  ukjent: ['Status utilgjengelig', 'Åpne kartet for å se siste tur.'],
+  'not-live': ['Ingen aktiv sporing', 'Ikke i lufta nå – kanskje under vann eller på tur.'],
+  unknown: ['Status utilgjengelig', 'Åpne kartet for å se siste tur.'],
 };
-const klokke = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit' });
+const clock = new Intl.DateTimeFormat('nb-NO', { hour: '2-digit', minute: '2-digit' });
 
-async function oppdater() {
-  if (!kort || document.hidden) return;
-  let status = 'ukjent';
-  let sjekket = null;
+async function update() {
+  if (!card || document.hidden) return;
+  let status = 'unknown';
+  let checked = null;
   try {
-    const svar = await fetch('/api/status', { headers: { Accept: 'application/json' } });
-    if (svar.ok) {
-      const data = await svar.json();
-      if (data && Object.hasOwn(tekster, data.status)) status = data.status;
-      const t = data && typeof data.sjekket === 'string' ? new Date(data.sjekket) : null;
-      if (t && !Number.isNaN(t.valueOf())) sjekket = t;
+    const response = await fetch('/api/status', { headers: { Accept: 'application/json' } });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Object.hasOwn(texts, data.status)) status = data.status;
+      const t = data && typeof data.checked === 'string' ? new Date(data.checked) : null;
+      if (t && !Number.isNaN(t.valueOf())) checked = t;
     }
   } catch {
-    // Behold «ukjent»
+    // Behold «unknown»
   }
-  kort.dataset.flystatus = status;
-  kort.querySelector('[data-status-tekst]').textContent = tekster[status][0];
-  const detalj = status !== 'ukjent' && sjekket ? `${tekster[status][1]} Sjekket kl. ${klokke.format(sjekket)}.` : tekster[status][1];
-  kort.querySelector('[data-status-detalj]').textContent = detalj;
+  card.dataset.flightStatus = status;
+  card.querySelector('[data-status-text]').textContent = texts[status][0];
+  const detail = status !== 'unknown' && checked ? `${texts[status][1]} Sjekket kl. ${clock.format(checked)}.` : texts[status][1];
+  card.querySelector('[data-status-detail]').textContent = detail;
 }
 
-if (kort) {
-  oppdater();
-  setInterval(oppdater, 120000);
-  document.addEventListener('visibilitychange', oppdater);
+if (card) {
+  update();
+  setInterval(update, 120000);
+  document.addEventListener('visibilitychange', update);
 }

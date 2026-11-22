@@ -1,5 +1,5 @@
 // Bryteren for lys/mørk visning. Valget lagres lokalt i nettleseren, uten cookies eller nettverkskall.
-// Selve temaet settes av /tema.js før siden tegnes; her holdes bryteren i takt og valget lagres.
+// Selve temaet settes av /theme.js før siden tegnes; her holdes bryteren i takt og valget lagres.
 // Har man ikke valgt selv, følger siden operativsystemet, også når innstillingen endres mens siden er åpen.
 const root = document.documentElement;
 const KEY = 'hofstadnet-color-mode';
@@ -22,9 +22,9 @@ document.addEventListener('click', (e) => {
 
 const system = window.matchMedia?.('(prefers-color-scheme: light)');
 system?.addEventListener('change', (e) => {
-  let lagret = null;
-  try { lagret = localStorage.getItem(KEY); } catch {}
-  if (lagret === 'light' || lagret === 'dark') return;
+  let stored = null;
+  try { stored = localStorage.getItem(KEY); } catch {}
+  if (stored === 'light' || stored === 'dark') return;
   root.dataset.theme = e.matches ? 'light' : 'dark';
   sync();
 });

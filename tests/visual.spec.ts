@@ -14,24 +14,24 @@ import { test, expect, type Page } from '@playwright/test';
 test.skip(process.platform !== 'linux', 'Skjermbildene er laget på Linux');
 test.skip(process.env.PRODUCTION === '1', 'Sammenligner bare bygget fra repoet');
 
-const sider = [
-  { navn: 'forside', sti: '/' },
-  { navn: 'innlegg', sti: '/innlegg/clug-roadie-mtb-sykkelstativ/' },
-  { navn: 'omrade-luft', sti: '/omrade/luft/' },
+const pages = [
+  { name: 'home', path: '/' },
+  { name: 'post', path: '/innlegg/clug-roadie-mtb-sykkelstativ/' },
+  { name: 'area-air', path: '/omrade/luft/' },
 ];
 
-const visninger = [
-  { tema: 'dark', navn: 'pc', bredde: 1280, hoyde: 900 },
-  { tema: 'light', navn: 'pc', bredde: 1280, hoyde: 900 },
-  { tema: 'dark', navn: 'mobil', bredde: 375, hoyde: 812 },
-  { tema: 'light', navn: 'mobil', bredde: 375, hoyde: 812 },
+const views = [
+  { theme: 'dark', name: 'desktop', width: 1280, height: 900 },
+  { theme: 'light', name: 'desktop', width: 1280, height: 900 },
+  { theme: 'dark', name: 'mobile', width: 375, height: 812 },
+  { theme: 'light', name: 'mobile', width: 375, height: 812 },
 ] as const;
 
-function tildekk(page: Page) {
-  return [page.locator('#flystatus [role="status"]'), page.locator('.siste-tur'), page.locator('.flystat')];
+function masks(page: Page) {
+  return [page.locator('#flystatus [role="status"]'), page.locator('.last-flight'), page.locator('.flight-stats')];
 }
 
-async function klar(page: Page) {
+async function ready(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   // Bilder som lastes «lazy», hentes først når de er synlige. Rull gjennom siden så alle er med.
   await page.evaluate(async () => {
@@ -41,17 +41,17 @@ async function klar(page: Page) {
   await page.waitForLoadState('networkidle');
 }
 
-for (const side of sider) {
-  for (const v of visninger) {
-    test(`skjermbilde ${side.navn} · ${v.tema} · ${v.navn}`, async ({ page }) => {
-      await page.setViewportSize({ width: v.bredde, height: v.hoyde });
-      await page.addInitScript((tema) => localStorage.setItem('hofstadnet-color-mode', tema), v.tema);
-      await page.goto(side.sti, { waitUntil: 'networkidle' });
-      await klar(page);
-      await expect(page).toHaveScreenshot(`${side.navn}-${v.tema}-${v.navn}.png`, {
+for (const p of pages) {
+  for (const v of views) {
+    test(`skjermbilde ${p.name} · ${v.theme} · ${v.name}`, async ({ page }) => {
+      await page.setViewportSize({ width: v.width, height: v.height });
+      await page.addInitScript((theme) => localStorage.setItem('hofstadnet-color-mode', theme), v.theme);
+      await page.goto(p.path, { waitUntil: 'networkidle' });
+      await ready(page);
+      await expect(page).toHaveScreenshot(`${p.name}-${v.theme}-${v.name}.png`, {
         fullPage: true,
         animations: 'disabled',
-        mask: tildekk(page),
+        mask: masks(page),
         maxDiffPixelRatio: 0.01,
       });
     });
@@ -63,8 +63,8 @@ test('skjermbilde søkepanel med treff', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('hofstadnet-color-mode', 'dark'));
   await page.goto('/innlegg/', { waitUntil: 'networkidle' });
   await page.keyboard.press('/');
-  await page.locator('#sokepanel input').fill('sykkel');
-  await expect(page.locator('.sokepanel-treff mark').first()).toBeVisible();
-  await klar(page);
-  await expect(page).toHaveScreenshot('sokepanel-dark-pc.png', { animations: 'disabled', maxDiffPixelRatio: 0.01 });
+  await page.locator('#search-panel input').fill('sykkel');
+  await expect(page.locator('.search-panel-results mark').first()).toBeVisible();
+  await ready(page);
+  await expect(page).toHaveScreenshot('search-panel-dark-desktop.png', { animations: 'disabled', maxDiffPixelRatio: 0.01 });
 });

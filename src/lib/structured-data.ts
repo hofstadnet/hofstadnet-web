@@ -1,15 +1,15 @@
 // Strukturert data (schema.org, JSON-LD) for søkemotorer og forhåndsvisninger.
 // Bare opplysninger som allerede står på siden: kallenavnet, profilene i «Finn meg også her» og innleggene.
-import type { Innlegg } from './innlegg';
-import { adresse } from './innlegg';
+import type { Post } from './posts';
+import { postUrl } from './posts';
 
-const SIDE = 'https://hofstad.net/';
+const SITE = 'https://hofstad.net/';
 
-export const forfatter = {
+export const author = {
   '@type': 'Person',
-  '@id': `${SIDE}#krishofs`,
+  '@id': `${SITE}#krishofs`,
   name: 'krishofs',
-  url: SIDE,
+  url: SITE,
   sameAs: [
     'https://www.instagram.com/krishofs/',
     'https://www.youtube.com/@krishofs',
@@ -19,43 +19,43 @@ export const forfatter = {
   ],
 };
 
-export const nettsted = {
+export const website = {
   '@type': 'WebSite',
-  '@id': `${SIDE}#nettsted`,
+  '@id': `${SITE}#nettsted`,
   name: 'Hofstad.NET',
-  url: SIDE,
+  url: SITE,
   inLanguage: 'nb-NO',
   description: 'Tech, friluft og foto.',
-  publisher: { '@id': forfatter['@id'] },
+  publisher: { '@id': author['@id'] },
   // Søkefelt rett i Google-treffet, via søkesiden
   potentialAction: {
     '@type': 'SearchAction',
-    target: { '@type': 'EntryPoint', urlTemplate: `${SIDE}sok/?q={search_term_string}` },
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE}sok/?q={search_term_string}` },
     'query-input': 'required name=search_term_string',
   },
 };
 
-export function forside() {
-  return { '@graph': [nettsted, forfatter] };
+export function homePage() {
+  return { '@graph': [website, author] };
 }
 
-export function innlegg(i: Innlegg, bilde?: string) {
-  const d = i.data;
-  const url = new URL(adresse(i), SIDE).toString();
+export function blogPosting(p: Post, image?: string) {
+  const d = p.data;
+  const url = new URL(postUrl(p), SITE).toString();
   return {
     '@type': 'BlogPosting',
     '@id': `${url}#innlegg`,
     mainEntityOfPage: url,
     url,
-    headline: d.tittel,
-    description: d.ingress,
-    datePublished: d.publisert.toISOString().slice(0, 10),
-    dateModified: (d.oppdatert ?? d.publisert).toISOString().slice(0, 10),
+    headline: d.title,
+    description: d.summary,
+    datePublished: d.published.toISOString().slice(0, 10),
+    dateModified: (d.updated ?? d.published).toISOString().slice(0, 10),
     inLanguage: 'nb-NO',
-    keywords: d.stikkord.length > 0 ? d.stikkord.join(', ') : undefined,
-    image: bilde ? new URL(bilde, SIDE).toString() : undefined,
-    author: { '@id': forfatter['@id'], '@type': 'Person', name: forfatter.name, url: SIDE },
-    publisher: { '@id': forfatter['@id'] },
-    isPartOf: { '@id': nettsted['@id'] },
+    keywords: d.tags.length > 0 ? d.tags.join(', ') : undefined,
+    image: image ? new URL(image, SITE).toString() : undefined,
+    author: { '@id': author['@id'], '@type': 'Person', name: author.name, url: SITE },
+    publisher: { '@id': author['@id'] },
+    isPartOf: { '@id': website['@id'] },
   };
 }

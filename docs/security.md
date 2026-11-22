@@ -22,7 +22,7 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
   `'wasm-unsafe-eval'` trengs fordi søket kjører WebAssembly fra siden selv. `form-action 'self'` trengs fordi
   søkefeltet på 404-siden sender til `/sok/`. `scripts/check-csp.mjs` stopper bygget hvis HTML-en får innebygd kode.
 - **Trusted Types** er påkrevd: skript kan ikke sette inn HTML som tekst (`innerHTML` o.l.) eller sette
-  skriptadresser fra tekst. Eneste policy er «default» i `src/scripts/sok-motor.js`, og den slipper bare gjennom
+  skriptadresser fra tekst. Eneste policy er «default» i `src/scripts/search-engine.js`, og den slipper bare gjennom
   `/pagefind/pagefind-worker.js`.
 - **HSTS** i to år med `includeSubDomains` og `preload`, `X-Content-Type-Options`, `X-Frame-Options: DENY`,
   `Referrer-Policy`, `Permissions-Policy` og `Cross-Origin-Opener-Policy`.
@@ -33,7 +33,7 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
 ### Rapporter om brudd
 
 CSP-en har `report-uri /api/csp` og `report-to csp` (`Reporting-Endpoints`), så nettlesere melder fra når noe blir
-stoppet. `worker/csp-rapport.js` logger side, direktiv, blokkert opphav og kildefil i Workers Logs med
+stoppet. `worker/csp-report.js` logger side, direktiv, blokkert opphav og kildefil i Workers Logs med
 `console.error`, slik at en ny type brudd blir en «issue» og gir varsel på e-post.
 
 Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag (`sample`). Rapporter fra

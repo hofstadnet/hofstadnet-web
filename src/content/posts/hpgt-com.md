@@ -1,12 +1,12 @@
 ---
-tittel: "hpgt.com: ny nettside for klubben"
-ingress: "Harstad Hang og Paragliderklubb har fått ny side med kurs, tandem, arrangementer og nytt fra klubben."
-publisert: 2026-11-19
-omrader: [skjerm]
-type: prosjekt
-stikkord: [hpgt, nettside]
-bilde: ../../assets/bilder/hpgt.jpg
-bildeAlt: "Forsiden på hpgt.com vist på pc og mobil"
+title: "hpgt.com: ny nettside for klubben"
+summary: "Harstad Hang og Paragliderklubb har fått ny side med kurs, tandem, arrangementer og nytt fra klubben."
+published: 2026-11-19
+areas: [skjerm]
+type: project
+tags: [hpgt, nettside]
+image: ../../assets/images/hpgt.jpg
+imageAlt: "Forsiden på hpgt.com vist på pc og mobil"
 ---
 
 Harstad Hang og Paragliderklubb har fått ny nettside på [hpgt.com](https://hpgt.com). Jeg har satt den sammen for

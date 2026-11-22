@@ -1,5 +1,5 @@
-// Felles søk med Pagefind sitt JavaScript-API. Brukes av søkefeltet i menyen (sokepanel.js) og av
-// reservesiden /sok/ (sok.js). Indeksen lastes først når noen faktisk søker.
+// Felles søk med Pagefind sitt JavaScript-API. Brukes av søkefeltet i menyen (search-panel.js) og av
+// reservesiden /sok/ (search-page.js). Indeksen lastes først når noen faktisk søker.
 
 // Trusted Types (se public/_headers) stopper skriptadresser satt fra tekst. Pagefind starter søket i en egen
 // tråd med new Worker('/pagefind/pagefind-worker.js'). Denne policyen slipper gjennom akkurat den adressen fra
@@ -16,58 +16,58 @@ if (globalThis.trustedTypes?.createPolicy) {
 }
 
 let pagefind;
-async function last() {
+async function load() {
   // Adressen settes sammen her, så Vite ikke prøver å pakke filen som bare finnes etter bygget
-  const sti = ['/pagefind', 'pagefind.js'].join('/');
-  pagefind ??= await import(/* @vite-ignore */ sti);
+  const path = ['/pagefind', 'pagefind.js'].join('/');
+  pagefind ??= await import(/* @vite-ignore */ path);
   return pagefind;
 }
 
 // Utdragene fra Pagefind er tekst med <mark> rundt treffordene. De gjøres om til tekstnoder og <mark>-elementer,
 // aldri til HTML, så Trusted Types (se public/_headers) kan forby innsetting av HTML på hele siden.
-const ENTITETER = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'", nbsp: String.fromCharCode(160) };
-const dekod = (t) => t.replace(/&(amp|lt|gt|quot|#39|#x27|nbsp);/g, (_, e) => ENTITETER[e]);
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'", nbsp: String.fromCharCode(160) };
+const decode = (t) => t.replace(/&(amp|lt|gt|quot|#39|#x27|nbsp);/g, (_, e) => ENTITIES[e]);
 
 /** @param {string} html @returns {Node[]} */
-function utdragsnoder(html) {
-  const noder = [];
-  let merket = false;
-  for (const del of html.split(/(<\/?mark>)/)) {
-    if (del === '<mark>') merket = true;
-    else if (del === '</mark>') merket = false;
-    else if (del) {
-      const tekst = dekod(del);
-      if (merket) { const m = document.createElement('mark'); m.textContent = tekst; noder.push(m); }
-      else noder.push(document.createTextNode(tekst));
+function excerptNodes(html) {
+  const nodes = [];
+  let marked = false;
+  for (const part of html.split(/(<\/?mark>)/)) {
+    if (part === '<mark>') marked = true;
+    else if (part === '</mark>') marked = false;
+    else if (part) {
+      const text = decode(part);
+      if (marked) { const m = document.createElement('mark'); m.textContent = text; nodes.push(m); }
+      else nodes.push(document.createTextNode(text));
     }
   }
-  return noder;
+  return nodes;
 }
 
 /**
- * Søker og returnerer { antall, treff: [{ url, tittel, utdrag }] }, eller null hvis et nyere søk har tatt over.
- * @param {string} q @param {number} maks
+ * Søker og returnerer { count, results: [{ url, title, excerpt }] }, eller null hvis et nyere søk har tatt over.
+ * @param {string} q @param {number} max
  */
-export async function sok(q, maks = 20) {
-  const pf = await last();
-  const svar = await pf.debouncedSearch(q, {}, 150);
-  if (svar === null) return null;
-  const data = await Promise.all(svar.results.slice(0, maks).map((r) => r.data()));
+export async function search(q, max = 20) {
+  const pf = await load();
+  const response = await pf.debouncedSearch(q, {}, 150);
+  if (response === null) return null;
+  const data = await Promise.all(response.results.slice(0, max).map((r) => r.data()));
   return {
-    antall: svar.results.length,
-    treff: data.map((t) => ({ url: t.url, tittel: t.meta?.title ?? t.url, utdrag: t.excerpt ?? '' })),
+    count: response.results.length,
+    results: data.map((r) => ({ url: r.url, title: r.meta?.title ?? r.url, excerpt: r.excerpt ?? '' })),
   };
 }
 
 /** Lager listepunkter for treffene. Ingenting settes inn som HTML. */
-export function treffliste(treff) {
-  return treff.map((t) => {
+export function resultList(results) {
+  return results.map((r) => {
     const li = document.createElement('li');
     const a = document.createElement('a');
-    a.href = t.url;
-    a.textContent = t.tittel;
+    a.href = r.url;
+    a.textContent = r.title;
     const p = document.createElement('p');
-    p.append(...utdragsnoder(t.utdrag));
+    p.append(...excerptNodes(r.excerpt));
     li.append(a, p);
     return li;
   });

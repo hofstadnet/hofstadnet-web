@@ -32,9 +32,9 @@ section { margin-bottom: 60px; }
 .card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; text-decoration: none; }
 .card .media { display: block; flex: none; position: relative; overflow: hidden; }
 .card img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; display: block; }
-/* bildeFokus i innlegget: hvilken del av bildet som vises når det beskjæres */
-.card img.fokus-left { object-position: left center; } .card img.fokus-right { object-position: right center; }
-.card img.fokus-top { object-position: center top; } .card img.fokus-bottom { object-position: center bottom; }
+/* imageFocus i innlegget: hvilken del av bildet som vises når det beskjæres */
+.card img.focus-left { object-position: left center; } .card img.focus-right { object-position: right center; }
+.card img.focus-top { object-position: center top; } .card img.focus-bottom { object-position: center bottom; }
 .card > div { padding: 12px 14px 14px; }
 .card h3 { font-size: 1.08rem; line-height: 1.25; margin: 6px 0 4px; }
 .card p { margin: 0; font-size: 14.5px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -145,12 +145,12 @@ html[data-theme="light"] .box .links span, html[data-theme="light"] .box .links 
 }
 
 /* Flystatus: grønn prikk og grønn kant når sporingen er aktiv */
-.status[data-flystatus="live"] { border-top-color: #4ADE80; }
-.status[data-flystatus="live"] .dot { background: #4ADE80; animation: live-puls 1.8s infinite; }
-.status[data-flystatus="ikke-live"] .dot { background: #9DB2C6; }
-.status[data-flystatus="ukjent"] .dot, .status[data-flystatus="venter"] .dot { background: transparent; box-shadow: inset 0 0 0 2px #9DB2C6; }
-@keyframes live-puls { from { box-shadow: 0 0 0 0 rgba(74,222,128,.6); } to { box-shadow: 0 0 0 12px rgba(74,222,128,0); } }
-@media (prefers-reduced-motion: reduce) { .status[data-flystatus="live"] .dot { animation: none; } }
+.status[data-flight-status="live"] { border-top-color: #4ADE80; }
+.status[data-flight-status="live"] .dot { background: #4ADE80; animation: live-pulse 1.8s infinite; }
+.status[data-flight-status="not-live"] .dot { background: #9DB2C6; }
+.status[data-flight-status="unknown"] .dot, .status[data-flight-status="pending"] .dot { background: transparent; box-shadow: inset 0 0 0 2px #9DB2C6; }
+@keyframes live-pulse { from { box-shadow: 0 0 0 0 rgba(74,222,128,.6); } to { box-shadow: 0 0 0 12px rgba(74,222,128,0); } }
+@media (prefers-reduced-motion: reduce) { .status[data-flight-status="live"] .dot { animation: none; } }
 .status a.go { text-decoration: none; }
 
 /* På svært brede skjermer vises bare en smal stripe av toppbildet. Utsnittet flyttes da litt ned,

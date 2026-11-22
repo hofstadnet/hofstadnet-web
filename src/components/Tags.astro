@@ -1,25 +1,25 @@
 ---
-import { stikkordId } from '../lib/innlegg';
+import { tagId } from '../lib/posts';
 // Stikkord som lenker til /stikkord/<id>/. Brukes nederst i innlegg og på oversikten over alle stikkord.
-interface Props { liste: { navn: string; antall?: number }[]; stor?: boolean; }
-const { liste, stor = false } = Astro.props;
+interface Props { list: { name: string; count?: number }[]; large?: boolean; }
+const { list, large = false } = Astro.props;
 ---
-{liste.length > 0 && (
-  <ul class:list={['stikkord', { stor }]} aria-label="Stikkord">
-    {liste.map((s) => (
-      <li><a href={`/stikkord/${stikkordId(s.navn)}/`}>#{s.navn}{s.antall !== undefined && <span> {s.antall}</span>}</a></li>
+{list.length > 0 && (
+  <ul class:list={['tags', { large }]} aria-label="Stikkord">
+    {list.map((t) => (
+      <li><a href={`/stikkord/${tagId(t.name)}/`}>#{t.name}{t.count !== undefined && <span> {t.count}</span>}</a></li>
     ))}
   </ul>
 )}
 
 <style>
-  .stikkord { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0; }
-  .stikkord a {
+  .tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0; }
+  .tags a {
     display: inline-block; min-height: 24px; padding: 5px 12px; border: 1px solid var(--rule); border-radius: 999px;
     font-size: 14px; color: var(--text); text-decoration: none;
   }
-  .stikkord a:hover, .stikkord a:focus-visible { border-color: var(--accent); color: var(--ink); }
-  .stikkord span { color: var(--soft); font-variant-numeric: tabular-nums; }
-  .stikkord.stor { margin: 8px 0 48px; }
-  .stikkord.stor a { font-size: 16px; padding: 8px 16px; }
+  .tags a:hover, .tags a:focus-visible { border-color: var(--accent); color: var(--ink); }
+  .tags span { color: var(--soft); font-variant-numeric: tabular-nums; }
+  .tags.large { margin: 8px 0 48px; }
+  .tags.large a { font-size: 16px; padding: 8px 16px; }
 </style>

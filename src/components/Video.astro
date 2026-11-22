@@ -1,20 +1,20 @@
 ---
 import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import Pil from './Pil.astro';
+import Arrow from './Arrow.astro';
 // Video med lokal forhåndsvisning. Spilleren hentes fra tjenesten først når den besøkende trykker.
-interface Props { tjeneste?: 'youtube' | 'vimeo'; id: string; tittel: string; plakat: ImageMetadata; }
-const { tjeneste = 'youtube', id, tittel, plakat } = Astro.props;
-const navn = tjeneste === 'youtube' ? 'YouTube' : 'Vimeo';
-const lenke = tjeneste === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : `https://vimeo.com/${id}`;
+interface Props { service?: 'youtube' | 'vimeo'; id: string; title: string; poster: ImageMetadata; }
+const { service = 'youtube', id, title, poster } = Astro.props;
+const serviceName = service === 'youtube' ? 'YouTube' : 'Vimeo';
+const link = service === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : `https://vimeo.com/${id}`;
 ---
-<div class="video" data-video={tjeneste} data-id={id} data-title={tittel}>
-  <button type="button" class="video-play" aria-label={`Spill av video: ${tittel}`}>
-    <Picture src={plakat} formats={['avif', 'webp']} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" />
+<div class="video" data-video={service} data-id={id} data-title={title}>
+  <button type="button" class="video-play" aria-label={`Spill av video: ${title}`}>
+    <Picture src={poster} formats={['avif', 'webp']} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" />
     <span class="play" aria-hidden="true"></span>
     <span class="label">Spill av video</span>
   </button>
-  <p class="video-note">Videoen hentes fra {navn} først når du trykker på spill av. <a href={lenke} target="_blank" rel="noopener">Åpne på {navn} <Pil /></a></p>
+  <p class="video-note">Videoen hentes fra {serviceName} først når du trykker på spill av. <a href={link} target="_blank" rel="noopener">Åpne på {serviceName} <Arrow /></a></p>
 </div>
 
 <script>

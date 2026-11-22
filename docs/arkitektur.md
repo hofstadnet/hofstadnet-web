@@ -37,8 +37,8 @@ Endring: pull request ──► GitHub Actions (bygg, tester, sikkerhet, plan) �
 ### Statiske sider
 
 Astro bygger alle sider til `dist/` ved `npm run build`. Cloudflare leverer filene direkte uten å kjøre kode.
-`public/_headers` setter sikkerhetshoder og mellomlagring, og `public/_redirects` sender adressene fra den gamle
-WordPress-siden (`/2019/10/14/<slug>/`) videre til de nye.
+`public/_headers` setter sikkerhetshoder og mellomlagring, og `public/_redirects` sender eldre adresser videre til de
+nye.
 
 Adresser:
 

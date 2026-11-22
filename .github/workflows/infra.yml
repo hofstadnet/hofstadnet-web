@@ -67,6 +67,8 @@ jobs:
     needs: sjekk
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      endringer: ${{ steps.plan.outputs.endringer }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -81,10 +83,16 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
           tofu_wrapper: false
       - run: tofu init -input=false
-      # pipefail: uten den ville en feilet plan blitt grønn, fordi tee alltid lykkes
-      - run: |
+      # -parallelism=4: færre samtidige kall, så Cloudflare-API-et ikke svarer med rate limiting.
+      # -detailed-exitcode: 0 = ingen endringer, 1 = feil, 2 = endringer. Apply kjører bare ved 2.
+      # pipefail: uten den ville en feilet plan blitt grønn, fordi tee alltid lykkes.
+      - id: plan
+        run: |
           set -o pipefail
-          tofu plan -input=false -lock-timeout=2m -no-color -out=plan.bin | tee plan.txt
+          kode=0
+          tofu plan -input=false -lock-timeout=2m -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || kode=$?
+          if [ "$kode" -eq 1 ]; then exit 1; fi
+          if [ "$kode" -eq 2 ]; then echo "endringer=true" >> "$GITHUB_OUTPUT"; else echo "endringer=false" >> "$GITHUB_OUTPUT"; fi
           {
             echo '### OpenTofu-plan'
             echo '```'
@@ -93,7 +101,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply:
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true' && needs.plan.outputs.endringer == 'true'
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -112,4 +120,4 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
           tofu_wrapper: false
       - run: tofu init -input=false
-      - run: tofu apply -input=false -lock-timeout=2m -auto-approve -no-color
+      - run: tofu apply -input=false -lock-timeout=2m -parallelism=4 -auto-approve -no-color

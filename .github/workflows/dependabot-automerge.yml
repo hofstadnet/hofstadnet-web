@@ -1,0 +1,54 @@
+name: Dependabot automerge
+
+# Slår på automatisk merge for Dependabot-PR-er med patch- eller minor-oppdateringer av npm-pakker og
+# GitHub Actions. PR-en merges først når alle påkrevde sjekker er grønne (regelsettet på main), så en
+# oppdatering som bryter bygget, testene, skjermbildene eller ytelsesbudsjettet blir stående.
+#
+# Krever fortsatt manuell merge:
+#  - major-oppdateringer (kan ha endringer som ikke fanges av testene)
+#  - OpenTofu-provideren (endrer Cloudflare-oppsettet, og apply skal godkjennes av et menneske)
+#
+# Dependabot venter 7 dager før nye versjoner foreslås (cooldown i .github/dependabot.yml).
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  automerge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'hofstadnet/hofstadnet-web'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Slå på automatisk merge
+        if: >-
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
+          (steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' ||
+           steps.metadata.outputs.package-ecosystem == 'github_actions')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR"
+
+      - name: Krever manuell merge
+        if: >-
+          !((steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+             steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
+            (steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' ||
+             steps.metadata.outputs.package-ecosystem == 'github_actions'))
+        env:
+          TYPE: ${{ steps.metadata.outputs.update-type }}
+          OKOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+        run: echo "::notice::$OKOSYSTEM ($TYPE) merges manuelt."

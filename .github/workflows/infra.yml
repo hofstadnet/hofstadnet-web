@@ -5,6 +5,8 @@ name: Infrastruktur
 #  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply.
 #  - apply: gjennomfører endringene etter merge til main, først etter godkjenning i miljøet «cloudflare».
 #    Se planen i samme kjøring før du godkjenner.
+#  - avvik: hver mandag kjøres planen mot Cloudflare. Viser den endringer, er noe endret utenfor koden
+#    (f.eks. i dashbordet), og det opprettes en issue. Ingenting endres automatisk.
 
 on:
   pull_request:
@@ -13,6 +15,8 @@ on:
   push:
     branches: [main]
     paths: ['infra/**', '.github/workflows/infra.yml']
+  schedule:
+    - cron: '23 5 * * 1' # mandager 05:23 UTC
   workflow_dispatch:
 
 permissions:
@@ -121,3 +125,32 @@ jobs:
           tofu_wrapper: false
       - run: tofu init -input=false
       - run: tofu apply -input=false -lock-timeout=2m -parallelism=4 -auto-approve -no-color
+
+  avvik:
+    if: github.event_name == 'schedule' && needs.plan.outputs.endringer == 'true'
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      KJORING: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Opprett issue om avvik
+        working-directory: .
+        run: |
+          set -euo pipefail
+          tittel="Cloudflare-oppsettet avviker fra infra/"
+          if gh issue list --state open --search "in:title \"$tittel\"" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Det finnes allerede en åpen issue."
+            exit 0
+          fi
+          gh issue create --title "$tittel" --body "Den ukentlige planen viser at Cloudflare ikke lenger stemmer med koden i \`infra/\`. Noe er trolig endret i dashbordet.
+
+          Se planen i oppsummeringen av kjøringen: $KJORING
+
+          Velg én av to:
+          - Endringen skal beholdes: legg den inn i \`infra/\` i en PR, så planen blir «No changes».
+          - Endringen skal bort: kjør Actions → Infrastruktur → Run workflow på main og godkjenn apply. Da settes Cloudflare tilbake til koden."

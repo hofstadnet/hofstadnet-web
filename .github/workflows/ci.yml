@@ -32,6 +32,11 @@ jobs:
       # Installerer nøyaktig det låsefilen sier, uten å kjøre installasjonsskript fra pakkene.
       - run: npm ci --ignore-scripts
 
+      # Sjekker at alle pakkene er signert av npm-registeret og har gyldig opphav (provenance),
+      # så en manipulert pakke fra et speil eller en mellommann blir stoppet.
+      - name: Signaturer på npm-pakkene
+        run: npm audit signatures
+
       - run: npm run build
 
       - name: Ingen innebygd kode i HTML

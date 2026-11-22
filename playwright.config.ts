@@ -9,6 +9,8 @@ const produksjon = process.env.PRODUKSJON === '1';
 
 export default defineConfig({
   testDir: 'tests',
+  // Godkjente skjermbilder for de visuelle testene (tests/visuell.spec.ts), uten plattform i navnet
+  snapshotPathTemplate: '{testDir}/skjermbilder/{arg}{ext}',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,

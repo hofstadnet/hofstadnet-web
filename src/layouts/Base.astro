@@ -43,7 +43,7 @@ const versions = { [lang]: canonical, [other]: alternateUrl } as Record<Lang, UR
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title={text.site.feedTitle} href={urls(lang).rss} />
-    <link rel="alternate" type="application/rss+xml" title={t(other).site.otherFeedTitle} href={urls(other).rss} hreflang={other} />
+    <link rel="alternate" type="application/rss+xml" title={t(other).site.otherFeedTitle} href={urls(other).rss} />
     <meta property="og:site_name" content="Hofstad.NET" />
     <meta property="og:title" content={title ?? 'Hofstad.NET'} />
     <meta property="og:description" content={description} />

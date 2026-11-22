@@ -17,7 +17,7 @@ generally out of scope, unless they lead to a concrete attack.
 
 ## What is in place
 
-- All changes to `main` go through a pull request. Required checks: `bygg`, `dependency-review` and
+- All changes to `main` go through a pull request. Required checks: `build`, `dependency-review` and
   `workflow-security` (zizmor). CodeQL findings of high severity or above block the merge. Force push and deletion
   of `main` are blocked.
 - Actions are pinned to commit SHAs. npm packages are installed from the lockfile with install scripts disabled, and

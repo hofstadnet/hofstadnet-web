@@ -9,12 +9,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build && pagefind --site dist",
-    "flystatistikk": "node scripts/flystatistikk.mjs",
-    "test:tilgjengelighet": "playwright test",
+    "flight-stats": "node scripts/flight-stats.mjs",
+    "test:e2e": "playwright test",
     "test:lighthouse": "lhci autorun",
-    "preview": "astro preview",
-    "check": "astro check",
-    "forhandsvis": "node scripts/forhandsvis.mjs"
+    "preview": "node scripts/preview.mjs",
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/mdx": "8.1.6",

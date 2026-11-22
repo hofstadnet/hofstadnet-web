@@ -13,8 +13,8 @@ Cloudflare-sonen som kode i `infra/` (OpenTofu).
 |---|---|
 | `npm ci` | Etter kloning og etter endringer i `package-lock.json` |
 | `npm run build` | Før hver pull request. Typesjekker og bygger. |
-| `npm run test:tilgjengelighet` | Etter endringer i sider, komponenter, stilark, skript eller Workeren |
-| `node scripts/sjekk-dokumentasjon.mjs` | Etter endringer i dokumentasjon, arbeidsflyter eller filstruktur |
+| `npm run test:e2e` | Etter endringer i sider, komponenter, stilark, skript eller Workeren |
+| `node scripts/check-docs.mjs` | Etter endringer i dokumentasjon, arbeidsflyter eller filstruktur |
 
 ## Regler
 

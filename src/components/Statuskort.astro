@@ -2,7 +2,7 @@
 import Pil from './Pil.astro';
 import { KART } from '../lib/livetrack-status.js';
 import flystatistikk from '../data/flystatistikk.json';
-// Siste loggførte tur fra IGC-filene (scripts/flystatistikk.mjs). Oppdateres når skriptet kjøres etter nye turer.
+// Siste loggførte tur fra IGC-filene (scripts/flight-stats.mjs). Oppdateres når skriptet kjøres etter nye turer.
 const siste = flystatistikk.sisteTur;
 const varighet = (min: number) => (min >= 60 ? `${Math.floor(min / 60)} t ${min % 60} m` : `${min} min`);
 // Kort dato som får plass på én rad, f.eks. «11.10.26»

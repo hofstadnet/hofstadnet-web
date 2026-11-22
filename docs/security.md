@@ -20,7 +20,7 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
     `cloudflareinsights.com`
 
   `'wasm-unsafe-eval'` trengs fordi søket kjører WebAssembly fra siden selv. `form-action 'self'` trengs fordi
-  søkefeltet på 404-siden sender til `/sok/`. `scripts/sjekk-csp.mjs` stopper bygget hvis HTML-en får innebygd kode.
+  søkefeltet på 404-siden sender til `/sok/`. `scripts/check-csp.mjs` stopper bygget hvis HTML-en får innebygd kode.
 - **Trusted Types** er påkrevd: skript kan ikke sette inn HTML som tekst (`innerHTML` o.l.) eller sette
   skriptadresser fra tekst. Eneste policy er «default» i `src/scripts/sok-motor.js`, og den slipper bare gjennom
   `/pagefind/pagefind-worker.js`.
@@ -64,12 +64,12 @@ Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som r
 
 | Nøkkel | Type | Tilgang | Brukes av |
 |---|---|---|---|
-| `hofstadnet-tofu` (`CLOUDFLARE_API_TOKEN`) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), Zone (Read). Kontoen: Notifications (Edit). | OpenTofu i `infra.yml`, tokenutløp i `token-utlop.yml` |
+| `hofstadnet-tofu` (`CLOUDFLARE_API_TOKEN`) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), Zone (Read). Kontoen: Notifications (Edit). | OpenTofu i `infra.yml`, tokenutløp i `token-expiry.yml` |
 | `hofstadnet-tofu-state` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`) | R2-kontotoken | Object Read & Write på bøtta `hofstadnet-tofu` | OpenTofu-state |
 | `TOFU_STATE_PASSPHRASE` | Passfrase | Krypterer og dekrypterer state | OpenTofu |
 | `hofstadnet-web-builds` | Cloudflare-brukertoken, styrt av Workers Builds | Kontoen: Workers Scripts (Edit), Account Settings (Read). hofstad.net: Workers Routes (Edit). Bruker: Memberships og User Details (Read). | Publisering fra `main` og forhåndsvisninger |
 
-- Tokenene for OpenTofu har utløpsdato. `token-utlop.yml` oppretter en issue 30 dager før.
+- Tokenene for OpenTofu har utløpsdato. `token-expiry.yml` oppretter en issue 30 dager før.
 - Byggetokenet er et brukertoken fordi Workers Builds ennå ikke støtter kontotokens. Det har ingen utløpsdato, fordi
   publiseringen ellers ville stoppet.
 - Apply i OpenTofu kjører i miljøet `cloudflare`, som krever godkjenning og bare tillater `main`.
@@ -79,7 +79,7 @@ Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som r
 ## Forsyningskjede og endringer
 
 - `main` er sannheten: det som ligger der, er i drift. Tilbakerulling er `git revert`.
-- Regelsettet på `main` krever pull request og grønne sjekker (`bygg`, `dependency-review`, `workflow-security`),
+- Regelsettet på `main` krever pull request og grønne sjekker (`build`, `dependency-review`, `workflow-security`),
   stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
   `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret.

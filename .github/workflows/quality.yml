@@ -1,7 +1,7 @@
-name: Kvalitet
+name: Quality
 
 # Lighthouse (ytelse, tilgjengelighet, beste praksis, SEO) og tilgjengelighetstester med axe på hver
-# pull request. Grensene står i lighthouserc.json og tests/tilgjengelighet.spec.ts. Rapportene lastes opp
+# pull request. Grensene står i lighthouserc.json og tests/accessibility.spec.ts. Rapportene lastes opp
 # som artefakter på kjøringen.
 
 on:
@@ -9,8 +9,8 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      oppdater_skjermbilder:
-        description: 'Lag nye godkjente skjermbilder (lastes opp som artefakten «skjermbilder»)'
+      update_screenshots:
+        description: 'Lag nye godkjente skjermbilder (lastes opp som artefakten «screenshots»)'
         type: boolean
         default: false
 
@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: kvalitet-${{ github.ref }}
+  group: quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -38,11 +38,11 @@ jobs:
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: lighthouse-rapport
-          path: lighthouse-rapport/
+          name: lighthouse-report
+          path: lighthouse-report/
           retention-days: 14
 
-  tilgjengelighet:
+  accessibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -56,21 +56,21 @@ jobs:
       # Henter Chromium i versjonen som er låst i @playwright/test
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      - run: npm run test:tilgjengelighet
-        if: ${{ !inputs.oppdater_skjermbilder }}
+      - run: npm run test:e2e
+        if: ${{ !inputs.update_screenshots }}
       # Lager nye skjermbilder i stedet for å sammenligne. Mangler et bilde, lages det også ved vanlig kjøring.
-      - run: npx playwright test tests/visuell.spec.ts --update-snapshots=all
-        if: ${{ inputs.oppdater_skjermbilder }}
+      - run: npx playwright test tests/visual.spec.ts --update-snapshots=all
+        if: ${{ inputs.update_screenshots }}
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-rapport
-          path: playwright-rapport/
+          name: playwright-report
+          path: playwright-report/
           retention-days: 14
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: skjermbilder
-          path: tests/skjermbilder/
+          name: screenshots
+          path: tests/screenshots/
           if-no-files-found: ignore
           retention-days: 14

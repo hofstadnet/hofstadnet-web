@@ -32,10 +32,10 @@ infra/
 
 `.github/workflows/infra.yml`:
 
-1. **sjekk** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
+1. **check** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
 2. **plan** på pull requests og før hver apply. Resultatet står i oppsummeringen av kjøringen.
 3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`.
-4. **avvik** hver mandag: planen kjøres mot Cloudflare. Viser den endringer, er noe endret utenfor koden, og det
+4. **drift** hver mandag: planen kjøres mot Cloudflare. Viser den endringer, er noe endret utenfor koden, og det
    opprettes en issue. Ingenting endres automatisk.
 
 `plan` og `apply` kjører bare når repovariabelen `TOFU_ENABLED` er `true`. Plan og apply sender maks 4 forespørsler
@@ -62,7 +62,7 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
      Zone (Read)
    - *Entire Account*: Notifications (Edit)
 
-   Sett utløpsdato. `token-utlop.yml` varsler 30 dager før.
+   Sett utløpsdato. `token-expiry.yml` varsler 30 dager før.
 4. **Passfrase** for kryptering av state, minst 16 tegn, lagret i en passordbehandler. Uten den kan state ikke leses,
    og ressursene må importeres på nytt.
 5. **GitHub-secrets og variabel:**

@@ -1,6 +1,6 @@
 // Lager flystatistikk fra IGC-filer.
 //
-//   node scripts/flystatistikk.mjs "<mappe med .igc-filer>" ["<mappe 2>" …] [--pilot "Kristoffer"] [--utelat "Navn1,Navn2"]
+//   node scripts/flight-stats.mjs "<mappe med .igc-filer>" ["<mappe 2>" …] [--pilot "Kristoffer"] [--utelat "Navn1,Navn2"]
 //
 // Flere mapper kan gis, f.eks. arkivet i Google Drive og nye turer lastet ned fra pgpilot
 // (offentlige turer: https://pgpilot.app/api/flights/<id>/igc). Samme tur i begge telles én gang.
@@ -27,7 +27,7 @@ const mapper = args.filter((a, i) => !a.startsWith('--') && !(i > 0 && /^--(pilo
 const pilotIdx = args.indexOf('--pilot');
 const pilot = (pilotIdx >= 0 ? args[pilotIdx + 1] : 'Kristoffer').toLowerCase();
 if (mapper.length === 0) {
-  console.error('Bruk: node scripts/flystatistikk.mjs "<mappe>" ["<mappe 2>" …] [--pilot "Navn"] [--utelat "Navn1,Navn2"]');
+  console.error('Bruk: node scripts/flight-stats.mjs "<mappe>" ["<mappe 2>" …] [--pilot "Navn"] [--utelat "Navn1,Navn2"]');
   process.exit(1);
 }
 

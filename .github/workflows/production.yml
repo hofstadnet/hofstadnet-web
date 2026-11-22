@@ -1,4 +1,4 @@
-name: Produksjon
+name: Production
 
 # Ukentlig sjekk av den publiserte siden på https://hofstad.net: Lighthouse og de samme tilgjengelighets- og
 # CSP-testene som kjøres på hver pull request. Fanger opp endringer som skjer utenfor repoet, som
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: produksjon
+  group: production
   cancel-in-progress: false
 
 jobs:
@@ -28,15 +28,15 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: npm ci --ignore-scripts
-      - run: npx lhci autorun --config=lighthouserc.produksjon.json
+      - run: npx lhci autorun --config=lighthouserc.production.json
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: lighthouse-produksjon
-          path: lighthouse-rapport/
+          name: lighthouse-production
+          path: lighthouse-report/
           retention-days: 30
 
-  tilgjengelighet:
+  accessibility:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -50,12 +50,12 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Bygget trengs bare for listen over sider (nettstedskartet). Testene kjører mot https://hofstad.net.
       - run: npm run build
-      - run: npm run test:tilgjengelighet
+      - run: npm run test:e2e
         env:
-          PRODUKSJON: '1'
+          PRODUCTION: '1'
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: playwright-produksjon
-          path: playwright-rapport/
+          name: playwright-production
+          path: playwright-report/
           retention-days: 30

@@ -1,11 +1,11 @@
-name: Infrastruktur
+name: Infrastructure
 
 # Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
-#  - sjekk: formatering og validering på hver endring. Trenger ingen hemmeligheter.
+#  - check: formatering og validering på hver endring. Trenger ingen hemmeligheter.
 #  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply.
 #  - apply: gjennomfører endringene etter merge til main, først etter godkjenning i miljøet «cloudflare».
 #    Se planen i samme kjøring før du godkjenner.
-#  - avvik: hver mandag kjøres planen mot Cloudflare. Viser den endringer, er noe endret utenfor koden
+#  - drift: hver mandag kjøres planen mot Cloudflare. Viser den endringer, er noe endret utenfor koden
 #    (f.eks. i dashbordet), og det opprettes en issue. Ingenting endres automatisk.
 
 on:
@@ -34,7 +34,7 @@ env:
   TOFU_VERSION: 1.13.9
 
 jobs:
-  sjekk:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -49,14 +49,14 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
           tofu_wrapper: false
       - run: tofu fmt -check -recursive -diff ..
-      - id: las
+      - id: lock
         run: |
-          if [ -f .terraform.lock.hcl ]; then echo "finnes=true" >> "$GITHUB_OUTPUT"; else echo "finnes=false" >> "$GITHUB_OUTPUT"; fi
+          if [ -f .terraform.lock.hcl ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
       - run: tofu init -backend=false -input=false
       # Første gang lages låsefilen med sjekksummer for provideren. Den lastes opp, så den kan legges i repoet.
-      - if: steps.las.outputs.finnes == 'false'
+      - if: steps.lock.outputs.exists == 'false'
         run: tofu providers lock -platform=linux_amd64 -platform=windows_amd64 -platform=darwin_arm64
-      - if: steps.las.outputs.finnes == 'false'
+      - if: steps.lock.outputs.exists == 'false'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: terraform-lock
@@ -68,11 +68,11 @@ jobs:
   # plan og apply kjører først når repovariabelen TOFU_ENABLED er «true», etter at nøklene er lagt inn
   plan:
     if: vars.TOFU_ENABLED == 'true'
-    needs: sjekk
+    needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
-      endringer: ${{ steps.plan.outputs.endringer }}
+      changes: ${{ steps.plan.outputs.changes }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -93,10 +93,10 @@ jobs:
       - id: plan
         run: |
           set -o pipefail
-          kode=0
-          tofu plan -input=false -lock-timeout=2m -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || kode=$?
-          if [ "$kode" -eq 1 ]; then exit 1; fi
-          if [ "$kode" -eq 2 ]; then echo "endringer=true" >> "$GITHUB_OUTPUT"; else echo "endringer=false" >> "$GITHUB_OUTPUT"; fi
+          code=0
+          tofu plan -input=false -lock-timeout=2m -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || code=$?
+          if [ "$code" -eq 1 ]; then exit 1; fi
+          if [ "$code" -eq 2 ]; then echo "changes=true" >> "$GITHUB_OUTPUT"; else echo "changes=false" >> "$GITHUB_OUTPUT"; fi
           {
             echo '### OpenTofu-plan'
             echo '```'
@@ -105,7 +105,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply:
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true' && needs.plan.outputs.endringer == 'true'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true' && needs.plan.outputs.changes == 'true'
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -126,8 +126,8 @@ jobs:
       - run: tofu init -input=false
       - run: tofu apply -input=false -lock-timeout=2m -parallelism=4 -auto-approve -no-color
 
-  avvik:
-    if: github.event_name == 'schedule' && needs.plan.outputs.endringer == 'true'
+  drift:
+    if: github.event_name == 'schedule' && needs.plan.outputs.changes == 'true'
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -136,21 +136,21 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      KJORING: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Opprett issue om avvik
         working-directory: .
         run: |
           set -euo pipefail
-          tittel="Cloudflare-oppsettet avviker fra infra/"
-          if gh issue list --state open --search "in:title \"$tittel\"" --json number --jq 'length' | grep -qv '^0$'; then
+          TITLE="Cloudflare-oppsettet avviker fra infra/"
+          if gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq 'length' | grep -qv '^0$'; then
             echo "Det finnes allerede en åpen issue."
             exit 0
           fi
-          gh issue create --title "$tittel" --body "Den ukentlige planen viser at Cloudflare ikke lenger stemmer med koden i \`infra/\`. Noe er trolig endret i dashbordet.
+          gh issue create --title "$TITLE" --body "Den ukentlige planen viser at Cloudflare ikke lenger stemmer med koden i \`infra/\`. Noe er trolig endret i dashbordet.
 
-          Se planen i oppsummeringen av kjøringen: $KJORING
+          Se planen i oppsummeringen av kjøringen: $RUN_URL
 
           Velg én av to:
           - Endringen skal beholdes: legg den inn i \`infra/\` i en PR, så planen blir «No changes».
-          - Endringen skal bort: kjør Actions → Infrastruktur → Run workflow på main og godkjenn apply. Da settes Cloudflare tilbake til koden."
+          - Endringen skal bort: kjør Actions → Infrastructure → Run workflow på main og godkjenn apply. Da settes Cloudflare tilbake til koden."

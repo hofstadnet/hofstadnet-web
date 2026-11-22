@@ -1,4 +1,4 @@
-# Oppsett for lenkesjekken (.github/workflows/lenkesjekk.yml).
+# Oppsett for lenkesjekken (.github/workflows/link-check.yml).
 
 # Lenker som begynner med / løses mot den ferdige siden i dist/. root_dir må være en absolutt sti
 # og settes derfor i arbeidsflyten (--root-dir).

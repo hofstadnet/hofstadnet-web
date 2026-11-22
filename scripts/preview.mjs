@@ -1,6 +1,6 @@
 // Lokal forhåndsvisning av den ferdig bygde siden (dist/), med de samme sikkerhetshodene som i drift.
 // «astro preview» sender ikke hodene fra public/_headers, så feil i Content-Security-Policy
-// ville ellers først blitt oppdaget etter publisering. Bruk: npm run forhandsvis
+// ville ellers først blitt oppdaget etter publisering. Bruk: npm run preview
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';

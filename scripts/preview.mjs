@@ -63,7 +63,8 @@ createServer(async (req, res) => {
     const data = await readFile(file);
     res.writeHead(200, { ...headers, 'Content-Type': types[extname(file)] ?? 'application/octet-stream' }).end(data);
   } catch {
-    const data = await readFile(join(root, '404.html'));
+    // Som hos Cloudflare (not_found_handling: "404-page"): den nærmeste 404.html, så /en/… får den engelske
+    const data = await readFile(join(root, path.startsWith('/en/') ? 'en/404.html' : '404.html'));
     res.writeHead(404, { ...headers, 'Content-Type': types['.html'] }).end(data);
   }
 }).listen(port, '127.0.0.1', () => console.log(`Forhåndsvisning på http://127.0.0.1:${port}`));

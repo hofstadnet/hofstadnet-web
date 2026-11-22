@@ -20,7 +20,7 @@ const d = post.data;
     /></span>
   )}
   <div>
-    <span class="kicker">{areaName(d.areas[0])} <time datetime={formatDateIso(d.published)}>{formatDateShort(d.published)}</time></span>
+    <span class="kicker">{areaName(d.areas[0], post.lang)} <time datetime={formatDateIso(d.published)}>{formatDateShort(d.published, post.lang)}</time></span>
     <h3>{d.title}</h3>
     <p>{d.summary}</p>
   </div>

@@ -1,0 +1,8 @@
+---
+// Innlegg per stikkord på engelsk: /en/tags/<stikkord>/
+import TagPage from '../../../components/pages/TagPage.astro';
+import { tagPaths } from '../../../lib/routes';
+
+export const getStaticPaths = () => tagPaths('en');
+---
+<TagPage {...Astro.props} />

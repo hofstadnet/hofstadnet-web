@@ -1,0 +1,11 @@
+---
+// Ett innlegg på engelsk: /en/posts/<filnavn>/. Bare innlegg med engelsk versjon i src/content/posts-en/.
+import PostPage from '../../../components/pages/PostPage.astro';
+import { postPaths } from '../../../lib/routes';
+import type { Post } from '../../../lib/posts';
+
+export const getStaticPaths = () => postPaths('en');
+
+interface Props { post: Post; related: Post[]; }
+---
+<PostPage {...Astro.props} />

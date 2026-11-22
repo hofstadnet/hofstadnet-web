@@ -1,0 +1,63 @@
+---
+import { render } from 'astro:content';
+import Page from '../../layouts/Page.astro';
+import Arrow from '../Arrow.astro';
+import TableOfContents from '../TableOfContents.astro';
+import Tags from '../Tags.astro';
+import Tile from '../Tile.astro';
+import { formatDateIso, formatDateLong, readingTime, shareImage, typeLabel, type Post } from '../../lib/posts';
+import { areaName } from '../../lib/areas';
+import { blogPosting } from '../../lib/structured-data';
+import { t, urls, otherLang } from '../../i18n';
+
+// Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
+const MIN_HEADINGS = 3;
+
+// Ett innlegg. Språket følger innlegget. Uten oversettelse lenker språkvelgeren til arkivet på det andre språket.
+interface Props { post: Post; related: Post[]; }
+const { post, related } = Astro.props;
+const lang = post.lang;
+const text = t(lang).post;
+const u = urls(lang);
+const other = urls(otherLang(lang));
+const alternate = post.translated ? other.post(post.id) : other.posts;
+const d = post.data;
+const { Content, headings } = await render(post.entry);
+const hasToc = headings.filter((h) => h.depth === 2).length >= MIN_HEADINGS;
+const image = await shareImage(post);
+---
+<Page lang={lang} alternate={alternate} translation={post.translated} title={d.title} description={d.summary} shareImage={image} structuredData={blogPosting(post, image)}>
+  <div class:list={['post-wrap', { 'has-toc': hasToc }]}>
+    <article class="post" data-pagefind-body>
+      <a class="back" href={u.posts} data-pagefind-ignore><Arrow type="arrow" flipped /> {text.back}</a>
+      <div data-pagefind-ignore>
+        <span class="kicker">
+          {d.areas.map((a, n) => (<>{n > 0 && ' · '}<a href={u.area(a)}>{areaName(a, lang)}</a></>))}
+          {d.type !== 'post' && ` · ${typeLabel(d.type, lang)}`}
+        </span>
+      </div>
+      <h1 data-pagefind-meta="title" data-pagefind-ignore>{d.title}</h1>
+      <p class="meta" data-pagefind-ignore>
+        <time datetime={formatDateIso(d.published)}>{formatDateLong(d.published, lang)}</time>
+        {d.updated && <> · {text.updated} <time datetime={formatDateIso(d.updated)}>{formatDateLong(d.updated, lang)}</time></>}
+        {' · '}{text.readingTime(readingTime(post))}
+      </p>
+      <p class="summary">{d.summary}</p>
+      {hasToc && <TableOfContents lang={lang} headings={headings} variant="top" />}
+      <Content />
+      <div data-pagefind-ignore><Tags lang={lang} list={d.tags.map((name) => ({ name }))} /></div>
+    </article>
+    {hasToc && <TableOfContents lang={lang} headings={headings} variant="side" />}
+  </div>
+  {related.length > 0 && (
+    <section class="related" aria-labelledby="related-title">
+      <h2 id="related-title" class="eyebrow">{text.related}</h2>
+      <ul class="rows archive">{related.map((p) => <Tile post={p} />)}</ul>
+    </section>
+  )}
+</Page>
+
+<script>
+  import '../../scripts/external-links.js';
+  import '../../scripts/table-of-contents.js';
+</script>

@@ -2,19 +2,22 @@
 import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Arrow from './Arrow.astro';
+import { t, toLang, type Lang } from '../i18n';
 // Video med lokal forhåndsvisning. Spilleren hentes fra tjenesten først når den besøkende trykker.
-interface Props { service?: 'youtube' | 'vimeo'; id: string; title: string; poster: ImageMetadata; }
-const { service = 'youtube', id, title, poster } = Astro.props;
+// lang settes i engelske innlegg, så teksten blir riktig også i RSS, der adressen ikke sier noe om språket.
+interface Props { service?: 'youtube' | 'vimeo'; id: string; title: string; poster: ImageMetadata; lang?: Lang; }
+const { service = 'youtube', id, title, poster, lang = toLang(Astro.currentLocale) } = Astro.props;
+const text = t(lang).video;
 const serviceName = service === 'youtube' ? 'YouTube' : 'Vimeo';
 const link = service === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : `https://vimeo.com/${id}`;
 ---
 <div class="video" data-video={service} data-id={id} data-title={title}>
-  <button type="button" class="video-play" aria-label={`Spill av video: ${title}`}>
+  <button type="button" class="video-play" aria-label={text.play(title)}>
     <Picture src={poster} formats={['avif', 'webp']} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" />
     <span class="play" aria-hidden="true"></span>
-    <span class="label">Spill av video</span>
+    <span class="label">{text.playLabel}</span>
   </button>
-  <p class="video-note">Videoen hentes fra {serviceName} først når du trykker på spill av. <a href={link} target="_blank" rel="noopener">Åpne på {serviceName} <Arrow /></a></p>
+  <p class="video-note">{text.note(serviceName)} <a href={link} target="_blank" rel="noopener">{text.open(serviceName)} <Arrow /></a></p>
 </div>
 
 <script>

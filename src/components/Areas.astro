@@ -1,19 +1,20 @@
 ---
 import Icon from './Icon.astro';
-import { areas } from '../lib/areas';
+import { areas, areaText } from '../lib/areas';
 import { inArea, type Post } from '../lib/posts';
+import { t, urls, type Lang } from '../i18n';
 // Raden med de fem områdene og antall innlegg i hvert.
-interface Props { posts: Post[]; active?: string; }
-const { posts, active } = Astro.props;
+interface Props { lang: Lang; posts: Post[]; active?: string; }
+const { lang, posts, active } = Astro.props;
 ---
-<ul class="areas" aria-label="Områder">
+<ul class="areas" aria-label={t(lang).areasLabel}>
   {areas.map((a) => (
     <li>
-      <a href={`/omrade/${a.id}/`} aria-current={active === a.id ? 'page' : undefined}>
+      <a href={urls(lang).area(a.id)} aria-current={active === a.id ? 'page' : undefined}>
         <Icon name={a.icon} />
         <em>{inArea(posts, a.id).length}</em>
-        <b>{a.name}</b>
-        <span>{a.subtitle}</span>
+        <b>{areaText(a.id, lang).name}</b>
+        <span>{areaText(a.id, lang).subtitle}</span>
       </a>
     </li>
   ))}

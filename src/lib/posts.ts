@@ -1,23 +1,58 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { getImage } from 'astro:assets';
 import type { AreaId } from './areas';
+import { dateLocale, t, urls, type Lang } from '../i18n';
 
-export type Post = CollectionEntry<'posts'>;
-export type PostType = Post['data']['type'];
+// Et innlegg på ett språk. Norske innlegg kommer rett fra «posts». Engelske innlegg (samlingen «postsEn») har bare
+// tittel, ingress, alt-tekst, stikkord og tekst, og resten (datoer, områder, type, bilde, utkast) hentes fra det
+// norske innlegget med samme ID.
+export type PostData = CollectionEntry<'posts'>['data'];
+export type PostType = PostData['type'];
+export interface Post {
+  id: string;
+  lang: Lang;
+  data: PostData;
+  body?: string;
+  entry: CollectionEntry<'posts'> | CollectionEntry<'postsEn'>;
+  // Om innlegget finnes på det andre språket
+  translated: boolean;
+}
 
 // Navnet på typen slik det vises på siden. Vanlige innlegg («post») får ingen merkelapp.
-export const typeLabels: Record<PostType, string> = {
-  post: 'innlegg',
-  note: 'notat',
-  review: 'test',
-  video: 'video',
-  project: 'prosjekt',
-};
+export const typeLabel = (type: PostType, lang: Lang): string => t(lang).types[type];
 
-// Publiserte innlegg, nyeste først. Utkast tas bare med under lokal utvikling.
-export async function getPosts(): Promise<Post[]> {
-  const all = await getCollection('posts', ({ data }) => import.meta.env.DEV || !data.draft);
-  return all.sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf());
+const newestFirst = (a: Post, b: Post) => b.data.published.valueOf() - a.data.published.valueOf();
+
+// Publiserte innlegg på et språk, nyeste først. Utkast tas bare med under lokal utvikling.
+// Engelske innlegg uten norsk innlegg med samme ID stopper bygget.
+export async function getPosts(lang: Lang = 'nb'): Promise<Post[]> {
+  const norwegian = await getCollection('posts');
+  const english = await getCollection('postsEn');
+  const visible = (e: CollectionEntry<'posts'>) => import.meta.env.DEV || !e.data.draft;
+
+  if (lang === 'nb') {
+    const translated = new Set(english.map((e) => e.id));
+    return norwegian.filter(visible)
+      .map((e) => ({ id: e.id, lang, data: e.data, body: e.body, entry: e, translated: translated.has(e.id) }))
+      .sort(newestFirst);
+  }
+
+  const byId = new Map(norwegian.map((e) => [e.id, e]));
+  const posts: Post[] = [];
+  for (const e of english) {
+    const source = byId.get(e.id);
+    if (!source) throw new Error(`src/content/posts-en/${e.id}: fant ikke et norsk innlegg med samme ID i src/content/posts/`);
+    if (!visible(source)) continue;
+    posts.push({
+      id: e.id,
+      lang,
+      data: { ...source.data, title: e.data.title, summary: e.data.summary, imageAlt: e.data.imageAlt ?? source.data.imageAlt, tags: e.data.tags },
+      body: e.body,
+      entry: e,
+      translated: true,
+    });
+  }
+  return posts.sort(newestFirst);
 }
 
 export function inArea(posts: Post[], id: AreaId): Post[] {
@@ -43,7 +78,8 @@ export function allTags(posts: Post[]): Tag[] {
       map.set(id, row);
     }
   }
-  return [...map.values()].sort((a, b) => b.posts.length - a.posts.length || a.name.localeCompare(b.name, 'nb'));
+  const lang = posts[0]?.lang ?? 'nb';
+  return [...map.values()].sort((a, b) => b.posts.length - a.posts.length || a.name.localeCompare(b.name, lang));
 }
 
 // Relaterte innlegg: felles stikkord teller dobbelt, felles område enkelt. Nyeste først ved likt.
@@ -71,13 +107,17 @@ export async function shareImage(posts: Post | Post[]): Promise<string | undefin
   return (await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src;
 }
 
-const shortFormat = new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-const longFormat = new Intl.DateTimeFormat('nb-NO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const formats = new Map<string, Intl.DateTimeFormat>();
+function format(lang: Lang, month: 'short' | 'long') {
+  const key = `${lang}-${month}`;
+  if (!formats.has(key)) formats.set(key, new Intl.DateTimeFormat(dateLocale(lang), { day: 'numeric', month, year: 'numeric', timeZone: 'UTC' }));
+  return formats.get(key)!;
+}
 
-export const formatDateShort = (d: Date) => shortFormat.format(d);
-export const formatDateLong = (d: Date) => longFormat.format(d);
+export const formatDateShort = (d: Date, lang: Lang) => format(lang, 'short').format(d);
+export const formatDateLong = (d: Date, lang: Lang) => format(lang, 'long').format(d);
 export const formatDateIso = (d: Date) => d.toISOString().slice(0, 10);
-export const postUrl = (p: Post) => `/innlegg/${p.id}/`;
+export const postUrl = (p: Post) => urls(p.lang).post(p.id);
 
 // Omtrentlig lesetid i hele minutter, minst 1. Regner 200 ord i minuttet.
 // Import-linjer, komponenter og Markdown-tegn i MDX-filer telles ikke med.

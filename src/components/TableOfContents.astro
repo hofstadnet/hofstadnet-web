@@ -1,18 +1,20 @@
 ---
 import type { MarkdownHeading } from 'astro';
+import { t, type Lang } from '../i18n';
 // Innholdsfortegnelse for lange innlegg. Vises bare når innlegget har nok hovedoverskrifter (##),
-// se MIN_HEADINGS i src/pages/innlegg/[id].astro.
+// se MIN_HEADINGS i src/components/pages/PostPage.astro.
 //
 // På brede skjermer står den i en egen kolonne til høyre og blir stående mens man ruller.
 // På smale skjermer er den en sammenleggbar boks øverst i innlegget.
 // Lenkene virker uten JavaScript. Skriptet markerer bare hvilken del man leser.
-interface Props { headings: MarkdownHeading[]; variant: 'side' | 'top'; }
-const { headings, variant } = Astro.props;
+interface Props { lang: Lang; headings: MarkdownHeading[]; variant: 'side' | 'top'; }
+const { lang, headings, variant } = Astro.props;
+const text = t(lang).post;
 const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 {variant === 'side' ? (
-  <nav class="toc toc-side" aria-label="Innhold i innlegget">
-    <p class="eyebrow">Innhold</p>
+  <nav class="toc toc-side" aria-label={text.contentsLabel}>
+    <p class="eyebrow">{text.contents}</p>
     <ol>
       {items.map((h) => (
         <li class:list={[`level-${h.depth}`]}><a href={`#${h.slug}`} data-toc-link>{h.text}</a></li>
@@ -21,8 +23,8 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
   </nav>
 ) : (
   <details class="toc toc-top">
-    <summary>Innhold</summary>
-    <nav aria-label="Innhold i innlegget">
+    <summary>{text.contents}</summary>
+    <nav aria-label={text.contentsLabel}>
       <ol>
         {items.map((h) => (
           <li class:list={[`level-${h.depth}`]}><a href={`#${h.slug}`}>{h.text}</a></li>

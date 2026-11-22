@@ -1,6 +1,9 @@
-// Reservesiden /sok/. Brukes når søkefeltet i menyen ikke er tilgjengelig, av søket på 404-siden og av
+// Reservesiden /sok/ (engelsk: /en/search/). Brukes når søkefeltet i menyen ikke er tilgjengelig, av søket på 404-siden og av
 // søkefeltet i Google-treffet (strukturert data). Leser ?q= fra adressen.
 import { search, resultList } from './search-engine.js';
+import { strings } from '../i18n/client';
+
+const text = strings().search;
 
 const form = document.querySelector('[data-search]');
 const input = document.getElementById('search-input');
@@ -16,14 +19,14 @@ async function run(terms) {
   history.replaceState(null, '', url);
 
   if (!q) { list.replaceChildren(); status.textContent = ''; return; }
-  status.textContent = 'Søker …';
+  status.textContent = text.searching;
   try {
     const response = await search(q);
     if (response === null || current !== counter) return;
     list.replaceChildren(...resultList(response.results));
-    status.textContent = response.count === 0 ? `Ingen treff for «${q}».` : `${response.count} treff for «${q}».`;
+    status.textContent = response.count === 0 ? text.noResults(q) : text.resultsFor(response.count, q);
   } catch {
-    status.textContent = 'Søket er ikke tilgjengelig akkurat nå.';
+    status.textContent = text.unavailable;
   }
 }
 

@@ -1,0 +1,22 @@
+---
+import Page from '../../layouts/Page.astro';
+import Areas from '../Areas.astro';
+import Tile from '../Tile.astro';
+import { getPosts, shareImage } from '../../lib/posts';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+
+// Arkivet med alle innlegg på ett språk
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).posts;
+const posts = await getPosts(lang);
+const image = await shareImage(posts);
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).posts} translation title={text.title} description={text.description} shareImage={image}>
+  <div class="page-head">
+    <p class="eyebrow">{text.eyebrow}</p>
+    <h1>{text.title}</h1>
+  </div>
+  <Areas lang={lang} posts={posts} />
+  <ul class="rows archive">{posts.map((p) => <Tile post={p} />)}</ul>
+</Page>

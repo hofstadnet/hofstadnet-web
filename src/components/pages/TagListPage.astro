@@ -1,0 +1,20 @@
+---
+import Page from '../../layouts/Page.astro';
+import Tags from '../Tags.astro';
+import { getPosts, allTags } from '../../lib/posts';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+
+// Alle stikkord på ett språk. Stikkordene er ulike på hvert språk, men oversikten finnes på begge.
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).tags;
+const tags = allTags(await getPosts(lang));
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).tags} translation title={text.title} description={text.description}>
+  <div class="page-head">
+    <p class="eyebrow">{text.eyebrow}</p>
+    <h1>{text.title}</h1>
+    <p>{text.intro}</p>
+  </div>
+  <Tags lang={lang} list={tags.map((tag) => ({ name: tag.name, count: tag.posts.length }))} large />
+</Page>

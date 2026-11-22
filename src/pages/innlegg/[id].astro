@@ -1,61 +1,11 @@
 ---
-import { render } from 'astro:content';
-import Page from '../../layouts/Page.astro';
-import Arrow from '../../components/Arrow.astro';
-import TableOfContents from '../../components/TableOfContents.astro';
-import Tags from '../../components/Tags.astro';
-import Tile from '../../components/Tile.astro';
-import { getPosts, formatDateIso, formatDateLong, readingTime, shareImage, relatedPosts, typeLabels, type Post } from '../../lib/posts';
-import { areaName } from '../../lib/areas';
-import { blogPosting } from '../../lib/structured-data';
+// Ett innlegg: /innlegg/<filnavn>/
+import PostPage from '../../components/pages/PostPage.astro';
+import { postPaths } from '../../lib/routes';
+import type { Post } from '../../lib/posts';
 
-// Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
-const MIN_HEADINGS = 3;
-
-export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((p) => ({ params: { id: p.id }, props: { post: p, related: relatedPosts(p, posts) } }));
-}
+export const getStaticPaths = () => postPaths('nb');
 
 interface Props { post: Post; related: Post[]; }
-const { post, related } = Astro.props;
-const d = post.data;
-const { Content, headings } = await render(post);
-const hasToc = headings.filter((h) => h.depth === 2).length >= MIN_HEADINGS;
-const image = await shareImage(post);
 ---
-<Page title={d.title} description={d.summary} shareImage={image} structuredData={blogPosting(post, image)}>
-  <div class:list={['post-wrap', { 'has-toc': hasToc }]}>
-    <article class="post" data-pagefind-body>
-      <a class="back" href="/innlegg/" data-pagefind-ignore><Arrow type="arrow" flipped /> Alle innlegg</a>
-      <div data-pagefind-ignore>
-        <span class="kicker">
-          {d.areas.map((a, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${a}/`}>{areaName(a)}</a></>))}
-          {d.type !== 'post' && ` · ${typeLabels[d.type]}`}
-        </span>
-      </div>
-      <h1 data-pagefind-meta="title" data-pagefind-ignore>{d.title}</h1>
-      <p class="meta" data-pagefind-ignore>
-        <time datetime={formatDateIso(d.published)}>{formatDateLong(d.published)}</time>
-        {d.updated && <> · oppdatert <time datetime={formatDateIso(d.updated)}>{formatDateLong(d.updated)}</time></>}
-        {' · '}{readingTime(post)} min lesing
-      </p>
-      <p class="summary">{d.summary}</p>
-      {hasToc && <TableOfContents headings={headings} variant="top" />}
-      <Content />
-      <div data-pagefind-ignore><Tags list={d.tags.map((name) => ({ name }))} /></div>
-    </article>
-    {hasToc && <TableOfContents headings={headings} variant="side" />}
-  </div>
-  {related.length > 0 && (
-    <section class="related" aria-labelledby="related-title">
-      <h2 id="related-title" class="eyebrow">Les også</h2>
-      <ul class="rows archive">{related.map((p) => <Tile post={p} />)}</ul>
-    </section>
-  )}
-</Page>
-
-<script>
-  import '../../scripts/external-links.js';
-  import '../../scripts/table-of-contents.js';
-</script>
+<PostPage {...Astro.props} />

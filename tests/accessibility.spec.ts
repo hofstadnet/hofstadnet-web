@@ -7,7 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 //  - siden blir ikke bredere enn skjermen (WCAG 1.4.10, reflow)
 //  - ingen brudd på Content-Security-Policy og ingen JavaScript-feil
 const sitemap = readFileSync('dist/sitemap-0.xml', 'utf8');
-const pages = [...sitemap.matchAll(/<loc>https:\/\/hofstad\.net([^<]*)<\/loc>/g)].map((m) => m[1]).concat('/finnes-ikke/');
+const pages = [...sitemap.matchAll(/<loc>https:\/\/hofstad\.net([^<]*)<\/loc>/g)].map((m) => m[1]).concat('/finnes-ikke/', '/en/does-not-exist/');
 
 const views = [
   { theme: 'dark', width: 1280, height: 900 },
@@ -64,6 +64,62 @@ test('søk og galleri virker under Trusted Types', async ({ page }) => {
   await expect(page.locator('.search-panel-results mark').first()).toBeVisible();
 
   expect(errors, 'feil i konsollen').toEqual([]);
+});
+
+// Språkvelgeren i menyen lenker til den samme siden på det andre språket, og <html lang> følger språket.
+// Ukjente adresser under /en/ får den engelske 404-siden.
+const translations = [
+  { nb: '/', en: '/en/' },
+  { nb: '/innlegg/clug-roadie-mtb-sykkelstativ/', en: '/en/posts/clug-roadie-mtb-sykkelstativ/' },
+  { nb: '/omrade/luft/', en: '/en/area/air/' },
+  { nb: '/personvern/', en: '/en/privacy/' },
+];
+
+for (const pair of translations) {
+  test(`språkvelger ${pair.nb} ⇄ ${pair.en}`, async ({ page }) => {
+    await page.goto(pair.nb);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'nb');
+    const toEnglish = page.locator('header a.lang-switch');
+    await expect(toEnglish).toHaveAttribute('href', pair.en);
+    await expect(toEnglish).toHaveAttribute('hreflang', 'en');
+    await expect(toEnglish).toHaveAccessibleName('EN – English version');
+    await expect(page.locator('link[rel="alternate"][hreflang="en"]:not([type])')).toHaveAttribute('href', `https://hofstad.net${pair.en}`);
+
+    await toEnglish.click();
+    await expect(page).toHaveURL(pair.en);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    const toNorwegian = page.locator('header a.lang-switch');
+    await expect(toNorwegian).toHaveAttribute('href', pair.nb);
+    await expect(toNorwegian).toHaveAttribute('hreflang', 'nb');
+    await expect(toNorwegian).toHaveAccessibleName('NO – Norsk versjon');
+    await expect(page.locator('link[rel="alternate"][hreflang="nb"]:not([type])')).toHaveAttribute('href', `https://hofstad.net${pair.nb}`);
+  });
+}
+
+test('ukjente adresser under /en/ får den engelske 404-siden', async ({ page }) => {
+  const response = await page.goto('/en/does-not-exist/');
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('h1')).toHaveText('Nothing here.');
+});
+
+// Pagefind lager én indeks per språk ut fra <html lang>. Engelsk søk skal gi engelske innlegg, og norsk søk norske.
+test('søket finner innlegg på språket til siden', async ({ page }) => {
+  await page.goto('/en/search/?q=bike');
+  const english = page.locator('.search-results a');
+  await expect(english.first()).toHaveAttribute('href', /^\/en\/posts\/clug-roadie-mtb-sykkelstativ\/$/);
+  expect(await english.evaluateAll((links) => links.every((a) => a.getAttribute('href')?.startsWith('/en/posts/')))).toBe(true);
+
+  await page.goto('/en/');
+  await page.keyboard.press('/');
+  await page.locator('#search-panel input').fill('wind');
+  await expect(page.locator('.search-panel-results a').first()).toHaveAttribute('href', /^\/en\/posts\//);
+  await expect(page.locator('.search-panel-status')).toHaveText(/results?\.$/);
+
+  await page.goto('/sok/?q=sykkel');
+  const norwegian = page.locator('.search-results a');
+  await expect(norwegian.first()).toHaveAttribute('href', /^\/innlegg\/clug-roadie-mtb-sykkelstativ\/$/);
+  expect(await norwegian.evaluateAll((links) => links.every((a) => a.getAttribute('href')?.startsWith('/innlegg/')))).toBe(true);
 });
 
 // /api/csp tar bare imot POST, svarer alltid 204 uten innhold, og tåler både Reporting API og report-uri

@@ -1,0 +1,21 @@
+---
+title: "Taking part in the photo & video contest"
+summary: "The local paragliding club in Harstad holds a photo & video contest for its members. I took part in both categories."
+imageAlt: "Paraglider over a fjord and snow-covered mountains"
+tags: [club, contest]
+---
+import { Picture } from 'astro:assets';
+import Video from '../../components/Video.astro';
+import photo from '../../assets/images/konk-2017.jpg';
+
+See the result below.
+
+## Video
+
+<Video lang="en" id="od8NKwc5o6Q" title="My entry for the 2017 video contest" poster={photo} />
+
+## Photo
+
+<figure>
+  <Picture src={photo} formats={['avif', 'webp']} alt="Paraglider over a fjord and snow-covered mountains" widths={[720, 1024]} sizes="(max-width: 760px) 100vw, 720px" />
+</figure>

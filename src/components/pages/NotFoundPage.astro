@@ -1,0 +1,50 @@
+---
+import Page from '../../layouts/Page.astro';
+import Arrow from '../Arrow.astro';
+import Tile from '../Tile.astro';
+import { getPosts } from '../../lib/posts';
+import { t, urls, otherLang, type Lang } from '../../i18n';
+
+// Vises for alle ukjente adresser (not_found_handling i wrangler.jsonc). Cloudflare leverer den nærmeste
+// 404.html, så adresser under /en/ får den engelske. Mange kommer fra gamle WordPress-lenker, så siden tilbyr søk
+// og de nyeste innleggene i stedet for bare en blindvei. Søkefeltet sender til søkesiden med ?q=…, som virker
+// også uten JavaScript på denne siden.
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const text = t(lang).notFound;
+const u = urls(lang);
+const latest = (await getPosts(lang)).slice(0, 4);
+---
+<Page lang={lang} alternate={urls(otherLang(lang)).home} title={text.title}>
+  <div class="page-head">
+    <p class="eyebrow">404</p>
+    <h1>{text.heading}</h1>
+    <p>{text.text}</p>
+  </div>
+  <form class="search-404" role="search" action={u.search} method="get">
+    <label for="search-404">{text.searchLabel}</label>
+    <div>
+      <input id="search-404" name="q" type="search" placeholder={text.placeholder} autocomplete="off" />
+      <button type="submit">{text.searchButton}</button>
+    </div>
+  </form>
+  <p class="eyebrow">{text.latest}</p>
+  <ul class="rows archive">{latest.map((p) => <Tile post={p} />)}</ul>
+  <p class="back-home"><a href={u.home}>{text.home} <Arrow type="arrow" /></a> · <a href={u.posts}>{text.allPosts} <Arrow type="arrow" /></a></p>
+</Page>
+
+<style>
+  .search-404 { max-width: 560px; margin: 0 0 36px; }
+  .search-404 label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--soft); }
+  .search-404 div { display: flex; gap: 8px; }
+  .search-404 input {
+    flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 11px 14px; border-radius: var(--r);
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  }
+  .search-404 button {
+    font: 600 15px/1 var(--body); padding: 0 18px; border: 0; border-radius: var(--r); cursor: pointer;
+    background: var(--lime); color: #10293A;
+  }
+  .search-404 input:focus-visible, .search-404 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .back-home { margin: 28px 0 0; }
+</style>

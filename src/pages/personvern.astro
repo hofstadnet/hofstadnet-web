@@ -1,30 +1,5 @@
 ---
-import Page from '../layouts/Page.astro';
+// Personvern: /personvern/
+import PrivacyPage from '../components/pages/PrivacyPage.astro';
 ---
-<Page title="Personvern" description="Hva Hofstad.NET lagrer og ikke lagrer om deg som besøker siden.">
-  <article class="post">
-    <h1>Personvern</h1>
-    <p class="summary">Kort fortalt: siden samler ikke inn opplysninger om deg, bare anonyme besøkstall.</p>
-
-    <h2>Ingen informasjonskapsler eller profilering</h2>
-    <p>Hofstad.NET bruker ingen informasjonskapsler og ingen annonser, og følger deg ikke mellom sider eller nettsteder. Skrift, bilder og skript ligger på siden selv, med ett unntak som er beskrevet under.</p>
-
-    <h2>Besøkstall</h2>
-    <p>Siden bruker Cloudflare Web Analytics for å telle sidevisninger og måle hvor raskt sidene lastes. Et lite skript fra Cloudflare sender adressen til siden du ser på, hvor du kom fra, nettlesertype, land og lastetider. Det bruker ingen informasjonskapsler, lagrer ingenting i nettleseren din og lager ingen profil av deg. Jeg ser bare samlede tall.</p>
-
-    <h2>Flystatus på forsiden</h2>
-    <p>Forsiden viser om sporingen min er aktiv. Den opplysningen henter siden selv fra LiveTrack24, så nettleseren din kontakter ikke LiveTrack24 når du åpner forsiden.</p>
-
-    <h2>Lys eller mørk visning</h2>
-    <p>Velger du lys visning med bryteren i menyen, lagres det valget i din egen nettleser. Det sendes ikke til noen.</p>
-
-    <h2>Kart og video</h2>
-    <p>Live-kartet åpnes hos LiveTrack24 i en ny fane. Video hentes fra YouTube eller Vimeo, og det skjer først når du selv trykker på spill av. Da gjelder personvernreglene til den tjenesten.</p>
-
-    <h2>Feilrapporter</h2>
-    <p>Siden har strenge sikkerhetsregler for hva som får lastes og kjøres. Stopper nettleseren din noe på grunn av dem, sender den en kort feilrapport til siden selv. Rapporten sier hvilken side det gjaldt (uten søkeord eller annet etter «?»), hvilken regel som slo inn og hvor det stoppede kom fra. IP-adresse, nettleserinfo og innholdet på siden lagres ikke. Rapportene brukes bare til å rette feil og slettes automatisk etter noen dager.</p>
-
-    <h2>Drift</h2>
-    <p>Siden leveres gjennom Cloudflare, som behandler tekniske opplysninger som IP-adresse for å levere siden og stoppe angrep.</p>
-  </article>
-</Page>
+<PrivacyPage lang="nb" />

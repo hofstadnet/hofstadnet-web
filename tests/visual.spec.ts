@@ -28,7 +28,7 @@ const views = [
 ] as const;
 
 function masks(page: Page) {
-  return [page.locator('#flystatus [role="status"]'), page.locator('.last-flight'), page.locator('.flight-stats')];
+  return [page.locator('[data-flight-status] [role="status"]'), page.locator('.last-flight'), page.locator('.flight-stats')];
 }
 
 async function ready(page: Page) {
@@ -57,6 +57,20 @@ for (const p of pages) {
     });
   }
 }
+
+// Den engelske forsiden, på pc i mørk visning. Resten av de engelske sidene bruker de samme komponentene.
+test('skjermbilde home-en · dark · desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('hofstadnet-color-mode', 'dark'));
+  await page.goto('/en/', { waitUntil: 'networkidle' });
+  await ready(page);
+  await expect(page).toHaveScreenshot('home-en-dark-desktop.png', {
+    fullPage: true,
+    animations: 'disabled',
+    mask: masks(page),
+    maxDiffPixelRatio: 0.01,
+  });
+});
 
 test('skjermbilde søkepanel med treff', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });

@@ -1,17 +1,5 @@
 ---
-import Page from '../../layouts/Page.astro';
-import Areas from '../../components/Areas.astro';
-import Tile from '../../components/Tile.astro';
-import { getPosts, shareImage } from '../../lib/posts';
-
-const posts = await getPosts();
-const image = await shareImage(posts);
+// Alle innlegg: /innlegg/
+import PostListPage from '../../components/pages/PostListPage.astro';
 ---
-<Page title="Alle innlegg" description="Alle innlegg på Hofstad.NET, nyeste først." shareImage={image}>
-  <div class="page-head">
-    <p class="eyebrow">Blogg</p>
-    <h1>Alle innlegg</h1>
-  </div>
-  <Areas posts={posts} />
-  <ul class="rows archive">{posts.map((p) => <Tile post={p} />)}</ul>
-</Page>
+<PostListPage lang="nb" />

@@ -15,7 +15,7 @@ const posts = defineCollection({
       updated: z.coerce.date().optional(),
       // Hva innlegget handler om. Det første området vises som merkelapp på kort.
       areas: z.array(z.enum(areaIds)).min(1),
-      // Hva slags innhold det er, uavhengig av område. Navnet som vises på siden, står i typeLabels i src/lib/posts.ts.
+      // Hva slags innhold det er, uavhengig av område. Navnet som vises på siden, står i «types» i src/i18n/nb.ts.
       type: z.enum(['post', 'note', 'review', 'video', 'project']).default('post'),
       tags: z.array(z.string()).default([]),
       image: image().optional(),
@@ -29,4 +29,18 @@ const posts = defineCollection({
     }),
 });
 
-export const collections = { posts };
+// Engelske versjoner av innleggene, med samme filnavn (ID) som det norske innlegget. Bare tekstene oversettes.
+// Datoer, områder, type, bilde, utkast og resten hentes fra det norske innlegget (getPosts i src/lib/posts.ts).
+// strict() stopper bygget hvis et felt som hører til det norske innlegget, er skrevet her.
+const postsEn = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts-en' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    // Uten alt-tekst brukes den norske
+    imageAlt: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+  }).strict(),
+});
+
+export const collections = { posts, postsEn };

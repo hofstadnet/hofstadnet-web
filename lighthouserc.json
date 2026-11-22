@@ -6,7 +6,8 @@
         "http://localhost/",
         "http://localhost/innlegg/",
         "http://localhost/innlegg/clug-roadie-mtb-sykkelstativ/",
-        "http://localhost/omrade/luft/"
+        "http://localhost/omrade/luft/",
+        "http://localhost/en/"
       ],
       "numberOfRuns": 1,
       "settings": {

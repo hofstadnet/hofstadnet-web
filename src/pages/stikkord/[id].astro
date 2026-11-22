@@ -1,26 +1,8 @@
 ---
-import Page from '../../layouts/Page.astro';
-import Tile from '../../components/Tile.astro';
-import Arrow from '../../components/Arrow.astro';
-import { getPosts, allTags, shareImage, type Tag } from '../../lib/posts';
+// Innlegg per stikkord: /stikkord/<stikkord>/
+import TagPage from '../../components/pages/TagPage.astro';
+import { tagPaths } from '../../lib/routes';
 
-// Én side per stikkord, med alle innleggene som har det
-export async function getStaticPaths() {
-  const tags = allTags(await getPosts());
-  return tags.map((t) => ({ params: { id: t.id }, props: { tag: t } }));
-}
-
-interface Props { tag: Tag; }
-const { tag } = Astro.props;
-const image = await shareImage(tag.posts);
-const n = tag.posts.length;
+export const getStaticPaths = () => tagPaths('nb');
 ---
-<Page title={`#${tag.name}`} description={`Innlegg med stikkordet ${tag.name} på Hofstad.NET.`} shareImage={image}>
-  <div class="page-head">
-    <p class="eyebrow"><a href="/stikkord/">Stikkord</a></p>
-    <h1>#{tag.name}</h1>
-    <p>{n} innlegg med dette stikkordet.</p>
-  </div>
-  <ul class="rows archive">{tag.posts.map((p) => <Tile post={p} />)}</ul>
-  <p><a href="/stikkord/">Alle stikkord <Arrow type="arrow" /></a></p>
-</Page>
+<TagPage {...Astro.props} />

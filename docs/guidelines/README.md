@@ -21,7 +21,7 @@ Endringer i Cloudflare-sonen følger [infra/README.md](../../infra/README.md).
 | Engelsk | Norsk |
 |---|---|
 | Mapper og filnavn | Innholdet på siden |
-| Kode: variabler, funksjoner, komponenter, CSS-klasser, felt i innholdsmodellen | Adresser på siden (`/innlegg/`, `/omrade/luft/`) |
+| Kode: variabler, funksjoner, komponenter, CSS-klasser, felt i innholdsmodellen | Adresser på siden (`/innlegg/`, `/omrade/luft/`). Engelske sider har engelske adresser (`/en/posts/`). |
 | npm-skript, arbeidsflyter, jobbnavn og branch-navn | Dokumentasjon og kommentarer i koden |
 | Tokens, secrets, variabler, miljøer, bøtter og OpenTofu-ressurser | Commit-meldinger og pull requests |
 | `data-*`-attributter, element-ID-er og nøkler i JSON | Filer og mapper i `src/pages/`, fordi de følger adressene |

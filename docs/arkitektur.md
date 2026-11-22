@@ -119,6 +119,12 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   oppbevares utenfor begge tjenestene.
 - **Deploy-tilgang:** Cloudflare Workers Builds henter repoet via GitHub-appen og publiserer fra `main`. Det finnes
   ingen API-token for publisering i GitHub. Workflows har `permissions: contents: read` som utgangspunkt.
+  Byggetokenet (`hofstadnet-web-builds`) har bare det publiseringen trenger: Workers Scripts Edit og Account Settings
+  Read på kontoen, Workers Routes Edit på hofstad.net, og Memberships Read og User Details Read. Det er et brukertoken,
+  fordi Workers Builds ennå ikke støtter kontotokens. Bytt når det kommer.
+- **OpenTofu-tilgang:** kontotokenet `hofstadnet-tofu` (DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL
+  Redirects på hofstad.net, Zone Read, og Notifications på kontoen) og R2-tokenet `hofstadnet-tofu-state`
+  (Object Read & Write på bøtta `hofstadnet-tofu`). Begge ligger som GitHub-secrets og utløper 22.11.2027.
 - **Hemmeligheter:** Workeren har ingen. Statustjenesten leser en offentlig adresse hos LiveTrack24.
 - **Forhåndsvisninger** av pull requests bygges av Workers Builds. Repoet er offentlig, så innholdet i en PR er
   uansett synlig. Det gjelder også innlegg merket `utkast: true`: de vises ikke på siden, men Markdown-filen kan leses

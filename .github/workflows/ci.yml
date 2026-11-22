@@ -44,3 +44,6 @@ jobs:
 
       - name: security.txt er ikke i ferd med å utløpe
         run: node scripts/sjekk-security-txt.mjs
+
+      - name: Dokumentasjonen peker på ting som finnes
+        run: node scripts/sjekk-dokumentasjon.mjs

@@ -9,8 +9,9 @@ _site/
 __pycache__/
 .venv/
 
-# Lokalt oppsett
-.claude/
+# Lokalt oppsett. Skills for Claude Code (.claude/skills/) deles i repoet, resten er lokalt.
+.claude/*
+!.claude/skills/
 .vscode/
 .idea/
 .DS_Store

@@ -122,6 +122,9 @@ Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, 
   Byggetokenet (`hofstadnet-web-builds`) har bare det publiseringen trenger: Workers Scripts Edit og Account Settings
   Read på kontoen, Workers Routes Edit på hofstad.net, og Memberships Read og User Details Read. Det er et brukertoken,
   fordi Workers Builds ennå ikke støtter kontotokens. Bytt når det kommer.
+- **Avhengigheter:** Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter at de kom ut.
+  Patch- og minor-oppdateringer av npm-pakker og GitHub Actions merges automatisk når alle påkrevde sjekker er grønne
+  (`.github/workflows/dependabot-automerge.yml`). Major-oppdateringer og OpenTofu-provideren merges manuelt.
 - **OpenTofu-tilgang:** kontotokenet `hofstadnet-tofu` (DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL
   Redirects på hofstad.net, Zone Read, og Notifications på kontoen) og R2-tokenet `hofstadnet-tofu-state`
   (Object Read & Write på bøtta `hofstadnet-tofu`). Begge ligger som GitHub-secrets og utløper 22.11.2027.

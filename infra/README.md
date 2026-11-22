@@ -24,7 +24,9 @@ infra/
   R2-bøtta `hofstadnet-tofu` i Cloudflare-kontoen, låses under kjøring (`use_lockfile`) og krypteres med AES-GCM
   før den lastes opp. Den legges aldri i git, fordi state kan inneholde verdier fra Cloudflare som ikke står i koden.
 - **Låste versjoner.** OpenTofu-versjonen er låst i workflowen, provideren i `versions.tf`, og sjekksummene i
-  `.terraform.lock.hcl`. Dependabot foreslår oppdateringer av Actions.
+  `.terraform.lock.hcl`. Dependabot foreslår nye versjoner av provideren og Actions én gang i måneden, og planen på
+  PR-en viser om en ny versjon endrer noe i Cloudflare. Når provideren støtter `workers_observability_real_time_issue`,
+  kan Worker-varselet flyttes inn i `terraform.tfvars`.
 - **Ingen hemmeligheter i repoet.** API-tokenet, R2-nøklene og passfrasen ligger bare som GitHub-secrets.
 
 ## Flyt

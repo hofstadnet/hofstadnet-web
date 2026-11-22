@@ -117,7 +117,9 @@ ingen spor, koordinater eller startsteder.
 `.github/workflows/kvalitet.yml` kjører på hver pull request:
 
 - **Lighthouse CI** (`lighthouserc.json`): stopper ved tilgjengelighet eller SEO under 95. Ytelse og beste praksis
-  under 90 gir advarsel. Lokalt: `npm run build`, og deretter `npm run test:lighthouse`.
+  under 90 gir advarsel. Ytelsesbudsjett per side: JavaScript 40 kB, CSS 25 kB, skrift 60 kB, bilder 400 kB, totalt
+  600 kB og maks 5 forespørsler til tredjeparter (i dag 14–17, 7–11, 46, 12–193, 98–282 kB og 3). Lokalt:
+  `npm run build`, og deretter `npm run test:lighthouse`.
 - **Tilgjengelighet** (`tests/tilgjengelighet.spec.ts`): axe sjekker alle sidene i nettstedskartet mot WCAG 2.2 AA,
   i mørk og lys visning og i 320 og 1280 px. Testen stopper også hvis siden blir bredere enn skjermen, eller ved
   CSP-brudd og JavaScript-feil. En egen test søker og blar i galleriet, så brudd på Trusted Types blir oppdaget.

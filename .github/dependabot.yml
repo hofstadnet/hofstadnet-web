@@ -28,3 +28,18 @@ updates:
       # godtar TypeScript 7, ellers feiler «npm ci» og bygget.
       - dependency-name: typescript
         update-types: ["version-update:semver-major"]
+
+  # Cloudflare-provideren i infra/ (OpenTofu). Oppdaterer versjonen i versions.tf og sjekksummene i
+  # .terraform.lock.hcl. Planen på PR-en viser om en ny versjon endrer noe i Cloudflare.
+  - package-ecosystem: opentofu
+    directories:
+      - /infra/hofstad.net
+      - /infra/moduler/cloudflare-sone
+    schedule:
+      interval: monthly
+    labels: ["dependencies"]
+    cooldown:
+      default-days: 7
+    groups:
+      opentofu:
+        patterns: ["*"]

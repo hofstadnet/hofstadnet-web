@@ -35,6 +35,9 @@ infra/
 2. **plan** på pull requests: viser hva som vil endres, i oppsummeringen av kjøringen.
 3. **apply** etter merge til main, bare når planen har endringer. Venter på godkjenning i miljøet `cloudflare`.
 
+4. **avvik** hver mandag: planen kjøres mot Cloudflare. Viser den endringer, er noe endret utenfor koden, og
+   det opprettes en issue. Ingenting endres automatisk.
+
 `plan` og `apply` kjører først når repovariabelen `TOFU_ENABLED` er `true`.
 
 Utenfor koden: Worker-varselet «hofstadnet-web: ny feil i Workeren», fordi Cloudflare-provideren 5.29.0 ikke

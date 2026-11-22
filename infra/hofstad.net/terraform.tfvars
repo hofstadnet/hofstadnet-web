@@ -57,8 +57,8 @@ blokkerte_stier = {
 }
 
 ratebegrensning = {
-  sti                 = "/api/status"
-  beskrivelse         = "Begrens /api/status per IP"
+  stier               = ["/api/status", "/api/csp"]
+  beskrivelse         = "Begrens /api/status og /api/csp per IP"
   foresporsler        = 20
   periode_sekunder    = 10
   blokkering_sekunder = 10

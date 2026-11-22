@@ -77,9 +77,9 @@ variable "blokkerte_stier" {
 }
 
 variable "ratebegrensning" {
-  description = "Rate limiting per IP på én sti. null for ingen."
+  description = "Rate limiting per IP på stiene i listen (felles grense). null for ingen."
   type = object({
-    sti                 = string
+    stier               = list(string)
     beskrivelse         = optional(string, "Rate limiting per IP")
     foresporsler        = number
     periode_sekunder    = number

@@ -30,6 +30,17 @@ async function fellesHoder() {
 }
 const hoder = await fellesHoder();
 
+// Gjør en Node-forespørsel om til en Request for Workeren, med innholdet for POST (CSP-rapporter)
+async function somRequest(req, sti) {
+  const init = { method: req.method, headers: { 'Content-Type': req.headers['content-type'] ?? '' } };
+  if (req.method === 'POST') {
+    const deler = [];
+    for await (const del of req) deler.push(del);
+    init.body = Buffer.concat(deler);
+  }
+  return new Request(`http://localhost${sti}`, init);
+}
+
 createServer(async (req, res) => {
   const adresse = new URL(req.url ?? '/', 'http://x');
   const sti = decodeURIComponent(adresse.pathname);
@@ -40,8 +51,8 @@ createServer(async (req, res) => {
     const test = adresse.searchParams.get('test');
     const svar = test && sti === '/api/status'
       ? Response.json({ status: test, sjekket: new Date().toISOString() })
-      : await worker.fetch(new Request(`http://localhost${sti}`, { method: req.method }), {}, { waitUntil() {} });
-    res.writeHead(svar.status, Object.fromEntries(svar.headers)).end(await svar.text());
+      : await worker.fetch(await somRequest(req, sti), {}, { waitUntil() {} });
+    res.writeHead(svar.status, Object.fromEntries(svar.headers)).end(svar.body ? await svar.text() : undefined);
     return;
   }
 

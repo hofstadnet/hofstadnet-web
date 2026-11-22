@@ -37,6 +37,10 @@ infra/
 
 `plan` og `apply` kjører først når repovariabelen `TOFU_ENABLED` er `true`.
 
+Utenfor koden: Worker-varselet «hofstadnet-web: ny feil i Workeren», fordi Cloudflare-provideren 5.29.0 ikke
+godtar varseltypen `workers_observability_real_time_issue` ennå. Email Routing (videresendingen av e-post) er
+også utenfor, fordi målet er en privat e-postadresse som ikke skal stå i et offentlig repo.
+
 Endringer gjort i dashbordet blir overskrevet ved neste apply. Gjør endringer her, eller legg dem inn her etterpå.
 
 ## Oppsett (én gang)

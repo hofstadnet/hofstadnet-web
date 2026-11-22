@@ -68,7 +68,8 @@ ki_roboter     = "block"
 bot_fight_mode = false
 
 varsel_epost = "admin@hofstad.net"
+# Varselet «hofstadnet-web: ny feil i Workeren» (workers_observability_real_time_issue) finnes også, men står
+# utenfor koden: Cloudflare-provideren 5.29.0 godtar ikke den varseltypen ennå. Legg det inn her når den gjør det.
 varsler = {
-  worker_feil = { navn = "hofstadnet-web: ny feil i Workeren", beskrivelse = "Varsel når Workers Observability finner en ny feiltype (issue), f.eks. i /api/status.", type = "workers_observability_real_time_issue" }
-  ddos        = { navn = "hofstad.net: HTTP DDoS-angrep", beskrivelse = "Varsel når Cloudflare stopper et DDoS-angrep mot sonen.", type = "dos_attack_l7" }
+  ddos = { navn = "hofstad.net: HTTP DDoS-angrep", beskrivelse = "Varsel når Cloudflare stopper et DDoS-angrep mot sonen.", type = "dos_attack_l7" }
 }

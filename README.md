@@ -53,16 +53,16 @@ installeres på nytt etter `npm ci`.
 
 ## Skrive et innlegg
 
-Lag en fil i `src/content/innlegg/`. Filnavnet blir adressen: `mitt-innlegg.md` blir `/innlegg/mitt-innlegg/`.
+Lag en fil i `src/content/posts/`. Filnavnet blir adressen: `mitt-innlegg.md` blir `/innlegg/mitt-innlegg/`.
 
 ```markdown
 ---
-tittel: "Tittelen"
-ingress: "Én eller to setninger som vises på kort og øverst i innlegget."
-publisert: 2026-12-01
-omrader: [luft]
-bilde: ../../assets/bilder/mitt-bilde.jpg
-bildeAlt: "Hva bildet viser"
+title: "Tittelen"
+summary: "Én eller to setninger som vises på kort og øverst i innlegget."
+published: 2026-12-01
+areas: [luft]
+image: ../../assets/images/mitt-bilde.jpg
+imageAlt: "Hva bildet viser"
 ---
 
 Teksten skrives i Markdown.
@@ -70,51 +70,52 @@ Teksten skrives i Markdown.
 
 | Felt | Påkrevd | Forklaring |
 |---|---|---|
-| `tittel`, `ingress`, `publisert` | Ja | |
-| `omrader` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
-| `type` | Nei | `innlegg` (standard), `notat`, `test`, `video` eller `prosjekt`. |
-| `stikkord` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
-| `bilde`, `bildeAlt` | Nei | Hovedbilde i `src/assets/bilder/`. |
-| `bildeFokus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
-| `harVideo` | Nei | `true` gir avspillingsmerke på kort. |
-| `oppdatert` | Nei | Dato for siste endring. Brukes også i nettstedskartet. |
-| `utkast` | Nei | `true` holder innlegget utenfor den publiserte siden. Filen er likevel synlig i det offentlige repoet. |
+| `title`, `summary`, `published` | Ja | Tittel, ingress og publiseringsdato. |
+| `areas` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
+| `type` | Nei | `post` (standard), `note`, `review`, `video` eller `project`. Vises på innlegget som «notat», «test», «video» eller «prosjekt» (`typeLabels` i `src/lib/posts.ts`). |
+| `tags` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
+| `image`, `imageAlt` | Nei | Hovedbilde i `src/assets/images/`. |
+| `imageFocus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
+| `hasVideo` | Nei | `true` gir avspillingsmerke på kort. |
+| `updated` | Nei | Dato for siste endring. Brukes også i nettstedskartet. |
+| `draft` | Nei | `true` holder innlegget utenfor den publiserte siden. Filen er likevel synlig i det offentlige repoet. |
 
 Bygget stopper hvis et påkrevd felt mangler, et område er ukjent eller et bilde ikke finnes.
 
 ### Video og bildegalleri
 
-Innlegg med video eller galleri lagres som `.mdx`. Eksempler: `src/content/innlegg/deltaker-i-foto-video-konk-2019.mdx`
-og `src/content/innlegg/clug-roadie-mtb-sykkelstativ.mdx`.
+Innlegg med video eller galleri lagres som `.mdx`. Eksempler: `src/content/posts/deltaker-i-foto-video-konk-2019.mdx`
+og `src/content/posts/clug-roadie-mtb-sykkelstativ.mdx`.
 
-- **Video:** `<Video id="..." tittel="..." plakat={bilde} />`. Forhåndsvisningen er et lokalt bilde. Spilleren hentes
+- **Video:** `<Video id="..." title="..." poster={image} />`. Forhåndsvisningen er et lokalt bilde. Spilleren hentes
   fra YouTube eller Vimeo først når den besøkende trykker.
-- **Galleri:** `<Galleri bilder={[...]} />`. Ett stort bilde med småbilder under, blaing og fullskjerm.
+- **Galleri:** `<Gallery images={[{ src, alt, caption }]} />`. Ett stort bilde med småbilder under, blaing og
+  fullskjerm.
 
 ### Flystatistikk
 
 Statistikken på «I lufta» og «Siste tur» på forsiden regnes ut lokalt fra IGC-filer og lagres som summer i
-`src/data/flystatistikk.json`. Kjør skriptet etter nye turer og sjekk inn JSON-filen:
+`src/data/flight-stats.json`. Kjør skriptet etter nye turer og sjekk inn JSON-filen:
 
 ```bash
-npm run flight-stats -- "<mappe med IGC-filer>" --utelat "<navn>,<navn>"
+npm run flight-stats -- "<mappe med IGC-filer>" --exclude "<navn>,<navn>"
 ```
 
 - Flere mapper kan gis etter hverandre. Samme tur i flere mapper telles én gang.
-- `--utelat` hopper over spor fra andre piloter i felles mapper.
+- `--exclude` hopper over spor fra andre piloter i felles mapper.
 - IGC-filer sjekkes aldri inn, og JSON-filen inneholder ingen spor, koordinater eller startsteder.
 
 ## Mappestruktur
 
 | Sti | Innhold |
 |---|---|
-| `src/content/innlegg/` | Innleggene, én fil per innlegg |
+| `src/content/posts/` | Innleggene, én fil per innlegg |
 | `src/content.config.ts` | Innholdsmodellen innleggene valideres mot |
-| `src/pages/` | Forside, innlegg, arkiv, områder, stikkord, søk, RSS, personvern og 404 |
+| `src/pages/` | Forside, innlegg, arkiv, områder, stikkord, søk, RSS, personvern og 404. Filnavnene følger adressene. |
 | `src/components/`, `src/layouts/` | Byggeklossene sidene er satt sammen av |
 | `src/lib/` | Områder, hjelpefunksjoner for innlegg, strukturert data og tolking av flystatus |
 | `src/scripts/`, `src/styles/` | Skript og stilark |
-| `src/assets/bilder/` | Bilder som optimaliseres ved bygg |
+| `src/assets/images/` | Bilder som optimaliseres ved bygg |
 | `src/data/` | Flystatistikk |
 | `public/` | Filer som kopieres uendret, blant annet `_headers`, `_redirects` og `.well-known/security.txt` |
 | `worker/` | Workeren for `/api/status` og `/api/csp` |
@@ -131,8 +132,8 @@ infrastrukturkoden, byggeskript og arbeidsflyter.
 
 Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
 
-- bildene i `src/assets/bilder/`
-- innleggene i `src/content/innlegg/`
+- bildene i `src/assets/images/`
+- innleggene i `src/content/posts/`
 - logoen og ikonene med Hofstad.NET-merket i `public/`, `public/assets/logo/` og delingsbildet
   `public/og-image-1200x630.png`
 

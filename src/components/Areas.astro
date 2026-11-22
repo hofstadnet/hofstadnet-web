@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro';
+import { areas } from '../lib/areas';
+import { inArea, type Post } from '../lib/posts';
+// Raden med de fem områdene og antall innlegg i hvert.
+interface Props { posts: Post[]; active?: string; }
+const { posts, active } = Astro.props;
+---
+<ul class="areas" aria-label="Områder">
+  {areas.map((a) => (
+    <li>
+      <a href={`/omrade/${a.id}/`} aria-current={active === a.id ? 'page' : undefined}>
+        <Icon name={a.icon} />
+        <em>{inArea(posts, a.id).length}</em>
+        <b>{a.name}</b>
+        <span>{a.subtitle}</span>
+      </a>
+    </li>
+  ))}
+</ul>

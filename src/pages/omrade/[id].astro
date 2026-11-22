@@ -1,32 +1,32 @@
 ---
-import Side from '../../layouts/Side.astro';
-import Omrader from '../../components/Omrader.astro';
-import Flis from '../../components/Flis.astro';
-import Flystatistikk from '../../components/Flystatistikk.astro';
-import { hentInnlegg, iOmrade, delingsbilde } from '../../lib/innlegg';
-import { omrader } from '../../lib/omrader';
+import Page from '../../layouts/Page.astro';
+import Areas from '../../components/Areas.astro';
+import Tile from '../../components/Tile.astro';
+import FlightStats from '../../components/FlightStats.astro';
+import { getPosts, inArea, shareImage } from '../../lib/posts';
+import { areas, type Area } from '../../lib/areas';
 
 export function getStaticPaths() {
-  return omrader.map((o) => ({ params: { id: o.id }, props: { omrade: o } }));
+  return areas.map((a) => ({ params: { id: a.id }, props: { area: a } }));
 }
 
-interface Props { omrade: (typeof omrader)[number]; }
-const { omrade } = Astro.props;
-const alle = await hentInnlegg();
-const innlegg = iOmrade(alle, omrade.id);
-const deling = await delingsbilde(innlegg);
+interface Props { area: Area; }
+const { area } = Astro.props;
+const all = await getPosts();
+const posts = inArea(all, area.id);
+const image = await shareImage(posts);
 ---
-<Side tittel={omrade.navn} beskrivelse={omrade.beskrivelse} delingsbilde={deling}>
+<Page title={area.name} description={area.description} shareImage={image}>
   <div class="page-head">
-    <p class="eyebrow">{omrade.undertekst}</p>
-    <h1>{omrade.navn}</h1>
-    <p>{omrade.beskrivelse}</p>
+    <p class="eyebrow">{area.subtitle}</p>
+    <h1>{area.name}</h1>
+    <p>{area.description}</p>
   </div>
-  <Omrader innlegg={alle} aktiv={omrade.id} />
-  {omrade.id === 'luft' && <Flystatistikk />}
-  {innlegg.length > 0 ? (
-    <ul class="rows arkiv">{innlegg.map((i) => <Flis innlegg={i} />)}</ul>
+  <Areas posts={all} active={area.id} />
+  {area.id === 'luft' && <FlightStats />}
+  {posts.length > 0 ? (
+    <ul class="rows archive">{posts.map((p) => <Tile post={p} />)}</ul>
   ) : (
     <p class="empty">Ingen innlegg her ennå.</p>
   )}
-</Side>
+</Page>

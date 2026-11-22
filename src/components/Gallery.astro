@@ -1,0 +1,31 @@
+---
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+// Bildegalleri: ett stort bilde med småbildene på én rad under, og fullskjerm.
+// Uten JavaScript er småbildene vanlige lenker til de store bildene. AVIF gir omtrent halvparten av
+// størrelsen til WebP, og støttes av alle nettlesere som er oppdatert de siste årene.
+interface GalleryImage { src: ImageMetadata; alt: string; caption?: string; }
+interface Props { images: GalleryImage[]; label?: string; }
+const { images, label = 'Bilder' } = Astro.props;
+const processed = await Promise.all(
+  images.map(async (img) => ({
+    ...img,
+    large: await getImage({ src: img.src, width: Math.min(1600, img.src.width), format: 'avif' }),
+    small: await getImage({ src: img.src, width: 480, height: 320, fit: 'cover', format: 'avif' }),
+  })),
+);
+---
+<ul class="gallery" aria-label={label}>
+  {processed.map((img) => (
+    <li>
+      <a href={img.large.src} data-caption={img.caption ?? img.alt}>
+        <img src={img.small.src} alt={img.alt} width="480" height="320" loading="lazy" />
+      </a>
+    </li>
+  ))}
+</ul>
+<p class="gallery-note">Bla med pilene eller småbildene. Trykk på bildet for å se det i fullskjerm.</p>
+
+<script>
+  import '../scripts/media.js';
+</script>

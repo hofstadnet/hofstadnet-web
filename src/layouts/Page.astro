@@ -1,0 +1,20 @@
+---
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/home.css';
+import '../styles/post.css';
+
+// Felles ramme for alle sider utenom forsiden: toppmeny på vanlig bakgrunn og bunntekst.
+interface Props { title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; }
+const { title, description, shareImage, structuredData } = Astro.props;
+---
+<Base title={title} description={description} shareImage={shareImage} structuredData={structuredData}>
+  <div class="wrap">
+    <Header />
+    <main id="content">
+      <slot />
+    </main>
+    <Footer />
+  </div>
+</Base>

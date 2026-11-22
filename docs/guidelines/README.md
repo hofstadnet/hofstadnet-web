@@ -21,6 +21,7 @@ Endringer i Cloudflare-sonen følger [infra/README.md](../../infra/README.md).
 | Kode: variabler, funksjoner, komponenter, CSS-klasser, felt i innholdsmodellen | Adresser på siden (`/innlegg/`, `/omrade/luft/`) |
 | npm-skript, arbeidsflyter, jobbnavn og branch-navn | Dokumentasjon og kommentarer i koden |
 | Tokens, secrets, variabler, miljøer, bøtter og OpenTofu-ressurser | Commit-meldinger og pull requests |
+| `data-*`-attributter, element-ID-er og nøkler i JSON | Filer og mapper i `src/pages/`, fordi de følger adressene |
 
 Navn skrives med små bokstaver og bindestrek (for eksempel «link-check.yml» og «check-csp.mjs»), unntatt der
 språket har egne regler: PascalCase for komponenter, camelCase for variabler og SCREAMING_SNAKE_CASE for secrets.

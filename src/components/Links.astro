@@ -1,0 +1,32 @@
+---
+import Icon from './Icon.astro';
+import Arrow from './Arrow.astro';
+// «Finn meg også her». Rekkefølgen er bestemt av eier.
+const links = [
+  { name: 'Instagram', text: '@krishofs · bilder og små glimt', icon: 'instagram', href: 'https://www.instagram.com/krishofs/' },
+  { name: 'Snapchat', text: '@krishofs', icon: 'snapchat', href: 'https://www.snapchat.com/add/krishofs' },
+  { name: 'YouTube', text: 'Videoarkivet', icon: 'youtube', href: 'https://www.youtube.com/@krishofs' },
+  { name: 'LiveTrack24', text: 'Livetrack-profilen min', icon: 'livetrack24', href: 'https://www.livetrack24.com/user/krishofs' },
+  { name: 'pgpilot', text: 'Flyloggen min', icon: 'pgpilot', href: 'https://pgpilot.app/pilot/krishofs' },
+  { name: 'Prosjektloggen', text: 'Det jeg holder på med', icon: 'screen', href: '/omrade/skjerm/' },
+];
+---
+{/* id="lenker" er målet for /#lenker i menyen, og er derfor en del av adressen */}
+<div class="box" id="lenker">
+  <p class="eyebrow">Finn meg også her</p>
+  <ul class="links">
+    {links.map((l) => {
+      const external = l.href.startsWith('https://');
+      return (
+        <li>
+          <a href={l.href} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+            <Icon name={l.icon} />
+            <b>{l.name}</b>
+            <span>{l.text}</span>
+            <i><Arrow type={external ? 'ext' : 'arrow'} /></i>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</div>

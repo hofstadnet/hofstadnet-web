@@ -46,7 +46,7 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 | Oppetid for forsiden, `/api/status`, søket og RSS | status.hofstad.net, hvert 5. minutt | Issue i `hofstadnet/status` |
 | Besøk og Core Web Vitals | Cloudflare Web Analytics | — |
 | Logger, sporing og feil i Workeren | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
-| Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-brudd`) | E-post ved ny feiltype |
+| Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-violation`) | E-post ved ny feiltype |
 | DDoS-angrep mot sonen | Cloudflare Notifications | E-post |
 | Nye sertifikater for hofstad.net | Certificate Transparency i Cloudflare | E-post |
 | Avvik mellom Cloudflare og `infra/` | `infra.yml`, mandager | Issue |
@@ -61,7 +61,7 @@ Varsler fra Cloudflare går til admin@hofstad.net.
 ### Oppdatere flystatistikken
 
 Kjør `npm run flight-stats` med mappen med IGC-filer (se [README](../README.md#flystatistikk)), og sjekk inn
-`src/data/flystatistikk.json` i en PR.
+`src/data/flight-stats.json` i en PR.
 
 ### Endre utseendet
 
@@ -91,8 +91,8 @@ Infrastructure → Run workflow på `main`, og apply godkjennes.
 
 ### Når et CSP-varsel kommer
 
-Søk etter `csp-brudd` i Workers Logs. `direktiv` viser hvilken regel som slo inn, og `kilde` og `linje` hvor.
-`blokkert: trusted-types-sink` betyr at et skript har prøvd å sette inn HTML som tekst.
+Søk etter `csp-violation` i Workers Logs. `directive` viser hvilken regel som slo inn, og `source` og `line` hvor.
+`blocked: trusted-types-sink` betyr at et skript har prøvd å sette inn HTML som tekst.
 
 ### Rulle tilbake
 

@@ -9,10 +9,10 @@
 # kompilering av WebAssembly, ikke eval() av JavaScript.
 # Trusted Types (require-trusted-types-for 'script'): nettleseren nekter skript å sette inn HTML som tekst
 # (innerHTML o.l.) eller sette skriptadresser fra tekst. Sidens egne skript bygger elementene direkte, så en hel
-# klasse XSS-feil stoppes i nettleseren. Eneste policy er «default» i src/scripts/sok-motor.js, som bare slipper
+# klasse XSS-feil stoppes i nettleseren. Eneste policy er «default» i src/scripts/search-engine.js, som bare slipper
 # gjennom søkets egen arbeidertråd (/pagefind/pagefind-worker.js).
 # report-uri og report-to: nettleseren melder fra til /api/csp når noe blir stoppet. Workeren logger bare side,
-# direktiv og hvor det blokkerte kom fra, uten IP, nettleserinfo eller utdrag av kode (se worker/csp-rapport.js).
+# direktiv og hvor det blokkerte kom fra, uten IP, nettleserinfo eller utdrag av kode (se worker/csp-report.js).
 # Cross-Origin-Resource-Policy: andre nettsteder kan ikke laste sidens filer inn i sine sider. Bilder og
 # logoer er unntatt nedenfor, så de vises i RSS-lesere på nett og når noen deler en lenke.
 /*

@@ -1,0 +1,27 @@
+---
+import { Picture } from 'astro:assets';
+import { postUrl, formatDateIso, formatDateShort, type Post } from '../lib/posts';
+import { areaName } from '../lib/areas';
+// Innleggskort med bilde. «large» brukes for det nyeste innlegget på forsiden.
+interface Props { post: Post; large?: boolean; }
+const { post, large = false } = Astro.props;
+const d = post.data;
+---
+<a class:list={['card', { lead: large, 'has-video': d.hasVideo }]} href={postUrl(post)}>
+  {d.image && (
+    <span class="media"><Picture
+      formats={['avif', 'webp']}
+      src={d.image}
+      alt={d.imageAlt}
+      widths={large ? [480, 900] : [360, 720]}
+      sizes={large ? '(max-width: 900px) 100vw, 420px' : '(max-width: 620px) 108px, 360px'}
+      loading="lazy"
+      class={`focus-${d.imageFocus}`}
+    /></span>
+  )}
+  <div>
+    <span class="kicker">{areaName(d.areas[0])} <time datetime={formatDateIso(d.published)}>{formatDateShort(d.published)}</time></span>
+    <h3>{d.title}</h3>
+    <p>{d.summary}</p>
+  </div>
+</a>

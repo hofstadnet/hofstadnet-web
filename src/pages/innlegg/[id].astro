@@ -1,61 +1,61 @@
 ---
 import { render } from 'astro:content';
-import Side from '../../layouts/Side.astro';
-import Pil from '../../components/Pil.astro';
-import Innholdsfortegnelse from '../../components/Innholdsfortegnelse.astro';
-import Stikkord from '../../components/Stikkord.astro';
-import Flis from '../../components/Flis.astro';
-import { hentInnlegg, datoIso, datoLang, lesetid, delingsbilde, relaterte, type Innlegg } from '../../lib/innlegg';
-import { omradeNavn } from '../../lib/omrader';
-import { innlegg as strukturertInnlegg } from '../../lib/strukturert';
+import Page from '../../layouts/Page.astro';
+import Arrow from '../../components/Arrow.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import Tags from '../../components/Tags.astro';
+import Tile from '../../components/Tile.astro';
+import { getPosts, formatDateIso, formatDateLong, readingTime, shareImage, relatedPosts, typeLabels, type Post } from '../../lib/posts';
+import { areaName } from '../../lib/areas';
+import { blogPosting } from '../../lib/structured-data';
 
 // Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
-const MIN_OVERSKRIFTER = 3;
+const MIN_HEADINGS = 3;
 
 export async function getStaticPaths() {
-  const innlegg = await hentInnlegg();
-  return innlegg.map((i) => ({ params: { id: i.id }, props: { innlegg: i, beslektet: relaterte(i, innlegg) } }));
+  const posts = await getPosts();
+  return posts.map((p) => ({ params: { id: p.id }, props: { post: p, related: relatedPosts(p, posts) } }));
 }
 
-interface Props { innlegg: Innlegg; beslektet: Innlegg[]; }
-const { innlegg, beslektet } = Astro.props;
-const d = innlegg.data;
-const { Content, headings } = await render(innlegg);
-const medFortegnelse = headings.filter((h) => h.depth === 2).length >= MIN_OVERSKRIFTER;
-const deling = await delingsbilde(innlegg);
+interface Props { post: Post; related: Post[]; }
+const { post, related } = Astro.props;
+const d = post.data;
+const { Content, headings } = await render(post);
+const hasToc = headings.filter((h) => h.depth === 2).length >= MIN_HEADINGS;
+const image = await shareImage(post);
 ---
-<Side tittel={d.tittel} beskrivelse={d.ingress} delingsbilde={deling} strukturert={strukturertInnlegg(innlegg, deling)}>
-  <div class:list={['post-wrap', { 'has-toc': medFortegnelse }]}>
+<Page title={d.title} description={d.summary} shareImage={image} structuredData={blogPosting(post, image)}>
+  <div class:list={['post-wrap', { 'has-toc': hasToc }]}>
     <article class="post" data-pagefind-body>
-      <a class="back" href="/innlegg/" data-pagefind-ignore><Pil type="arrow" snudd /> Alle innlegg</a>
+      <a class="back" href="/innlegg/" data-pagefind-ignore><Arrow type="arrow" flipped /> Alle innlegg</a>
       <div data-pagefind-ignore>
         <span class="kicker">
-          {d.omrader.map((o, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${o}/`}>{omradeNavn(o)}</a></>))}
-          {d.type !== 'innlegg' && ` · ${d.type}`}
+          {d.areas.map((a, n) => (<>{n > 0 && ' · '}<a href={`/omrade/${a}/`}>{areaName(a)}</a></>))}
+          {d.type !== 'post' && ` · ${typeLabels[d.type]}`}
         </span>
       </div>
-      <h1 data-pagefind-meta="title" data-pagefind-ignore>{d.tittel}</h1>
+      <h1 data-pagefind-meta="title" data-pagefind-ignore>{d.title}</h1>
       <p class="meta" data-pagefind-ignore>
-        <time datetime={datoIso(d.publisert)}>{datoLang(d.publisert)}</time>
-        {d.oppdatert && <> · oppdatert <time datetime={datoIso(d.oppdatert)}>{datoLang(d.oppdatert)}</time></>}
-        {' · '}{lesetid(innlegg)} min lesing
+        <time datetime={formatDateIso(d.published)}>{formatDateLong(d.published)}</time>
+        {d.updated && <> · oppdatert <time datetime={formatDateIso(d.updated)}>{formatDateLong(d.updated)}</time></>}
+        {' · '}{readingTime(post)} min lesing
       </p>
-      <p class="ingress">{d.ingress}</p>
-      {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="topp" />}
+      <p class="summary">{d.summary}</p>
+      {hasToc && <TableOfContents headings={headings} variant="top" />}
       <Content />
-      <div data-pagefind-ignore><Stikkord liste={d.stikkord.map((navn) => ({ navn }))} /></div>
+      <div data-pagefind-ignore><Tags list={d.tags.map((name) => ({ name }))} /></div>
     </article>
-    {medFortegnelse && <Innholdsfortegnelse overskrifter={headings} variant="side" />}
+    {hasToc && <TableOfContents headings={headings} variant="side" />}
   </div>
-  {beslektet.length > 0 && (
-    <section class="relaterte" aria-labelledby="relaterte-tittel">
-      <h2 id="relaterte-tittel" class="eyebrow">Les også</h2>
-      <ul class="rows arkiv">{beslektet.map((i) => <Flis innlegg={i} />)}</ul>
+  {related.length > 0 && (
+    <section class="related" aria-labelledby="related-title">
+      <h2 id="related-title" class="eyebrow">Les også</h2>
+      <ul class="rows archive">{related.map((p) => <Tile post={p} />)}</ul>
     </section>
   )}
-</Side>
+</Page>
 
 <script>
-  import '../../scripts/eksterne-lenker.js';
-  import '../../scripts/innholdsfortegnelse.js';
+  import '../../scripts/external-links.js';
+  import '../../scripts/table-of-contents.js';
 </script>

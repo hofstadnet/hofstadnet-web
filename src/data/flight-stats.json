@@ -1,0 +1,73 @@
+{
+  "source": "IGC-filer fra variometer og telefon",
+  "generated": "2026-11-21",
+  "firstFlight": "2020-04-09",
+  "lastFlight": {
+    "date": "2026-10-30",
+    "minutes": 8,
+    "altitudeM": 601,
+    "trackKm": 4.4,
+    "wing": "Ozone Zeolite 2"
+  },
+  "totals": {
+    "flights": 289,
+    "hours": 210.2,
+    "highestM": 3536,
+    "bestAltitudeGainM": 2117
+  },
+  "perYear": [
+    {
+      "year": 2020,
+      "flights": 34,
+      "hours": 18.3
+    },
+    {
+      "year": 2021,
+      "flights": 51,
+      "hours": 26.1
+    },
+    {
+      "year": 2022,
+      "flights": 27,
+      "hours": 10.3
+    },
+    {
+      "year": 2023,
+      "flights": 46,
+      "hours": 28.4
+    },
+    {
+      "year": 2024,
+      "flights": 29,
+      "hours": 33.2
+    },
+    {
+      "year": 2025,
+      "flights": 44,
+      "hours": 39
+    },
+    {
+      "year": 2026,
+      "flights": 58,
+      "hours": 54.9
+    }
+  ],
+  "wings": [
+    {
+      "name": "Skywalk Spice 2",
+      "flights": 136
+    },
+    {
+      "name": "Ozone Zeolite 2",
+      "flights": 102
+    },
+    {
+      "name": "Supair Taska",
+      "flights": 47
+    },
+    {
+      "name": "Nova Bantam 14",
+      "flights": 1
+    }
+  ]
+}

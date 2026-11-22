@@ -156,7 +156,7 @@ html[data-theme="light"] .mode .i-sun, html[data-theme="dark"] .mode .i-moon { d
   }
   @page { margin: 18mm 16mm; }
   body { font-size: 11pt; line-height: 1.5; }
-  .skip, .top nav, .sokepanel, .foot, .back, .toc, .relaterte, .video-play, .gallery-note { display: none !important; }
+  .skip, .top nav, .search-panel, .foot, .back, .toc, .related, .video-play, .gallery-note { display: none !important; }
   .top { padding: 0 0 8pt; border-bottom: 1px solid var(--rule); }
   html[data-theme] .top .on-dark { display: none !important; }
   html[data-theme] .top .on-light { display: inline !important; }

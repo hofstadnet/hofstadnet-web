@@ -6,10 +6,10 @@ import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import worker from '../worker/index.js';
 
-const rot = resolve('dist');
+const root = resolve('dist');
 const port = Number(process.env.PORT ?? 4330);
 
-const typer = {
+const types = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon',
   '.woff2': 'font/woff2', '.woff': 'font/woff', '.xml': 'application/xml; charset=utf-8',
@@ -17,53 +17,53 @@ const typer = {
 };
 
 // Leser regelsettet for «/*» fra _headers
-async function fellesHoder() {
-  const hoder = {};
-  const linjer = (await readFile(join(rot, '_headers'), 'utf8')).split(/\r?\n/);
-  let aktiv = false;
-  for (const linje of linjer) {
-    if (/^\S/.test(linje) && !linje.startsWith('#')) { aktiv = linje.trim() === '/*'; continue; }
-    const treff = aktiv && linje.match(/^\s+([^:\s]+):\s*(.+)$/);
-    if (treff) hoder[treff[1]] = treff[2];
+async function sharedHeaders() {
+  const headers = {};
+  const lines = (await readFile(join(root, '_headers'), 'utf8')).split(/\r?\n/);
+  let active = false;
+  for (const line of lines) {
+    if (/^\S/.test(line) && !line.startsWith('#')) { active = line.trim() === '/*'; continue; }
+    const match = active && line.match(/^\s+([^:\s]+):\s*(.+)$/);
+    if (match) headers[match[1]] = match[2];
   }
-  return hoder;
+  return headers;
 }
-const hoder = await fellesHoder();
+const headers = await sharedHeaders();
 
 // Gjør en Node-forespørsel om til en Request for Workeren, med innholdet for POST (CSP-rapporter)
-async function somRequest(req, sti) {
+async function toRequest(req, path) {
   const init = { method: req.method, headers: { 'Content-Type': req.headers['content-type'] ?? '' } };
   if (req.method === 'POST') {
-    const deler = [];
-    for await (const del of req) deler.push(del);
-    init.body = Buffer.concat(deler);
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    init.body = Buffer.concat(chunks);
   }
-  return new Request(`http://localhost${sti}`, init);
+  return new Request(`http://localhost${path}`, init);
 }
 
 createServer(async (req, res) => {
-  const adresse = new URL(req.url ?? '/', 'http://x');
-  const sti = decodeURIComponent(adresse.pathname);
+  const url = new URL(req.url ?? '/', 'http://x');
+  const path = decodeURIComponent(url.pathname);
 
   // Adresser under /api/ går til den samme Worker-koden som kjører hos Cloudflare (worker/index.js).
   // «?test=live» finnes bare her, for å kunne se den grønne visningen uten å være i lufta.
-  if (sti.startsWith('/api/')) {
-    const test = adresse.searchParams.get('test');
-    const svar = test && sti === '/api/status'
-      ? Response.json({ status: test, sjekket: new Date().toISOString() })
-      : await worker.fetch(await somRequest(req, sti), {}, { waitUntil() {} });
-    res.writeHead(svar.status, Object.fromEntries(svar.headers)).end(svar.body ? await svar.text() : undefined);
+  if (path.startsWith('/api/')) {
+    const test = url.searchParams.get('test');
+    const response = test && path === '/api/status'
+      ? Response.json({ status: test, checked: new Date().toISOString() })
+      : await worker.fetch(await toRequest(req, path), {}, { waitUntil() {} });
+    res.writeHead(response.status, Object.fromEntries(response.headers)).end(response.body ? await response.text() : undefined);
     return;
   }
 
-  let fil = normalize(join(rot, sti));
-  if (fil !== rot && !fil.startsWith(rot + sep)) { res.writeHead(403).end(); return; }
+  let file = normalize(join(root, path));
+  if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
   try {
-    if ((await stat(fil)).isDirectory()) fil = join(fil, 'index.html');
-    const data = await readFile(fil);
-    res.writeHead(200, { ...hoder, 'Content-Type': typer[extname(fil)] ?? 'application/octet-stream' }).end(data);
+    if ((await stat(file)).isDirectory()) file = join(file, 'index.html');
+    const data = await readFile(file);
+    res.writeHead(200, { ...headers, 'Content-Type': types[extname(file)] ?? 'application/octet-stream' }).end(data);
   } catch {
-    const data = await readFile(join(rot, '404.html'));
-    res.writeHead(404, { ...hoder, 'Content-Type': typer['.html'] }).end(data);
+    const data = await readFile(join(root, '404.html'));
+    res.writeHead(404, { ...headers, 'Content-Type': types['.html'] }).end(data);
   }
 }).listen(port, '127.0.0.1', () => console.log(`Forhåndsvisning på http://127.0.0.1:${port}`));

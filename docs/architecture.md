@@ -57,11 +57,12 @@ Adresser:
 Workeren kjøres bare for adresser under `/api/` (`run_worker_first` i `wrangler.jsonc`) og svarer bare på
 hofstad.net og www.hofstad.net. `workers_dev` er slått av.
 
-- **`GET /api/status`** svarer med `live`, `ikke-live` eller `ukjent` ut fra LiveTrack24 sin offentlige statusrute.
+- **`GET /api/status`** svarer med `live`, `not-live` eller `unknown` (og tidspunktet `checked`) ut fra LiveTrack24 sin
+  offentlige statusrute.
   Svaret mellomlagres i 60 sekunder, så besøk blir ikke til trafikk mot LiveTrack24. Tolkingen ligger i
   `src/lib/livetrack-status.js`. Ukjente svar logges, og siden viser da en nøytral tekst.
 - **`POST /api/csp`** tar imot rapporter når nettleseren stopper noe på grunn av Content-Security-Policy eller
-  Trusted Types (`worker/csp-rapport.js`). Se [security.md](security.md#rapporter-om-brudd).
+  Trusted Types (`worker/csp-report.js`). Se [security.md](security.md#rapporter-om-brudd).
 
 Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har rate limiting i Cloudflare.
 
@@ -70,27 +71,28 @@ Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har ra
 - **Status nå:** forsiden henter `/api/status` og viser «I lufta nå» når sporingen hos LiveTrack24 er aktiv.
   Live-kartet åpnes hos LiveTrack24 i ny fane. Besøkende kontakter ikke LiveTrack24 før de åpner kartet.
 - **Siste tur og statistikk:** regnes ut lokalt fra IGC-filer med `npm run flight-stats` og lagres som summer i
-  `src/data/flystatistikk.json`. Filen inneholder ingen spor eller koordinater.
+  `src/data/flight-stats.json`. Filen inneholder ingen spor eller koordinater.
 
 pgpilot.app brukes som vanlig lenke. Tjenesten har ikke noe offentlig API for live-status, og siden kan ikke bygges
 inn (`X-Frame-Options: DENY`).
 
 ### Innholdsmodell
 
-Hvert innlegg er én Markdown- eller MDX-fil i `src/content/innlegg/`, validert mot `src/content.config.ts` ved bygg.
+Hvert innlegg er én Markdown- eller MDX-fil i `src/content/posts/`, validert mot `src/content.config.ts` ved bygg.
 Feltene er beskrevet i [README](../README.md#skrive-et-innlegg). Innleggene sorteres på tre måter:
 
 - **Område** svarer på «hva handler det om»: I lufta, Ute i naturen, Under overflaten, Bak kameraet og Foran
   skjermen. ID-ene (`luft`, `natur`, `vann`, `foto-video`, `skjerm`) er faste og brukes i adresser. Navnene endres i
-  `src/lib/omrader.ts`. Innlegg om nettsider hører til «Foran skjermen», også når de handler om flyging.
-- **Type** svarer på «hva slags innhold»: innlegg, notat, test, video eller prosjekt.
+  `src/lib/areas.ts`. Innlegg om nettsider hører til «Foran skjermen», også når de handler om flyging.
+- **Type** svarer på «hva slags innhold»: innlegg (`post`), notat (`note`), test (`review`), video (`video`) eller
+  prosjekt (`project`).
 - **Stikkord** er frie, gir egne sider og brukes til «Les også».
 
 ### Søk
 
 `npm run build` lager søkeindeksen i `dist/pagefind/` etter Astro-bygget. Bare innleggene indekseres
 (`data-pagefind-body` i `src/pages/innlegg/[id].astro`). «Søk» i menyen åpner et panel med treff mens man skriver
-(`src/scripts/sokepanel.js`), og `/` åpner det fra tastaturet. Utdragene bygges som DOM-noder, ikke HTML, så søket
+(`src/scripts/search-panel.js`), og `/` åpner det fra tastaturet. Utdragene bygges som DOM-noder, ikke HTML, så søket
 fungerer under Trusted Types.
 
 ## Beslutninger
@@ -108,7 +110,7 @@ offentlig repo gir gratis CodeQL, dependency review, Scorecard, regelsett og mil
 gratisplanen for organisasjoner mangler flere av disse i private repoer.
 
 Dette er offentlig fordi det uansett er synlig: DNS-poster, konto- og sone-ID (gir ingen tilgang uten token), WAF-
-stier og grenser for rate limiting. Utkast (`utkast: true`) er synlige som filer. Det som ikke skal være offentlig,
+stier og grenser for rate limiting. Utkast (`draft: true`) er synlige som filer. Det som ikke skal være offentlig,
 holdes utenfor repoet. Det gjelder blant annet videresendingen i Email Routing, IGC-filer og originalbilder med
 posisjonsdata.
 

@@ -1,44 +1,44 @@
 ---
-import Side from '../layouts/Side.astro';
-import Pil from '../components/Pil.astro';
-import Flis from '../components/Flis.astro';
-import { hentInnlegg } from '../lib/innlegg';
+import Page from '../layouts/Page.astro';
+import Arrow from '../components/Arrow.astro';
+import Tile from '../components/Tile.astro';
+import { getPosts } from '../lib/posts';
 
 // Vises for alle ukjente adresser (not_found_handling i wrangler.jsonc). Mange kommer fra gamle
 // WordPress-lenker, så siden tilbyr søk og de nyeste innleggene i stedet for bare en blindvei.
 // Søkefeltet sender til /sok/?q=…, som virker også uten JavaScript på denne siden.
-const nyeste = (await hentInnlegg()).slice(0, 4);
+const latest = (await getPosts()).slice(0, 4);
 ---
-<Side tittel="Fant ikke siden">
+<Page title="Fant ikke siden">
   <div class="page-head">
     <p class="eyebrow">404</p>
     <h1>Her var det ingenting.</h1>
     <p>Siden finnes ikke, eller den har fått ny adresse etter at Hofstad.NET ble bygget på nytt. Prøv å søke, eller se de nyeste innleggene under.</p>
   </div>
-  <form class="sok-404" role="search" action="/sok/" method="get">
-    <label for="sok-404">Søk i innleggene</label>
+  <form class="search-404" role="search" action="/sok/" method="get">
+    <label for="search-404">Søk i innleggene</label>
     <div>
-      <input id="sok-404" name="q" type="search" placeholder="F.eks. paraglider eller video" autocomplete="off" />
+      <input id="search-404" name="q" type="search" placeholder="F.eks. paraglider eller video" autocomplete="off" />
       <button type="submit">Søk</button>
     </div>
   </form>
   <p class="eyebrow">Nyeste innlegg</p>
-  <ul class="rows arkiv">{nyeste.map((i) => <Flis innlegg={i} />)}</ul>
-  <p class="til-forsiden"><a href="/">Til forsiden <Pil type="arrow" /></a> · <a href="/innlegg/">Alle innlegg <Pil type="arrow" /></a></p>
-</Side>
+  <ul class="rows archive">{latest.map((p) => <Tile post={p} />)}</ul>
+  <p class="back-home"><a href="/">Til forsiden <Arrow type="arrow" /></a> · <a href="/innlegg/">Alle innlegg <Arrow type="arrow" /></a></p>
+</Page>
 
 <style>
-  .sok-404 { max-width: 560px; margin: 0 0 36px; }
-  .sok-404 label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--soft); }
-  .sok-404 div { display: flex; gap: 8px; }
-  .sok-404 input {
+  .search-404 { max-width: 560px; margin: 0 0 36px; }
+  .search-404 label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--soft); }
+  .search-404 div { display: flex; gap: 8px; }
+  .search-404 input {
     flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 11px 14px; border-radius: var(--r);
     border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
   }
-  .sok-404 button {
+  .search-404 button {
     font: 600 15px/1 var(--body); padding: 0 18px; border: 0; border-radius: var(--r); cursor: pointer;
     background: var(--lime); color: #10293A;
   }
-  .sok-404 input:focus-visible, .sok-404 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .til-forsiden { margin: 28px 0 0; }
+  .search-404 input:focus-visible, .search-404 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .back-home { margin: 28px 0 0; }
 </style>

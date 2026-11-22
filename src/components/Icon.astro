@@ -1,0 +1,6 @@
+---
+// Ikon fra den lokale ikonfilen (public/assets/icons.svg).
+interface Props { name: string; class?: string; }
+const { name, class: className = 'ico' } = Astro.props;
+---
+<svg class={className} width="24" height="24" aria-hidden="true" focusable="false"><use href={`/assets/icons.svg#${name}`} /></svg>

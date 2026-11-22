@@ -4,51 +4,51 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { loadRenderers } from 'astro:container';
 import { render } from 'astro:content';
 import { getContainerRenderer as mdxRenderer } from '@astrojs/mdx';
-import { hentInnlegg, adresse, delingsbilde } from '../lib/innlegg';
+import { getPosts, postUrl, shareImage } from '../lib/posts';
 
 // Hele innlegget, med hovedbildet øverst, så innleggene kan leses i RSS-leseren.
 // Innlegget rendres med Astro sin container-API, og alle adresser gjøres absolutte.
 export async function GET(context: APIContext) {
   const site = context.site!;
-  const innlegg = await hentInnlegg();
+  const posts = await getPosts();
   const container = await AstroContainer.create({ renderers: await loadRenderers([mdxRenderer()]) });
 
   // RSS-lesere kjører ikke skript, så skript og stilark fra komponentene (galleri, video) fjernes.
   // Til slutt gjøres eventuelle rester ufarlige ved at «<» foran script/style blir «&lt;». Det er ett tegn,
   // så fjerningen kan ikke sette sammen en ny tagg.
-  const fjernBlokker = (html: string, tagg: string) => {
+  const removeBlocks = (html: string, tag: string) => {
     let s = html;
-    const lav = () => s.toLowerCase();
-    for (let start = lav().indexOf(`<${tagg}`); start !== -1; start = lav().indexOf(`<${tagg}`)) {
-      const slutt = lav().indexOf(`</${tagg}`, start);
-      const ende = slutt === -1 ? -1 : s.indexOf('>', slutt);
-      s = s.slice(0, start) + (ende === -1 ? '' : s.slice(ende + 1));
+    const lower = () => s.toLowerCase();
+    for (let start = lower().indexOf(`<${tag}`); start !== -1; start = lower().indexOf(`<${tag}`)) {
+      const close = lower().indexOf(`</${tag}`, start);
+      const end = close === -1 ? -1 : s.indexOf('>', close);
+      s = s.slice(0, start) + (end === -1 ? '' : s.slice(end + 1));
     }
     return s;
   };
-  const utenSkript = (html: string) =>
-    fjernBlokker(fjernBlokker(html, 'script'), 'style')
+  const stripScripts = (html: string) =>
+    removeBlocks(removeBlocks(html, 'script'), 'style')
       .replace(/<link\b[^>]*>/gi, '')
       .replace(/<(?=\s*\/?\s*(script|style)\b)/gi, '&lt;');
-  const absolutt = (html: string) =>
-    utenSkript(html)
+  const absolutize = (html: string) =>
+    stripScripts(html)
       .replace(/\s(src|href|poster)="\/(?!\/)/g, (_, attr) => ` ${attr}="${site.origin}/`)
-      .replace(/\ssrcset="([^"]*)"/g, (_, liste: string) =>
-        ` srcset="${liste.replace(/(^|,\s*)\/(?!\/)/g, (__, skille) => `${skille}${site.origin}/`)}"`);
+      .replace(/\ssrcset="([^"]*)"/g, (_, list: string) =>
+        ` srcset="${list.replace(/(^|,\s*)\/(?!\/)/g, (__, separator) => `${separator}${site.origin}/`)}"`);
 
   const items = await Promise.all(
-    innlegg.map(async (i) => {
-      const { Content } = await render(i);
-      const innhold = await container.renderToString(Content);
-      const bilde = await delingsbilde(i);
-      const topp = bilde ? `<p><img src="${bilde}" alt="${i.data.bildeAlt.replace(/"/g, '&quot;')}" /></p>` : '';
+    posts.map(async (p) => {
+      const { Content } = await render(p);
+      const body = await container.renderToString(Content);
+      const image = await shareImage(p);
+      const top = image ? `<p><img src="${image}" alt="${p.data.imageAlt.replace(/"/g, '&quot;')}" /></p>` : '';
       return {
-        title: i.data.tittel,
-        description: i.data.ingress,
-        pubDate: i.data.publisert,
-        link: adresse(i),
-        categories: i.data.stikkord,
-        content: absolutt(`${topp}<p><em>${i.data.ingress}</em></p>${innhold}`),
+        title: p.data.title,
+        description: p.data.summary,
+        pubDate: p.data.published,
+        link: postUrl(p),
+        categories: p.data.tags,
+        content: absolutize(`${top}<p><em>${p.data.summary}</em></p>${body}`),
       };
     }),
   );

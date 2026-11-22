@@ -1,0 +1,18 @@
+---
+import { Picture } from 'astro:assets';
+import { postUrl, formatDateIso, formatDateShort, type Post } from '../lib/posts';
+import { areaName } from '../lib/areas';
+// Lav flis med lite bilde, område, tittel og utdrag. Brukes for eldre innlegg, i arkivet og på områdesidene.
+interface Props { post: Post; }
+const { post } = Astro.props;
+const d = post.data;
+---
+<li>
+  <a class:list={[{ 'has-video': d.hasVideo, 'no-img': !d.image }]} href={postUrl(post)}>
+    {d.image && <div class="media"><Picture src={d.image} alt="" formats={['avif', 'webp']} width={240} height={184} fit="cover" position={d.imageFocus} loading="lazy" /></div>}
+    <span>{d.areas.map((a) => areaName(a)).join(' · ')}</span>
+    <time datetime={formatDateIso(d.published)}>{formatDateShort(d.published)}</time>
+    <b>{d.title}</b>
+    <p>{d.summary}</p>
+  </a>
+</li>

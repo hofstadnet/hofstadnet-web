@@ -1,233 +1,125 @@
-# Arkitektur for hofstad.net
+# Arkitektur
 
-Status: siden er bygget i Astro og testet lokalt, november 2026. Ingenting er satt i drift. Dokumentet beskriver valgene bak den nye siden, slik at de
-kan etterprøves og endres i en pull request.
+Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [sikkerhet.md](sikkerhet.md), og drift i
+[drift.md](drift.md).
 
-## Kort oppsummert
+## Oversikt
 
 | Område | Valg | Hvorfor |
 |---|---|---|
 | Rammeverk | [Astro](https://astro.build) (MIT) | Bygger ren HTML uten JavaScript som standard. Innhold i Markdown med skjemavalidering. |
-| Innhold | Markdown-filer i repoet | Én forfatter. Git er redigeringshistorikk, godkjenning og backup. |
-| Kode | GitHub, organisasjonen HofstadNET | Felles sikkerhetsoppsett finnes allerede i `.github`-repoet. |
-| Hosting | Cloudflare Workers med statiske filer | Gratis, ingen egen server, og ingen origin som kan nås utenom Cloudflare. Cloudflare anbefaler Workers fremfor Pages for nye prosjekter. |
-| Live-status | Liten Worker på `/api/status` | Holder PGpilot-nøkkelen unna nettleseren og mellomlagrer svaret. |
-| Skrifter, ikoner, skript | Ligger i repoet | Siden laster ingenting fra andre domener. Overskriftene bruker Barlow Semi Condensed (åpen lisens). |
-| Visning | Mørk som standard | Den besøkende kan bytte til lys. Valget lagres lokalt i nettleseren. |
+| Innhold | Markdown-filer i repoet | Én forfatter. Git gir historikk, gjennomgang og backup. |
+| Kode | GitHub, organisasjonen hofstadnet, offentlig repo | Gratis CodeQL, Scorecard og regelsett, og koden kan vises frem. |
+| Hosting | Cloudflare Workers med statiske filer | Ingen egen server og ingen origin som kan nås utenom Cloudflare. |
+| Serverdel | Én Worker for `/api/` | Flystatus og mottak av CSP-rapporter. Alt annet er statiske filer. |
+| Infrastruktur | OpenTofu i `infra/` | Cloudflare-sonen som kode, med plan på PR og godkjent apply. |
+| Søk | [Pagefind](https://pagefind.app/) | Indeks bygges sammen med siden. Søket skjer i nettleseren. |
+| Skrift, ikoner, skript | Ligger i repoet | Siden fungerer selv om andre tjenester er nede. |
+| Visning | Følger systemet, mørk som reserve | Valg i bryteren lagres lokalt i nettleseren. |
 
-## Hvorfor ikke GitHub Pages bak Cloudflare
-
-Det er den andre åpenbare gratisløsningen, men den har to svakheter her:
-
-1. `hofstadnet.github.io` ville fortsatt svart direkte på internett. WAF og DDoS-vern hos Cloudflare gjelder bare
-   trafikk som går via Cloudflare, så beskyttelsen kan omgås.
-2. Flystatusen trenger en liten serverdel som spør LiveTrack24 på vegne av siden. Det har ikke GitHub Pages.
-
-Med filene hos Cloudflare finnes det ingen origin å beskytte, og statiske filer og API ligger på samme plattform.
-
-## Trafikkflyt
+## Dataflyt
 
 ```
-Besøkende ──► Cloudflare (DNS, TLS, WAF, DDoS, cache)
-                 ├── statiske filer (bygget av Astro)
-                 └── /api/status ──► Worker ──► PGpilot API (Bearer-token, lagret som Worker-secret)
+Besøkende ──► Cloudflare (DNS, TLS, WAF, rate limiting, DDoS)
+                 ├── statiske filer fra dist/ (HTML, CSS, JS, bilder, søkeindeks)
+                 ├── /api/status ──► Worker ──► LiveTrack24 (offentlig statusrute, mellomlagret 60 s)
+                 └── /api/csp    ──► Worker ──► Workers Logs (anonymiserte rapporter)
 
-Utvikling: PR ──► GitHub Actions (bygg + sikkerhetssjekker) ──► merge til main ──► deploy til Cloudflare
+Nettleseren ──► static.cloudflareinsights.com / cloudflareinsights.com (Web Analytics, uten informasjonskapsler)
+
+Endring: pull request ──► GitHub Actions (bygg, tester, sikkerhet, plan) ──► merge til main
+         ├── Workers Builds bygger og publiserer siden
+         └── infra.yml kjører OpenTofu apply etter godkjenning, hvis infra/ er endret
 ```
 
-## Innholdsmodell og områder
+## Komponenter
 
-Hvert innlegg er én Markdown-fil i `src/content/innlegg/`. Feltene valideres ved bygg mot
-`src/content.config.ts`, så et innlegg med ukjent område eller manglende dato stopper bygget i stedet for å havne
-feil på siden. Feltene er beskrevet i [README](../README.md#skrive-et-innlegg).
+### Statiske sider
 
-Innleggene sorteres på tre måter, med hver sin jobb:
+Astro bygger alle sider til `dist/` ved `npm run build`. Cloudflare leverer filene direkte uten å kjøre kode.
+`public/_headers` setter sikkerhetshoder og mellomlagring, og `public/_redirects` sender adressene fra den gamle
+WordPress-siden (`/2019/10/14/<slug>/`) videre til de nye.
 
-- **Område** svarer på «hva handler det om». Det finnes fem, valgt av eier: I lufta, Ute i naturen, Under
-  overflaten, Bak kameraet og Foran skjermen. Et innlegg kan høre til flere. ID-ene (`luft`, `natur`, `vann`,
-  `foto-video`, `skjerm`) er faste og brukes i adresser, mens navnene kan endres i `src/lib/omrader.ts`.
-- **Type** svarer på «hva slags innhold er det»: innlegg, notat, test, video eller prosjekt. De gamle
-  WordPress-kategoriene «Test» og «Video» var egentlig typer og er flyttet dit.
-- **Stikkord** er frie og brukes foreløpig ikke til egne sider.
+Adresser:
 
-Innlegg om å lage en nettside ligger i «Foran skjermen», også når nettsiden handler om flyging. «I lufta» er
-forbeholdt turer og opplevelser.
+| Adresse | Innhold |
+|---|---|
+| `/` | Forside med flystatus, lenker og nyeste innlegg |
+| `/innlegg/` og `/innlegg/<filnavn>/` | Arkiv og innlegg |
+| `/omrade/<id>/` | Innlegg per område. «I lufta» har også flystatistikk. |
+| `/stikkord/` og `/stikkord/<stikkord>/` | Innlegg per stikkord |
+| `/sok/` | Søk uten JavaScript, brukt av 404-siden og søkefeltet i Google |
+| `/personvern/` | Hva siden samler inn |
+| `/rss.xml`, `/sitemap-index.xml` | RSS med hele innleggene, og nettstedskart med `lastmod` |
 
-Adresser: `/innlegg/<filnavn>/`, `/innlegg/` (arkiv), `/omrade/<id>/` og `/rss.xml`. De gamle WordPress-adressene
-(`/2019/10/14/<slug>/`) videresendes permanent i `public/_redirects`.
+### Worker (`worker/`)
 
-### Senere: CMS eller database
+Workeren kjøres bare for adresser under `/api/` (`run_worker_first` i `wrangler.jsonc`) og svarer bare på
+hofstad.net og www.hofstad.net. `workers_dev` er slått av.
 
-- **CMS:** Et git-basert CMS (for eksempel Decap, Sveltia eller Keystatic, alle åpen kildekode) redigerer de samme
-  Markdown-filene og åpner en pull request. Det krever ingen endring i arkitekturen.
-- **Database:** Sidene henter innhold gjennom Astros innholdslag, ikke direkte fra filer. En ny innholdskilde (for
-  eksempel Cloudflare D1) legges til som en ny «loader» med samme skjema. Dynamiske funksjoner legges under `/api/`
-  som egne Workers, hver med bare de tilgangene den trenger.
+- **`GET /api/status`** svarer med `live`, `ikke-live` eller `ukjent` ut fra LiveTrack24 sin offentlige statusrute.
+  Svaret mellomlagres i 60 sekunder, så besøk blir ikke til trafikk mot LiveTrack24. Tolkingen ligger i
+  `src/lib/livetrack-status.js`. Ukjente svar logges, og siden viser da en nøytral tekst.
+- **`POST /api/csp`** tar imot rapporter når nettleseren stopper noe på grunn av Content-Security-Policy eller
+  Trusted Types (`worker/csp-rapport.js`). Se [sikkerhet.md](sikkerhet.md#rapporter-om-brudd).
 
-## Live-status fra PGpilot
+Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har rate limiting i Cloudflare.
 
-Dagens widget går mot Livetrack24. Gjennomgangen av PGpilot-API-et (`pgpilot.app/docs/api.md`) ga dette:
+### Flystatus og flystatistikk
 
-- API-et er dokumentert som lesetilgang til pilotens egne data, med Bearer-token fra OAuth (PKCE).
-- Det finnes **ikke** noe dokumentert endepunkt for «flyr nå» eller live-posisjon, og ingen innbyggbar widget.
-- Tokenet varer i 90 dager og kan ikke fornyes automatisk.
-- CORS og vilkår for visning på andre nettsteder er ikke omtalt.
+- **Status nå:** forsiden henter `/api/status` og viser «I lufta nå» når sporingen hos LiveTrack24 er aktiv.
+  Live-kartet åpnes hos LiveTrack24 i ny fane. Besøkende kontakter ikke LiveTrack24 før de åpner kartet.
+- **Siste tur og statistikk:** regnes ut lokalt fra IGC-filer med `npm run flystatistikk` og lagres som summer i
+  `src/data/flystatistikk.json`. Filen inneholder ingen spor eller koordinater.
 
-Konsekvenser for løsningen:
+pgpilot.app brukes som vanlig lenke. Tjenesten har ikke noe offentlig API for live-status, og siden kan ikke bygges
+inn (`X-Frame-Options: DENY`).
 
-1. Tokenet gir tilgang til hele flyloggen og skal aldri ligge i nettleseren. En Worker på `/api/status` kaller
-   PGpilot, og returnerer bare det siden trenger: status, sted, høyde og tidspunkt.
-2. Workeren mellomlagrer svaret (for eksempel 60 sekunder), slik at besøk på siden ikke blir til trafikk mot PGpilot.
-3. Siden må fungere uten svar. Uten status vises siste kjente tur, og resten av siden er upåvirket.
-4. Tokenet må byttes manuelt hver 90. dag. Workeren bør varsle når det nærmer seg.
+### Innholdsmodell
 
-**Uavklart, må sjekkes før bygging:** Flylisten har feltet `is_complete`. En pågående tur vises trolig med
-`is_complete: false`, og kan da brukes som «i lufta»-signal. Det er ikke bekreftet. Spør PGpilot om dette, om et
-eget live-endepunkt, og om det er greit å vise dataene på en egen side. Til det er avklart beholdes Livetrack24 som
-kilde bak den samme `/api/status`, slik at kilden kan byttes uten å røre nettsiden.
+Hvert innlegg er én Markdown- eller MDX-fil i `src/content/innlegg/`, validert mot `src/content.config.ts` ved bygg.
+Feltene er beskrevet i [README](../README.md#skrive-et-innlegg). Innleggene sorteres på tre måter:
 
-### Oppdatert 21. november 2026: live-kart
+- **Område** svarer på «hva handler det om»: I lufta, Ute i naturen, Under overflaten, Bak kameraet og Foran
+  skjermen. ID-ene (`luft`, `natur`, `vann`, `foto-video`, `skjerm`) er faste og brukes i adresser. Navnene endres i
+  `src/lib/omrader.ts`. Innlegg om nettsider hører til «Foran skjermen», også når de handler om flyging.
+- **Type** svarer på «hva slags innhold»: innlegg, notat, test, video eller prosjekt.
+- **Stikkord** er frie, gir egne sider og brukes til «Les også».
 
-- `https://www.livetrack24.com/user/krishofs/2d` kan vises i en `iframe`. Forsiden laster kartet først når den
-  besøkende trykker «Vis live-kart», og fjerner det igjen når det skjules. Uten trykk går det ingen trafikk til
-  LiveTrack24. CSP må tillate `frame-src https://www.livetrack24.com`, og ingenting annet fra tredjepart.
-- `https://pgpilot.app/view/krishofs` svarer med `X-Frame-Options: DENY` og kan ikke bygges inn. Den brukes som
-  vanlig lenke.
-- Automatisk «i lufta nå» uten trykk krever fortsatt en Worker som spør LiveTrack24 eller pgpilot. LiveTrack24 har
-  egne sider for innbygging, RSS og API (`/docs/embed`, `/docs/rss`, `/docs/api`) som må leses før det bygges.
+### Søk
 
-## E-post
+`npm run build` lager søkeindeksen i `dist/pagefind/` etter Astro-bygget. Bare innleggene indekseres
+(`data-pagefind-body` i `src/pages/innlegg/[id].astro`). «Søk» i menyen åpner et panel med treff mens man skriver
+(`src/scripts/sokepanel.js`), og `/` åpner det fra tastaturet. Utdragene bygges som DOM-noder, ikke HTML, så søket
+fungerer under Trusted Types.
 
-Webhotellet hos ProISP er sagt opp, og e-posten fulgte med. Cloudflare Email Routing (gratis) kan ta imot post til
-adressene på `hofstad.net` og videresende den til en privat innboks:
+## Beslutninger
 
-- Opprett en regel per adresse som finnes i dag, og eventuelt en oppsamlingsregel for resten.
-- Cloudflare legger inn MX- og SPF-postene selv når domenet ligger hos dem.
-- Dette er bare mottak. Skal du **sende** fra en `hofstad.net`-adresse, trengs en egen utsendingstjeneste. Uten det
-  går svarene ut fra den private adressen.
-- Sett DMARC til `p=reject` med en rapportadresse, slik at ingen andre kan sende i domenets navn.
+### Cloudflare Workers, ikke GitHub Pages eller Cloudflare Pages
 
-## Sikkerhet
+GitHub Pages bak Cloudflare ville latt `*.github.io` svare direkte på internett, forbi WAF og DDoS-vern, og har ingen
+serverdel for flystatusen. Cloudflare anbefaler Workers med statiske filer fremfor Pages for nye prosjekter. Med
+Workers finnes det ingen origin å beskytte, og statiske filer og API ligger på samme plattform.
 
-Prinsippene er de samme som i resten av organisasjonen: ingen implisitt tillit, minst mulig tilgang, alt som kode.
+### Offentlig repo
 
-### Zero Trust og minste privilegium
+Repoet inneholder ingen hemmeligheter. Tokens ligger som GitHub-secrets, og state for OpenTofu er kryptert i R2. Et
+offentlig repo gir gratis CodeQL, dependency review, Scorecard, regelsett og miljøer med påkrevd godkjenning. På
+gratisplanen for organisasjoner mangler flere av disse i private repoer.
 
-- **Ingen server å logge inn på.** Ingen SSH, intet adminpanel, ingen database i første versjon. WordPress-flaten
-  (`wp-login.php`, `xmlrpc.php`, utvidelser) forsvinner helt.
-- **Kontoer:** GitHub og Cloudflare med passnøkkel eller sikkerhetsnøkkel som tofaktor. Gjenopprettingskoder
-  oppbevares utenfor begge tjenestene.
-- **Deploy-tilgang:** Cloudflare Workers Builds henter repoet via GitHub-appen og publiserer fra `main`. Det finnes
-  ingen API-token for publisering i GitHub. Workflows har `permissions: contents: read` som utgangspunkt.
-  Byggetokenet (`hofstadnet-web-builds`) har bare det publiseringen trenger: Workers Scripts Edit og Account Settings
-  Read på kontoen, Workers Routes Edit på hofstad.net, og Memberships Read og User Details Read. Det er et brukertoken,
-  fordi Workers Builds ennå ikke støtter kontotokens. Bytt når det kommer.
-- **Avhengigheter:** Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter at de kom ut.
-  Patch- og minor-oppdateringer av npm-pakker og GitHub Actions merges automatisk når alle påkrevde sjekker er grønne
-  (`.github/workflows/dependabot-automerge.yml`). Major-oppdateringer og OpenTofu-provideren merges manuelt.
-- **OpenTofu-tilgang:** kontotokenet `hofstadnet-tofu` (DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL
-  Redirects på hofstad.net, Zone Read, og Notifications på kontoen) og R2-tokenet `hofstadnet-tofu-state`
-  (Object Read & Write på bøtta `hofstadnet-tofu`). Begge ligger som GitHub-secrets og utløper 22.11.2027.
-- **Hemmeligheter:** Workeren har ingen. Statustjenesten leser en offentlig adresse hos LiveTrack24.
-- **Forhåndsvisninger** av pull requests bygges av Workers Builds. Repoet er offentlig, så innholdet i en PR er
-  uansett synlig. Det gjelder også innlegg merket `utkast: true`: de vises ikke på siden, men Markdown-filen kan leses
-  på GitHub.
-- **Egne domener:** Workeren svarer bare på hofstad.net og www.hofstad.net. `workers_dev` er slått av.
-- **Nettleseren stoler heller ikke på siden:** streng Content-Security-Policy uten innebygde skript, pluss HSTS,
-  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP og CORP. Trusted Types er påkrevd, så
-  skript kan ikke sette inn HTML som tekst. Eneste policy («default» i `src/scripts/sok-motor.js`) slipper bare
-  gjennom `/pagefind/pagefind-worker.js`. Bilder og logoer har `Cross-Origin-Resource-Policy: cross-origin`, så de
-  vises i RSS-lesere. Tredjepartsdomener er bare videorammer fra
-  YouTube og Vimeo og Cloudflare Web Analytics (skript fra `static.cloudflareinsights.com`, måletall til
-  `cloudflareinsights.com`). Hodene ligger i repoet og følger med hver deploy.
+Dette er offentlig fordi det uansett er synlig: DNS-poster, konto- og sone-ID (gir ingen tilgang uten token), WAF-
+stier og grenser for rate limiting. Utkast (`utkast: true`) er synlige som filer. Det som ikke skal være offentlig,
+holdes utenfor repoet. Det gjelder blant annet videresendingen i Email Routing, IGC-filer og originalbilder med
+posisjonsdata.
 
-### Cloudflare
+### OpenTofu, ikke Terraform
 
-- DNS med DNSSEC (DS-posten ligger hos registraren Dynadot), TLS 1.2 som minimum, «Always Use HTTPS» og HSTS.
-- CAA-poster: bare `letsencrypt.org`, `pki.goog` og `ssl.com` kan utstede sertifikater (de Cloudflare bruker for
-  Universal SSL). Avviste forsøk meldes til admin@. Sammen med CT-varslingen gir det beskjed om falske sertifikater.
-- E-post: domenet tar bare imot (Email Routing). DMARC er `p=reject` med streng samsvar, så e-post som utgir seg
-  for å komme fra `@hofstad.net` avvises.
-- `hofstad.net` er verifisert for GitHub Pages i organisasjonen hofstadnet (TXT-posten
-  `_github-pages-challenge-hofstadnet`). Da kan ingen andre GitHub-kontoer ta i bruk `status.hofstad.net` eller andre
-  underdomener på Pages, selv om CNAME-en skulle peke dit mens repoet er borte. Posten må bli liggende.
-- DDoS-vern er inkludert i gratisplanen.
-- Varsler (Notifications) på e-post til admin@: ny feiltype i Workeren (Workers Observability, «Real-Time Issue»)
-  og HTTP DDoS-angrep mot sonen.
-- WAF: gratisplanen har Cloudflares eget gratis regelsett og noen få egendefinerte regler. Fullt OWASP Core Ruleset
-  har vært forbeholdt betalte planer. For en statisk side uten skjema og innlogging er angrepsflaten uansett liten.
-  Én egendefinert regel blokkerer `.php`, `/wp-admin`, `/wp-includes`, `/wp-json`, `/.env` og `/.git`.
-- Rate limiting på `/api/status`: over 20 kall på 10 sekunder fra samme IP blokkeres i 10 sekunder.
-- KI-roboter som henter innhold til trening blokkeres. Bot Fight Mode er av: den krever at Cloudflare legger inn
-  et innebygd skript (JavaScript detections), som den strenge CSP-en uansett stopper. Den kunne også stoppet RSS-lesere.
-- Browser Cache TTL er «Respect Existing Headers», så `Cache-Control` fra siden og Workeren gjelder. Flystatusen
-  mellomlagres derfor bare i 60 sekunder.
-- Workeren, hodene og videresendingene er kode i repoet (`wrangler.jsonc`, `public/_headers`, `public/_redirects`).
-  Soneoppsettet over (DNS, CAA, DNSSEC, innstillinger, WAF, rate limiting, videresending fra www, KI-roboter og
-  varsler) er kode i `infra/` (OpenTofu), med kryptert state i R2 og apply etter godkjenning. Se `infra/README.md`.
+Åpen lisens (MPL-2.0) og innebygd kryptering av state. Språket og Cloudflare-provideren er de samme som for
+Terraform. Detaljer i [infra/README.md](../infra/README.md).
 
-### GitOps og DevSecOps
+### Videre utvikling
 
-- `main` er sannheten. Det som ligger i `main`, er det som er i drift. Tilbakerulling er `git revert`.
-- Direkte push til `main` er blokkert. Alt går via pull request med grønne sjekker, også når det bare er én bidragsyter.
-- Sjekkene fra organisasjonens maler gjenbrukes: `dependency-review`, `workflow-security` (zizmor), CodeQL og
-  OpenSSF Scorecard. I tillegg: bygg, typesjekk, lenkesjekk og validering av innholdsskjemaet.
-- Actions er pinnet til commit-SHA. Avhengigheter installeres fra låsefil med `npm ci`. Dependabot holder begge oppdatert.
-- Bygget får en signert opprinnelsesattest (build provenance), slik at det som ligger på Cloudflare kan spores til en
-  bestemt commit og kjøring.
-- Secret scanning med push protection står på.
-
-## Offentlig eller privat repo
-
-**Anbefaling: offentlig.**
-
-| | Offentlig | Privat |
-|---|---|---|
-| CodeQL, dependency review, Scorecard | Gratis | Krever betalt GitHub Code Security |
-| Dokumentasjon synlig for andre | Ja | Nei |
-| Utkast | Synlige i branches | Skjult |
-| Hosting hos Cloudflare | Fungerer | Fungerer |
-
-Siden er offentlig uansett, og repoet inneholder ingen hemmeligheter når tokenene ligger hos Cloudflare. Et offentlig
-repo gir gratis tilgang til nettopp de sikkerhetsverktøyene organisasjonens maler bygger på, og det viser frem
-arbeidet. Det som taler for privat, er upubliserte utkast. Det løses enklere ved å skrive utkast lokalt til de er
-klare, eller ved å ha et lite privat repo bare for kladd.
-
-To ting må holdes utenfor et offentlig repo: WordPress-dumpen (`wp-config.php`, databaseeksport) og originalbilder med
-posisjonsdata. Bilder strippes for EXIF ved bygg.
-
-## Flytting fra ProISP
-
-Rekkefølge som unngår nedetid:
-
-1. Kartlegg hva ProISP faktisk leverer i dag: webhotell, DNS, domeneregistrering og **e-post** (`brev@hofstad.net`).
-   E-posten må ha et nytt hjem før DNS flyttes, ellers stopper den.
-2. Eksporter innlegg og bilder fra WordPress til Markdown.
-3. Sett opp siden på en midlertidig adresse hos Cloudflare og kontroller videresendingene.
-4. Flytt DNS til Cloudflare med alle eksisterende poster, inkludert MX, SPF, DKIM og DMARC.
-5. Pek domenet mot den nye siden. Behold WordPress-backupen til alt er verifisert, og si opp webhotellet etterpå.
-
-## Status for bygget (21. november 2026)
-
-Gjort:
-
-- Astro-prosjekt med forside, innleggssider, arkiv, områdesider, RSS, nettstedskart, personvernside og 404.
-- Sju innlegg: tre nye og fire flyttet fra WordPress.
-- Flystatus: `worker/index.js` (Cloudflare Worker, kjøres bare for `/api/`) leser LiveTrack24 sin statusrute
-  (`/user/krishofs/status/map/1`) og svarer med `live`, `ikke-live` eller `ukjent`. Svaret mellomlagres i 60
-  sekunder. Forsiden viser grønn prikk og «I lufta nå» når sporingen er aktiv, og kartet åpnes hos LiveTrack24 i
-  ny fane. Besøkende kontakter ikke LiveTrack24 før de selv åpner kartet, og siden har ingen ramme derfra.
-- Streng CSP uten innebygd kode, kontrollert av `scripts/sjekk-csp.mjs` i hvert bygg. Brudd hos besøkende meldes
-  til `/api/csp` (`worker/csp-rapport.js`) og logges anonymisert i Workers Logs.
-- Arbeidsflyter for bygg, `dependency-review`, zizmor og CodeQL, med actions pinnet til commit.
-
-Gjenstår:
-
-- ~~Koble repoet til Cloudflare og bytte domenet~~ Gjort 21. november 2026: Workers Builds publiserer fra `main`,
-  og `hofstad.net` og `www.hofstad.net` peker på Workeren.
-- Flytte DNS til Cloudflare og sette opp Email Routing.
-- Bekrefte flystatusen under en ekte tur. Tjenesten er testet mot LiveTrack24 når sporingen er av. Hvordan
-  statusruten ser ut når sporingen er på, er ikke sett, så gjenkjenningen av «live» bygger på en antakelse.
-- Hente den opprinnelige teksten til de fire gamle innleggene fra WordPress. Clug-innlegget er skrevet på nytt ut
-  fra et sammendrag, og «Velkommen» har bare én linje.
-- OpenSSF Scorecard hvis repoet blir offentlig.
+- **CMS:** et git-basert CMS (for eksempel Decap, Sveltia eller Keystatic) redigerer de samme Markdown-filene og
+  åpner en pull request, uten endring i arkitekturen.
+- **Database:** en ny innholdskilde (for eksempel Cloudflare D1) legges til som en ny «loader» i Astros innholdslag.
+  Dynamiske funksjoner legges under `/api/` med bare de tilgangene de trenger.

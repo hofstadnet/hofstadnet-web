@@ -1,16 +1,22 @@
 # hofstad.net
 
-Kildekoden til [hofstad.net](https://hofstad.net): en statisk side bygget med [Astro](https://astro.build).
-Forsiden viser et bilde fra arkivet, live-kart, lenker til profiler og de nyeste innleggene.
+Kildekoden til [hofstad.net](https://hofstad.net): en statisk side bygget med [Astro](https://astro.build) og
+levert av Cloudflare Workers. Forsiden viser flystatus, lenker til profiler og de nyeste innleggene.
 
-Status: siden bygger og er testet lokalt. Den er ikke publisert.
+| Dokument | Innhold |
+|---|---|
+| [docs/arkitektur.md](docs/arkitektur.md) | Komponenter, dataflyt og beslutninger |
+| [docs/sikkerhet.md](docs/sikkerhet.md) | Sikkerhetsmodell: hoder, Cloudflare, tilganger og forsyningskjede |
+| [docs/drift.md](docs/drift.md) | Publisering, arbeidsflyter, overvåking og fremgangsmåter |
+| [infra/README.md](infra/README.md) | Cloudflare-oppsettet som kode (OpenTofu) |
+| [SECURITY.md](SECURITY.md) | Rapportering av sårbarheter |
 
 ## Kom i gang
 
-Du trenger Node.js 22 eller nyere.
+Krever Node.js i versjonen fra `.nvmrc` (minst 22).
 
 ```bash
-npm install
+npm ci
 ```
 
 ```bash
@@ -19,41 +25,33 @@ npm run dev
 
 | Kommando | Hva den gjør |
 |---|---|
-| `npm run dev` | Starter lokal utvikling med automatisk oppdatering. Utkast vises. |
-| `npm run build` | Typesjekker og bygger den ferdige siden til `dist/`. |
-| `npm run forhandsvis` | Viser `dist/` lokalt med de samme sikkerhetshodene som i drift, og svarer på `/api/status`. |
+| `npm run dev` | Lokal utvikling med automatisk oppdatering. Utkast vises. |
+| `npm run build` | Typesjekker, bygger siden til `dist/` og lager søkeindeksen. |
+| `npm run forhandsvis` | Viser `dist/` med de samme sikkerhetshodene som i drift, og svarer på `/api/`. |
+| `npm run test:tilgjengelighet` | Playwright: tilgjengelighet, CSP, søk, galleri, `/api/csp` og skjermbilder. |
+| `npm run test:lighthouse` | Lighthouse med poenggrenser og ytelsesbudsjett. |
+| `npm run flystatistikk` | Regner ut flystatistikken fra IGC-filer (se under). |
 | `node scripts/sjekk-csp.mjs` | Kontrollerer at den bygde siden ikke har innebygd kode. |
-| `npx wrangler deploy --dry-run` | Kontrollerer oppsettet for Cloudflare uten å publisere noe. |
+| `node scripts/sjekk-dokumentasjon.mjs` | Kontrollerer at stier, kommandoer og arbeidsflyter i dokumentasjonen finnes. |
+
+Testene trenger Chromium én gang: `npx playwright install chromium`. Skjermbildetestene kjører bare på Linux, fordi
+skrift tegnes ulikt på andre systemer.
 
 ### Windows med Smart App Control
 
-Smart App Control blokkerer én usignert maskinkodefil i Astros Markdown-leser (`satteri`). Bygget feiler da med
-«Cannot find native binding». Installer WebAssembly-utgaven lokalt, så brukes den automatisk:
+Smart App Control blokkerer en usignert maskinkodefil i Astros Markdown-leser (`satteri`), og bygget feiler med
+«Cannot find native binding». WebAssembly-utgaven brukes automatisk hvis den er installert:
 
 ```bash
 npm install --no-save --force @bruits/satteri-wasm32-wasi@0.11.7
 ```
 
-Versjonen må være den samme som `satteri` i `package-lock.json`. Pakken lagres ikke i `package.json`, fordi den bare
-trengs på maskiner med denne beskyttelsen. Den må installeres på nytt etter `npm ci`.
-
-## Publisering
-
-Siden kjører på Cloudflare Workers med statiske filer. Cloudflare anbefaler Workers fremfor Pages for nye prosjekter.
-
-- Statiske filer fra `dist/` leveres direkte av Cloudflare, uten at kode kjøres.
-- `worker/index.js` kjøres bare for adresser under `/api/`.
-- `public/_headers` og `public/_redirects` følger med i `dist/` og leses av Cloudflare.
-
-Repoet er koblet til Cloudflare med Workers Builds. Hver endring som flettes inn i `main`, bygges med
-`npm run build` og publiseres med `npx wrangler deploy`. Pull requests får en egen forhåndsvisning.
-
-Domenene `hofstad.net` og `www.hofstad.net` er satt opp i `wrangler.jsonc`. `www` sendes videre til
-`hofstad.net` med en videresendingsregel i Cloudflare-sonen.
+Versjonen må være den samme som `@bruits/satteri-*` i `package-lock.json`. Pakken lagres ikke i `package.json` og må
+installeres på nytt etter `npm ci`.
 
 ## Skrive et innlegg
 
-Lag en fil i `src/content/innlegg/`. Filnavnet blir adressen: `mitt-innlegg.md` får adressen `/innlegg/mitt-innlegg/`.
+Lag en fil i `src/content/innlegg/`. Filnavnet blir adressen: `mitt-innlegg.md` blir `/innlegg/mitt-innlegg/`.
 
 ```markdown
 ---
@@ -73,136 +71,61 @@ Teksten skrives i Markdown.
 | `tittel`, `ingress`, `publisert` | Ja | |
 | `omrader` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
 | `type` | Nei | `innlegg` (standard), `notat`, `test`, `video` eller `prosjekt`. |
-| `stikkord` | Nei | Liste med frie stikkord. Hvert stikkord får en egen side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
-| `bilde`, `bildeAlt` | Nei | Hovedbilde. Legg bildefilen i `src/assets/bilder/`. |
-| `bildeFokus` | Nei | Hvilken del av bildet som vises i små miniatyrer: `center` (standard), `left`, `right`, `top` eller `bottom`. |
+| `stikkord` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
+| `bilde`, `bildeAlt` | Nei | Hovedbilde i `src/assets/bilder/`. |
+| `bildeFokus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
 | `harVideo` | Nei | `true` gir avspillingsmerke på kort. |
-| `oppdatert` | Nei | Dato for siste endring. |
-| `utkast` | Nei | `true` skjuler innlegget fra den publiserte siden. |
+| `oppdatert` | Nei | Dato for siste endring. Brukes også i nettstedskartet. |
+| `utkast` | Nei | `true` holder innlegget utenfor den publiserte siden. Filen er likevel synlig i det offentlige repoet. |
 
-Bygget stopper hvis et felt mangler, et område er ukjent eller et bilde ikke finnes.
+Bygget stopper hvis et påkrevd felt mangler, et område er ukjent eller et bilde ikke finnes.
 
 ### Video og bildegalleri
 
-Innlegg som trenger video eller galleri, lagres som `.mdx`. Se
-`src/content/innlegg/deltaker-i-foto-video-konk-2019.mdx` og `clug-roadie-mtb-sykkelstativ.mdx` for eksempler.
+Innlegg med video eller galleri lagres som `.mdx`. Eksempler: `src/content/innlegg/deltaker-i-foto-video-konk-2019.mdx`
+og `src/content/innlegg/clug-roadie-mtb-sykkelstativ.mdx`.
 
-- **Video:** `<Video id="..." tittel="..." plakat={bilde} />`. Forhåndsvisningen er et lokalt bilde, og spilleren
-  hentes fra YouTube eller Vimeo først når den besøkende trykker.
+- **Video:** `<Video id="..." tittel="..." plakat={bilde} />`. Forhåndsvisningen er et lokalt bilde. Spilleren hentes
+  fra YouTube eller Vimeo først når den besøkende trykker.
 - **Galleri:** `<Galleri bilder={[...]} />`. Ett stort bilde med småbilder under, blaing og fullskjerm.
 
 ### Flystatistikk
 
-Statistikken på siden «I lufta» regnes ut lokalt fra IGC-filene og lagres som summer i
-`src/data/flystatistikk.json`. Kjør skriptet på nytt etter nye turer og sjekk inn JSON-filen:
+Statistikken på «I lufta» og «Siste tur» på forsiden regnes ut lokalt fra IGC-filer og lagres som summer i
+`src/data/flystatistikk.json`. Kjør skriptet etter nye turer og sjekk inn JSON-filen:
 
 ```bash
-npm run flystatistikk -- "D:\Root\Google Drive\Paragliding\Tracklog" --utelat "Ørjan,Erlend"
+npm run flystatistikk -- "<mappe med IGC-filer>" --utelat "<navn>,<navn>"
 ```
 
-`--utelat` hopper over andres spor fra felles turer. Flere mapper kan gis etter hverandre, f.eks. en mappe med nye
-turer lastet ned fra pgpilot (`https://pgpilot.app/api/flights/<id>/igc` for offentlige turer). Samme tur i flere
-mapper telles én gang. IGC-filene sjekkes aldri inn, og JSON-filen inneholder
-ingen spor, koordinater eller startsteder.
-
-### RSS, nettstedskart og strukturert data
-
-- `rss.xml` har hele innlegget med hovedbildet øverst, så det kan leses i RSS-leseren.
-- Nettstedskartet har `lastmod` fra `oppdatert` eller `publisert` (se `astro.config.mjs`).
-- Forsiden og innleggene har strukturert data (schema.org, JSON-LD) fra `src/lib/strukturert.ts`. Det er data,
-  ikke skript, så CSP-en og `sjekk-csp` slipper det gjennom.
-
-### Kvalitetssjekker
-
-`.github/workflows/kvalitet.yml` kjører på hver pull request:
-
-- **Lighthouse CI** (`lighthouserc.json`): stopper ved tilgjengelighet eller SEO under 95. Ytelse og beste praksis
-  under 90 gir advarsel. Ytelsesbudsjett per side: JavaScript 40 kB, CSS 25 kB, skrift 60 kB, bilder 400 kB, totalt
-  600 kB og maks 5 forespørsler til tredjeparter (i dag 14–17, 7–11, 46, 12–193, 98–282 kB og 3). Lokalt:
-  `npm run build`, og deretter `npm run test:lighthouse`.
-- **Tilgjengelighet** (`tests/tilgjengelighet.spec.ts`): axe sjekker alle sidene i nettstedskartet mot WCAG 2.2 AA,
-  i mørk og lys visning og i 320 og 1280 px. Testen stopper også hvis siden blir bredere enn skjermen, eller ved
-  CSP-brudd og JavaScript-feil. En egen test søker og blar i galleriet, så brudd på Trusted Types blir oppdaget.
-  Lokalt: `npx playwright install chromium` én gang, og deretter `npm run test:tilgjengelighet`.
-
-`.github/workflows/produksjon.yml` kjører de samme sjekkene mot https://hofstad.net hver mandag
-(`lighthouserc.produksjon.json` og `PRODUKSJON=1`). Den fanger opp endringer utenfor repoet, som
-Cloudflare-innstillinger og tredjepartsskript.
-
-### Lenkesjekk
-
-`.github/workflows/lenkesjekk.yml` kjører lychee. På pull requests sjekkes bare lenker innad på siden. Hver mandag
-sjekkes også eksterne lenker, og GitHub varsler hvis noen er døde. Unntak står i `lychee.toml`.
-
-### Søk
-
-«Søk» i menyen åpner et søkefelt rett under menyen med treff mens man skriver (`src/scripts/sokepanel.js`). «/»
-åpner søket fra tastaturet, og Esc lukker det. `/sok/` er reservesiden som brukes uten JavaScript, av 404-siden
-og av søkefeltet i Google-treffet. Søket bruker [Pagefind](https://pagefind.app/). `npm run build` lager søkeindeksen i `dist/pagefind/` etter
-Astro-bygget. Bare innleggene blir indeksert (`data-pagefind-body` i `src/pages/innlegg/[id].astro`), og søket
-skjer helt i nettleseren.
+- Flere mapper kan gis etter hverandre. Samme tur i flere mapper telles én gang.
+- `--utelat` hopper over spor fra andre piloter i felles mapper.
+- IGC-filer sjekkes aldri inn, og JSON-filen inneholder ingen spor, koordinater eller startsteder.
 
 ## Mappestruktur
 
 | Sti | Innhold |
 |---|---|
 | `src/content/innlegg/` | Innleggene, én fil per innlegg |
-| `src/content.config.ts` | Innholdsmodellen som innleggene valideres mot |
-| `src/lib/omrader.ts` | De fem områdene |
-| `src/pages/` | Forside, innlegg, arkiv, områder, RSS, personvern og 404 |
+| `src/content.config.ts` | Innholdsmodellen innleggene valideres mot |
+| `src/pages/` | Forside, innlegg, arkiv, områder, stikkord, søk, RSS, personvern og 404 |
 | `src/components/`, `src/layouts/` | Byggeklossene sidene er satt sammen av |
-| `src/styles/`, `src/scripts/` | Stilark og skript |
+| `src/lib/` | Områder, hjelpefunksjoner for innlegg, strukturert data og tolking av flystatus |
+| `src/scripts/`, `src/styles/` | Skript og stilark |
 | `src/assets/bilder/` | Bilder som optimaliseres ved bygg |
-| `public/` | Filer som kopieres uendret: ikoner, logo, `_headers`, `_redirects` |
-| `worker/index.js` | Statustjenesten som spør LiveTrack24 om sporingen er aktiv. Kjøres bare for `/api/`. |
-| `wrangler.jsonc` | Oppsett for Cloudflare Workers med statiske filer |
-| `.github/` | Arbeidsflyter for bygg og sikkerhetssjekker |
-| `docs/` | [Arkitektur, sikkerhet og beslutninger](docs/arkitektur.md) |
-
-## Sikkerhet
-
-- Skrift, ikoner, bilder og skript ligger i repoet. Siden fungerer selv om andre tjenester er nede.
-- `public/_headers` setter en streng Content-Security-Policy uten innebygd kode. Unntakene er videorammer
-  fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av, og skriptet til Cloudflare Web
-  Analytics. `'wasm-unsafe-eval'` er med fordi søket kjører WebAssembly fra siden selv, og `form-action 'self'`
-  fordi søkefeltet på 404-siden sender til `/sok/`.
-- Trusted Types er påkrevd: ingen skript kan sette inn HTML som tekst (`innerHTML` o.l.). Eneste policy slipper bare
-  gjennom søkets egen arbeidertråd. `Cross-Origin-Resource-Policy: same-origin` hindrer andre nettsteder i å laste
-  sidens filer, unntatt bilder og logoer, som RSS-lesere og delte lenker trenger.
-- Cloudflare-sonen har DNSSEC, CAA-poster (bare Let's Encrypt, Google og SSL.com kan utstede sertifikater),
-  DMARC med `p=reject` (domenet sender ikke e-post), rate limiting på `/api/status`, en WAF-regel som blokkerer
-  WordPress- og skannerforsøk (`.php`, `/wp-admin`, `/.env`, `/.git`) og blokkering av KI-roboter.
-- Domenet er verifisert for GitHub Pages i organisasjonen, så ingen andre kan ta over `status.hofstad.net`.
-- Cloudflare-oppsettet for sonen er kode i [`infra/`](infra/README.md) (OpenTofu). Endringer går via pull request:
-  plan vises på PR-en, og apply kjører etter merge når den er godkjent.
-- Flystatus hentes av sidens egen tjeneste (`/api/status`), så besøkende kontakter ikke LiveTrack24 før de åpner
-  kartet. Tjenesten tar ingen parametere og har ingen hemmeligheter.
-- Lys eller mørk visning lagres bare lokalt i nettleseren. Siden bruker ingen informasjonskapsler.
-- `public/_redirects` sender adressene fra den gamle WordPress-siden videre til de nye.
-
-## Overvåking
-
-- **Besøk og lastetid:** Cloudflare Web Analytics (anonyme tall, ingen informasjonskapsler). Sidevisninger, kilder
-  og Core Web Vitals ligger under Analytics & Logs → Web Analytics.
-- **Workeren (`/api/`):** logger, sporing (traces) og feilgruppering (issues) er slått på i `wrangler.jsonc`. Se
-  Workers & Pages → hofstadnet-web → Observability.
-- **Oppetid:** [status.hofstad.net](https://status.hofstad.net) (Upptime i repoet
-  [hofstadnet/status](https://github.com/hofstadnet/status)) sjekker forsiden, flystatusen, søket og RSS hvert
-  5. minutt. Hvis noe er nede, åpnes en issue der, og GitHub varsler eier.
-- **Brudd på CSP og Trusted Types:** nettleserne melder fra til `/api/csp`, og Workeren logger side, direktiv og
-  kilde i Workers Logs, uten IP, nettleserinfo eller utdrag av kode. En ny type brudd gir e-post via Worker-varselet.
-- **Feil i Workeren og angrep:** Cloudflare sender e-post til admin@ når Workers Observability finner en ny feiltype,
-  og når et DDoS-angrep mot sonen stoppes (Notifications).
-- **Ukentlig sjekk:** se Kvalitetssjekker over.
-- **Sertifikater:** Cloudflare varsler admin@ når det utstedes et nytt sertifikat for hofstad.net
-  (Certificate Transparency). Uventede sertifikater kan tyde på at noen prøver å utgi seg for siden.
-
-Sikkerhetsfeil rapporteres via «Report a vulnerability» under Security-fanen i repoet. Se [SECURITY.md](SECURITY.md).
+| `src/data/` | Flystatistikk |
+| `public/` | Filer som kopieres uendret, blant annet `_headers`, `_redirects` og `.well-known/security.txt` |
+| `worker/` | Workeren for `/api/status` og `/api/csp` |
+| `wrangler.jsonc` | Oppsett for Cloudflare Workers |
+| `infra/` | Cloudflare-sonen som kode (OpenTofu) |
+| `tests/` | Playwright-tester og godkjente skjermbilder |
+| `scripts/` | Forhåndsvisning, flystatistikk og kontroller som kjøres i bygget |
+| `.github/` | Arbeidsflyter, Dependabot og CODEOWNERS |
 
 ## Lisens
 
 Koden er lisensiert under MIT, se [LICENSE](LICENSE). Det gjelder komponenter, stilark, skript, workeren,
-byggeskript og arbeidsflyter.
+infrastrukturkoden, byggeskript og arbeidsflyter.
 
 Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
 

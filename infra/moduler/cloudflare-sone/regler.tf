@@ -54,7 +54,7 @@ resource "cloudflare_ruleset" "ratebegrensning" {
   phase   = "http_ratelimit"
   rules = [{
     description = var.ratebegrensning.beskrivelse
-    expression  = "(http.request.uri.path eq \"${var.ratebegrensning.sti}\")"
+    expression  = "(http.request.uri.path in {${join(" ", [for s in var.ratebegrensning.stier : "\"${s}\""])}})"
     action      = "block"
     enabled     = true
     ratelimit = {

@@ -214,7 +214,8 @@ Gjort:
   (`/user/krishofs/status/map/1`) og svarer med `live`, `ikke-live` eller `ukjent`. Svaret mellomlagres i 60
   sekunder. Forsiden viser grønn prikk og «I lufta nå» når sporingen er aktiv, og kartet åpnes hos LiveTrack24 i
   ny fane. Besøkende kontakter ikke LiveTrack24 før de selv åpner kartet, og siden har ingen ramme derfra.
-- Streng CSP uten innebygd kode, kontrollert av `scripts/sjekk-csp.mjs` i hvert bygg.
+- Streng CSP uten innebygd kode, kontrollert av `scripts/sjekk-csp.mjs` i hvert bygg. Brudd hos besøkende meldes
+  til `/api/csp` (`worker/csp-rapport.js`) og logges anonymisert i Workers Logs.
 - Arbeidsflyter for bygg, `dependency-review`, zizmor og CodeQL, med actions pinnet til commit.
 
 Gjenstår:

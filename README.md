@@ -187,6 +187,8 @@ skjer helt i nettleseren.
 - **Oppetid:** [status.hofstad.net](https://status.hofstad.net) (Upptime i repoet
   [hofstadnet/status](https://github.com/hofstadnet/status)) sjekker forsiden, flystatusen, søket og RSS hvert
   5. minutt. Hvis noe er nede, åpnes en issue der, og GitHub varsler eier.
+- **Brudd på CSP og Trusted Types:** nettleserne melder fra til `/api/csp`, og Workeren logger side, direktiv og
+  kilde i Workers Logs, uten IP, nettleserinfo eller utdrag av kode. En ny type brudd gir e-post via Worker-varselet.
 - **Feil i Workeren og angrep:** Cloudflare sender e-post til admin@ når Workers Observability finner en ny feiltype,
   og når et DDoS-angrep mot sonen stoppes (Notifications).
 - **Ukentlig sjekk:** se Kvalitetssjekker over.

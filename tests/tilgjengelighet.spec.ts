@@ -65,3 +65,25 @@ test('søk og galleri virker under Trusted Types', async ({ page }) => {
 
   expect(feil, 'feil i konsollen').toEqual([]);
 });
+
+// /api/csp tar bare imot POST, svarer alltid 204 uten innhold, og tåler både Reporting API og report-uri
+test('CSP-rapporter tas imot uten å svare med innhold', async ({ request }) => {
+  const reporting = await request.post('/api/csp', {
+    headers: { 'Content-Type': 'application/reports+json' },
+    data: [{ type: 'csp-violation', body: { documentURL: 'https://hofstad.net/?q=hemmelig', effectiveDirective: 'script-src-elem', blockedURL: 'inline', disposition: 'enforce' } }],
+  });
+  expect(reporting.status()).toBe(204);
+  expect(await reporting.text()).toBe('');
+
+  const eldre = await request.post('/api/csp', {
+    headers: { 'Content-Type': 'application/csp-report' },
+    data: { 'csp-report': { 'document-uri': 'https://hofstad.net/', 'violated-directive': 'img-src', 'blocked-uri': 'https://eksempel.no/bilde.png' } },
+  });
+  expect(eldre.status()).toBe(204);
+
+  const ugyldig = await request.post('/api/csp', { headers: { 'Content-Type': 'application/json' }, data: 'ikke json' });
+  expect(ugyldig.status()).toBe(204);
+
+  const hent = await request.get('/api/csp');
+  expect(hent.status()).toBe(405);
+});

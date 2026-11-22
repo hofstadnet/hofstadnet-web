@@ -35,7 +35,7 @@ infra/
 2. **plan** på pull requests: viser hva som vil endres, i oppsummeringen av kjøringen.
 3. **apply** etter merge til main. Venter på godkjenning i miljøet `cloudflare`.
 
-`plan` og `apply` kjører først når repovariabelen `TOFU_AKTIV` er `true`.
+`plan` og `apply` kjører først når repovariabelen `TOFU_ENABLED` er `true`.
 
 Endringer gjort i dashbordet blir overskrevet ved neste apply. Gjør endringer her, eller legg dem inn her etterpå.
 
@@ -65,8 +65,8 @@ Disse stegene gjør du selv, fordi de lager nøkler:
    gh secret set CLOUDFLARE_API_TOKEN
    gh secret set R2_ACCESS_KEY_ID
    gh secret set R2_SECRET_ACCESS_KEY
-   gh secret set TOFU_TILSTANDSNOKKEL
-   gh variable set TOFU_AKTIV --body true
+   gh secret set TOFU_STATE_PASSPHRASE
+   gh variable set TOFU_ENABLED --body true
    ```
 
    `gh secret set` spør etter verdien, så den havner ikke i skallhistorikken.

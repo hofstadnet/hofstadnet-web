@@ -26,10 +26,12 @@ terraform {
   }
 
   # State og planer krypteres før de forlater maskinen (AES-GCM, nøkkel avledet med PBKDF2 fra en passfrase).
-  # Passfrasen kommer fra TF_VAR_tilstandsnokkel. Uten den kan state verken leses eller skrives.
+  # Passfrasen kommer fra TF_VAR_state_passphrase. Uten den kan state verken leses eller skrives.
+  # Navnene «passfrase» og «standard» er lagret i den krypterte state-filen. De kan ikke endres uten en
+  # nøkkelmigrering med fallback-blokk, og beholdes derfor selv om resten av koden har engelske navn.
   encryption {
     key_provider "pbkdf2" "passfrase" {
-      passphrase = var.tilstandsnokkel
+      passphrase = var.state_passphrase
     }
     method "aes_gcm" "standard" {
       keys = key_provider.pbkdf2.passfrase

@@ -34,7 +34,7 @@ updates:
   - package-ecosystem: opentofu
     directories:
       - /infra/hofstad.net
-      - /infra/moduler/cloudflare-sone
+      - /infra/modules/cloudflare-zone
     schedule:
       interval: monthly
     labels: ["dependencies"]

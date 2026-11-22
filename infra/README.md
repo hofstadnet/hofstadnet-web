@@ -6,7 +6,7 @@ siden ligger i `wrangler.jsonc` og `public/`.
 
 ```
 infra/
-  moduler/cloudflare-sone/   gjenbrukbar modul, alt kommer inn som variabler
+  modules/cloudflare-zone/   gjenbrukbar modul, alt kommer inn som variabler
   hofstad.net/               oppsettet for denne sonen
     terraform.tfvars         verdiene (ingen hemmeligheter)
     versions.tf              provider, backend (R2) og kryptering
@@ -46,7 +46,7 @@ Endringer gjort i dashbordet blir rapportert av avvikssjekken og overskrevet ved
 ## Utenfor koden
 
 - **Worker-varselet** «hofstadnet-web: ny feil i Workeren» (`workers_observability_real_time_issue`): Cloudflare-
-  provideren godtar ikke varseltypen ennå. Legg det inn i `varsler` i `terraform.tfvars` og importer det når den gjør det.
+  provideren godtar ikke varseltypen ennå. Legg det inn i `alerts` i `terraform.tfvars` og importer det når den gjør det.
 - **Email Routing:** målet for videresendingen er en privat e-postadresse som ikke skal stå i et offentlig repo.
 - **Postene for selve siden** (hofstad.net og www) lages av Workeren som custom domain.
 - **API-tokenene og R2-bøtta** for OpenTofu, fordi koden ikke skal kunne lage sine egne nøkler.
@@ -82,7 +82,7 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
 
 ```bash
 cd infra/hofstad.net
-export CLOUDFLARE_API_TOKEN=… AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… TF_VAR_tilstandsnokkel=…
+export CLOUDFLARE_API_TOKEN=… AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… TF_VAR_state_passphrase=…
 tofu init
 tofu plan
 ```

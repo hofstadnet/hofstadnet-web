@@ -45,8 +45,10 @@ nettleserutvidelser og andre nettsteder ignoreres. Maks 16 kB og 10 rapporter pe
 Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.md](../infra/README.md).
 
 - **DNSSEC** med DS-posten hos registraren. TLS 1.2 som minimum, TLS 1.3, «Always Use HTTPS».
-- **CAA:** bare `letsencrypt.org`, `pki.goog` og `ssl.com` kan utstede sertifikater, de tre Cloudflare bruker for
-  Universal SSL. Det er ingen `iodef`-adresse: få utstedere sender slike rapporter, og CT-varslingen dekker behovet.
+- **CAA:** `infra/` legger inn `letsencrypt.org`, `pki.goog` og `ssl.com`. Cloudflare legger i tillegg automatisk til
+  `comodoca.com` og `digicert.com` når sonen har egne CAA-poster, så Universal SSL kan bytte utsteder. Andre utstedere
+  kan ikke lage sertifikater for domenet. Det er ingen `iodef`-adresse: få utstedere sender slike rapporter, og
+  CT-varslingen dekker behovet.
 - **E-post:** domenet tar bare imot (Email Routing). SPF, DKIM og DMARC med `p=reject` og streng samsvar, så e-post
   som utgir seg for å komme fra `@hofstad.net`, avvises. `www` har «null MX».
 - **GitHub Pages:** domenet er verifisert for organisasjonen hofstadnet, så ingen andre kan ta i bruk

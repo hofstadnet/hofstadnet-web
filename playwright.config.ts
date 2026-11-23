@@ -9,6 +9,8 @@ const production = process.env.PRODUCTION === '1';
 
 export default defineConfig({
   testDir: 'tests',
+  // Enhetstestene i tests/unit/ kjøres med Node sin testkjører (npm run test:unit), ikke med Playwright
+  testIgnore: ['**/unit/**'],
   // Godkjente skjermbilder for de visuelle testene (tests/visual.spec.ts), uten plattform i navnet
   snapshotPathTemplate: '{testDir}/screenshots/{arg}{ext}',
   fullyParallel: true,

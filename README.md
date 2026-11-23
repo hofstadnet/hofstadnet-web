@@ -31,6 +31,7 @@ npm run dev
 | `npm run dev` | Lokal utvikling med automatisk oppdatering. Utkast vises. |
 | `npm run build` | Typesjekker, bygger siden til `dist/` og lager søkeindeksen. |
 | `npm run preview` | Viser `dist/` med de samme sikkerhetshodene som i drift, og svarer på `/api/`. |
+| `npm run test:unit` | Enhetstester for logikk uten nettleser (`tests/unit/`), med Node sin testkjører. |
 | `npm run test:e2e` | Playwright: tilgjengelighet, CSP, søk, galleri, `/api/csp` og skjermbilder. |
 | `npm run test:lighthouse` | Lighthouse med poenggrenser og ytelsesbudsjett. |
 | `npm run flight-stats` | Regner ut flystatistikken fra IGC-filer (se under). |
@@ -42,15 +43,16 @@ skrift tegnes ulikt på andre systemer.
 
 ### Windows med Smart App Control
 
-Smart App Control blokkerer en usignert maskinkodefil i Astros Markdown-leser (`satteri`), og bygget feiler med
-«Cannot find native binding». WebAssembly-utgaven brukes automatisk hvis den er installert:
+Smart App Control kan blokkere usignerte maskinkodefiler i Astros kompilator (`@astrojs/compiler-binding`) og
+Markdown-leser (`satteri`), og bygget feiler med «Cannot find native binding». WebAssembly-utgavene brukes automatisk
+hvis de er installert:
 
 ```bash
-npm install --no-save --force @bruits/satteri-wasm32-wasi@0.11.7
+npm install --no-save --force @astrojs/compiler-binding-wasm32-wasi@0.5.3 @bruits/satteri-wasm32-wasi@0.11.7
 ```
 
-Versjonen må være den samme som `@bruits/satteri-*` i `package-lock.json`. Pakken lagres ikke i `package.json` og må
-installeres på nytt etter `npm ci`.
+Versjonene må være de samme som `@astrojs/compiler-binding-*` og `@bruits/satteri-*` i `package-lock.json`. Pakkene
+lagres ikke i `package.json` og må installeres på nytt etter `npm ci`.
 
 ## Skrive et innlegg
 

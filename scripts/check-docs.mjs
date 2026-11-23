@@ -19,6 +19,7 @@ const NOT_IN_REPO = [
   /^hofstadnet\/status$/, // et annet repo
   /^mitt-innlegg\.md$/, /^importer\.tf$/, // eksempler
   /^actions\//, // GitHub-actions, ikke filer
+  /^@[\w.-]+\/[\w.-]+$/, // npm-pakker med scope, f.eks. @astrojs/compiler-binding
 ];
 // Mapper en sti også kan være relativ til
 const BASE_DIRS = ['', 'public', 'public/.well-known', 'infra', 'infra/hofstad.net', '.github/workflows'];

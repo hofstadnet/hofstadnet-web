@@ -21,6 +21,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `scorecard.yml` | Mandager | OpenSSF Scorecard |
 | `quality.yml` | PR | Lighthouse med poenggrenser og ytelsesbudsjett, Playwright med tilgjengelighet og skjermbilder |
 | `link-check.yml` | PR og mandager | lychee: interne lenker på PR, også eksterne lenker på mandager |
+| `health.yml` | Hver time | Sikkerhetshoder på `/` og `/en/`, sertifikatets utløp, videresending fra www og JSON fra `/api/status`. Åpner og lukker en issue. |
 | `production.yml` | Mandager | Lighthouse og tilgjengelighetstestene mot https://hofstad.net |
 | `infra.yml` | Endringer i `infra/`, mandager | OpenTofu: sjekk, plan, apply (med godkjenning) og ukentlig avvikssjekk |
 | `token-expiry.yml` | Mandager | Varsler når Cloudflare-tokenet til OpenTofu har under 30 dager igjen |
@@ -45,6 +46,7 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 | Hva | Hvor | Varsel |
 |---|---|---|
 | Oppetid for forsiden, `/api/status`, søket og RSS (de norske adressene) | status.hofstad.net, hvert 5. minutt | Issue i `hofstadnet/status` |
+| Sikkerhetshoder, sertifikat, videresending fra www og `/api/status` | `health.yml`, hver time | Issue (etikett «bug»), lukkes når alt er i orden |
 | Besøk og Core Web Vitals | Cloudflare Web Analytics | — |
 | Logger og feil i Workeren (én linje per kall, uten IP) | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
 | Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-violation`) | E-post ved ny feiltype |
@@ -76,6 +78,17 @@ Når en endring skal endre skjermbildene:
 
 Endre `infra/hofstad.net/terraform.tfvars` (eller modulen) i en PR, les planen, merge, og godkjenn apply. Endringer
 gjort direkte i dashbordet blir rapportert av avvikssjekken og overskrevet ved neste apply.
+
+### Når helsesjekken lager en issue
+
+Issuen lister det som er galt. Den oppdateres når listen endrer seg, og lukkes av seg selv når alt er i orden igjen.
+
+- **Hoder mangler:** sjekk `public/_headers` og siste publisering i Workers & Pages → hofstadnet-web → Deployments.
+  Rull tilbake ved behov (se [Rulle tilbake](#rulle-tilbake)).
+- **`/api/status` svarer feil:** se loggene i Workers & Pages → hofstadnet-web → Observability.
+- **www videresender ikke:** sjekk videresendingsregelen i `infra/` og kjør Infrastructure → Run workflow.
+- **Sertifikatet utløper snart:** Cloudflare fornyer Universal SSL selv. Sjekk SSL/TLS → Edge Certificates, og at
+  CAA-postene i `infra/` tillater utstederne (se [security.md](security.md#cloudflare-sonen)).
 
 ### Når avvikssjekken lager en issue
 

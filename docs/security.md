@@ -56,6 +56,8 @@ Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.m
   som utgir seg for å komme fra `@hofstad.net`, avvises. `www` har «null MX».
 - **GitHub Pages:** domenet er verifisert for organisasjonen hofstadnet, så ingen andre kan ta i bruk
   `status.hofstad.net` eller andre underdomener på GitHub Pages.
+- **Google Search Console:** eierskapet er bekreftet med en TXT-post (`google-site-verification`) i `infra/`. Den må
+  bli liggende, ellers mister eieren tilgangen i Search Console.
 - **WAF:** Cloudflares gratis regelsett og én egen regel som blokkerer `.php`, `/wp-admin`, `/wp-includes`,
   `/wp-json`, `/.env` og `/.git`.
 - **Rate limiting:** over 20 kall på 10 sekunder fra samme IP til `/api/status` og `/api/csp` blokkeres i 10 sekunder.

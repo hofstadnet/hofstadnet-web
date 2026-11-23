@@ -40,6 +40,8 @@ const versions = { [lang]: canonical, [other]: alternateUrl } as Record<Lang, UR
     <meta name="theme-color" content="#14243F" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
+    <!-- Større ikon for søkemotorer, som foretrekker multipler av 48 px -->
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title={text.site.feedTitle} href={urls(lang).rss} />

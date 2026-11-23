@@ -51,13 +51,19 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 | Logger og feil i Workeren (én linje per kall, uten IP) | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
 | Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-violation`) | E-post ved ny feiltype |
 | DDoS-angrep mot sonen | Cloudflare Notifications | E-post |
-| Nye sertifikater for hofstad.net | Certificate Transparency i Cloudflare | E-post |
+| Nye sertifikater for hofstad.net | Sertifikatsjekken i hofstadnet/operations, daglig | Issue i `hofstadnet/operations` |
 | Avvik mellom Cloudflare og `infra/` | `infra.yml`, mandager | Issue |
 | Tokenutløp | `token-expiry.yml`, mandager | Issue |
 | Ytelse og tilgjengelighet i drift | `production.yml`, mandager | Feilet kjøring |
 | Døde eksterne lenker | `link-check.yml`, mandager | Feilet kjøring |
+| Innstillinger i GitHub (regelsett, tilganger, miljøer, sikkerhet) | Revisjonen i hofstadnet/operations, mandager | Issue i `hofstadnet/operations` |
+| Utløp av domenet, tokens og nøkler | Varsler om utløp i hofstadnet/operations | Issue i `hofstadnet/operations` |
 
 Varsler fra Cloudflare går til adressen i secreten `ALERT_EMAIL`. Adressen står ikke i repoet.
+
+Kontrollene som gjelder flere repoer, ligger i [hofstadnet/operations](https://github.com/hofstadnet/operations), ikke
+her. Sertifikatsjekken der erstatter CT-varslingen (Certificate Transparency) i Cloudflare. Eieren kan slå av
+CT-varslingen under Notifications i Cloudflare når sertifikatsjekken kjører. Varselet ligger ikke i `infra/`.
 
 ## Fremgangsmåter
 

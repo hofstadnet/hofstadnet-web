@@ -26,3 +26,10 @@ Cloudflare-sonen som kode i `infra/` (OpenTofu).
 - Endringer i Cloudflare gjøres i `infra/`, aldri i dashbordet.
 - Ingen hemmeligheter, tokens eller private opplysninger i repoet. Repoet er offentlig.
 - Content-Security-Policy tillater ikke innebygd kode, og Trusted Types stopper `innerHTML` o.l.
+- Logger fra Workeren har aldri IP, nettleserinfo, spørrestrenger eller innhold fra forespørselen
+  ([docs/security.md](docs/security.md#logger)).
+- Arbeidsflyter: actions låst til SHA med versjonen i en kommentar, minst mulig `permissions`, og tokenet som kan
+  endre Cloudflare, bare i miljøet `cloudflare`.
+- Valg som binder siden for lengre tid, får et beslutningsnotat i [docs/decisions/](docs/decisions/README.md).
+- Overvåking som gjelder flere repoer (revisjon av innstillinger, sertifikater, utløp), ligger i
+  [hofstadnet/operations](https://github.com/hofstadnet/operations), ikke her.

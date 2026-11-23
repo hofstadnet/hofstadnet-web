@@ -16,7 +16,7 @@ const DOCUMENTS = ['README.md', 'AGENTS.md', 'SECURITY.md', 'infra/README.md', .
 const NOT_IN_REPO = [
   /^dist(\/|$)/, /^node_modules/, /^playwright-report/, /^lighthouse-report/, /^\.terraform\//,
   /^hofstad\.net\/terraform\.tfstate$/, // nøkkelen til state i R2
-  /^hofstadnet\/status$/, // et annet repo
+  /^hofstadnet\/(status|operations)$/, // andre repoer
   /^mitt-innlegg\.md$/, /^importer\.tf$/, // eksempler
   /^actions\//, // GitHub-actions, ikke filer
   /^@[\w.-]+\/[\w.-]+$/, // npm-pakker med scope, f.eks. @astrojs/compiler-binding

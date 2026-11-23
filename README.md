@@ -13,6 +13,7 @@ med en engelsk versjon under `/en/`.
 | [infra/README.md](infra/README.md) | Cloudflare-oppsettet som kode (OpenTofu) |
 | [SECURITY.md](SECURITY.md) | Rapportering av sårbarheter |
 | [docs/guidelines/](docs/guidelines/README.md) | Retningslinjer: navngivning, dokumentasjon, sikkerhet, UX og nye innlegg |
+| [hofstadnet/operations](https://github.com/hofstadnet/operations) | Felles drift: revisjon av innstillinger, sertifikatsjekk og varsler om utløp |
 | [AGENTS.md](AGENTS.md) | Instruksjoner for kodeagenter. `CLAUDE.md` henter den samme filen. |
 
 ## Kom i gang

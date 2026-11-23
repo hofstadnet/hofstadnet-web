@@ -16,6 +16,7 @@ det er satt opp i hofstad.net. Arbeidsflytene og grensene er beskrevet i [docs/o
 | Ytelse | `lighthouserc.json` med poenggrenser og ytelsesbudsjett | `npm run test:lighthouse` |
 | Infrastruktur | Planen på pull requesten | `infra.yml` |
 | Produksjon | Lighthouse og ende-til-ende mot hofstad.net | `production.yml`, mandager |
+| Drift | Sikkerhetshoder, sertifikat, www og `/api/status` mot hofstad.net | `health.yml`, hver time |
 
 Testene kjører mot det ferdige bygget med de samme sikkerhetshodene som i drift (`scripts/preview.mjs`). Kjør
 `npm run build` før testene.

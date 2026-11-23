@@ -71,7 +71,10 @@ Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.m
 - **CAA:** `infra/` legger inn `letsencrypt.org`, `pki.goog` og `ssl.com`. Cloudflare legger i tillegg automatisk til
   `comodoca.com` og `digicert.com` når sonen har egne CAA-poster, så Universal SSL kan bytte utsteder. Andre utstedere
   kan ikke lage sertifikater for domenet. Det er ingen `iodef`-adresse: få utstedere sender slike rapporter, og
-  CT-varslingen dekker behovet.
+  sertifikatsjekken i hofstadnet/operations dekker behovet.
+- **Nye sertifikater:** sertifikatsjekken i [hofstadnet/operations](https://github.com/hofstadnet/operations) leser
+  Certificate Transparency-loggene hver dag og lager en issue for sertifikater fra ukjente utstedere eller for ukjente
+  navn. Den erstatter CT-varslingen i Cloudflare. Eieren kan slå av CT-varslingen når sjekken kjører.
 - **E-post:** domenet tar bare imot (Email Routing). SPF, DKIM og DMARC med `p=reject` og streng samsvar, så e-post
   som utgir seg for å komme fra `@hofstad.net`, avvises. `www` har «null MX».
 - **GitHub Pages:** domenet er verifisert for organisasjonen hofstadnet, så ingen andre kan ta i bruk

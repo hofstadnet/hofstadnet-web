@@ -57,6 +57,31 @@ flowchart LR
 Endringer, også fra Dependabot, går via pull request og sjekker i GitHub Actions. Etter merge til `main` publiserer
 Workers Builds siden, og `infra.yml` oppdaterer Cloudflare-sonen etter godkjenning når `infra/` er endret.
 
+```mermaid
+flowchart LR
+  site["hofstad.net"]
+  subgraph repo["hofstadnet/hofstadnet-web"]
+    health["Helsesjekk hver time<br/>hoder, sertifikat, www, /api/status"]
+    weekly["Mandager<br/>produksjonstester, avvik i infra, tokenutløp"]
+  end
+  subgraph ops["hofstadnet/operations, utenfor dette repoet"]
+    audit["Ukentlig revisjon<br/>innstillinger i GitHub"]
+    certs["Daglig sertifikatsjekk<br/>Certificate Transparency"]
+    expiry["Utløp<br/>domene, tokens og nøkler"]
+  end
+  status["hofstadnet/status<br/>Upptime hvert 5. minutt"]
+  health -->|"sjekker"| site
+  weekly -->|"sjekker"| site
+  status -->|"sjekker"| site
+  certs -->|"nye sertifikater for"| site
+  health & weekly & audit & certs & expiry & status -->|"issue ved feil"| issues["Issues"]
+```
+
+Siden overvåkes fra tre repoer. Dette repoet har helsesjekken og de ukentlige kontrollene. Revisjonen av
+innstillingene, sertifikatsjekken og varslene om utløp ligger i [hofstadnet/operations](https://github.com/hofstadnet/operations),
+og oppetiden i [hofstadnet/status](https://github.com/hofstadnet/status). Detaljer i
+[operations.md](operations.md#overvåking-og-varsler).
+
 ## Komponenter
 
 ### Statiske sider

@@ -25,22 +25,32 @@ Gå gjennom punktene som gjelder endringen, før pull requesten lages. Bakgrunne
 ## Arbeidsflyter
 
 - [ ] Nye actions er låst til commit-SHA, med versjonen i en kommentar.
-- [ ] `permissions` er `contents: read` på toppnivå. Jobber som trenger mer, ber om det selv.
+- [ ] `permissions` er `contents: read` eller `{}` på toppnivå. Jobber som trenger mer, ber om det selv, med en
+      kommentar om hvorfor.
+- [ ] `pull_request_target` brukes bare uten checkout, så arbeidsflyten aldri kjører kode fra PR-en.
 - [ ] `actions/checkout` har `persist-credentials: false`.
 - [ ] Verdier fra hendelser (titler, branch-navn, kommentarer) brukes via `env`, aldri direkte i `run`.
 - [ ] Nye jobbnavn som skal være påkrevde, er lagt inn i regelsettet for `main`.
 - [ ] Hemmeligheter ligger som secrets, og bare jobbene som trenger dem, får dem.
+- [ ] Tokenet som kan endre Cloudflare, ligger bare i miljøet `cloudflare`. Jobber som kjører på branches og pull
+      requests, bruker lesetokenet.
+- [ ] `set -o pipefail` når utdata sendes videre med rør, så feil ikke skjules.
+- [ ] Planlagte kjøringer som finner problemer, oppretter én issue og sjekker først om en åpen finnes.
 
 ## Avhengigheter
 
 - [ ] Nye pakker er nødvendige, vedlikeholdte og har kjent opphav. `npm audit signatures` er grønn.
 - [ ] Versjonen er låst i `package.json` og `package-lock.json`.
+- [ ] Automatisk merge følger kriteriene i
+      [hofstadnet/guidelines](https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge):
+      aldri `wrangler`, OpenTofu-provideren eller major-versjoner.
 
 ## Cloudflare
 
 - [ ] Endringer gjøres i `infra/`, ikke i dashbordet.
 - [ ] Planen viser bare det som er ment å endres.
-- [ ] Tokens får bare tilgangene de trenger, med utløpsdato.
+- [ ] Tokens får bare tilgangene de trenger, med utløpsdato. Nye tokens og utløpsdatoer meldes inn i
+      hofstadnet/operations, så varselet om utløp kommer derfra.
 
 ## Personvern
 

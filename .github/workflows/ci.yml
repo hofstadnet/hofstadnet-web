@@ -37,6 +37,9 @@ jobs:
       - name: Signaturer på npm-pakkene
         run: npm audit signatures
 
+      - name: Enhetstester
+        run: npm run test:unit
+
       - run: npm run build
 
       - name: Ingen innebygd kode i HTML

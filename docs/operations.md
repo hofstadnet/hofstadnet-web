@@ -15,7 +15,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 
 | Arbeidsflyt | Når | Hva |
 |---|---|---|
-| `ci.yml` (Build) | PR og `main` | `npm audit signatures`, bygg med typesjekk, ingen innebygd kode, gyldig `security.txt`, kontroll av dokumentasjonen |
+| `ci.yml` (Build) | PR og `main` | `npm audit signatures`, enhetstester, bygg med typesjekk, ingen innebygd kode, gyldig `security.txt`, kontroll av dokumentasjonen |
 | `security.yml` | PR | `dependency-review` og `workflow-security` (zizmor) |
 | `code-scanning.yml` | PR, `main`, mandager | CodeQL for JavaScript, TypeScript og arbeidsflyter |
 | `scorecard.yml` | Mandager | OpenSSF Scorecard |

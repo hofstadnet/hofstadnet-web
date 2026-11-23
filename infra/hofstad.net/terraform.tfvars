@@ -30,7 +30,7 @@ dns_records = {
 
 caa_issuers = ["letsencrypt.org", "pki.goog", "ssl.com"]
 # Ingen iodef-adresse: få utstedere sender slike rapporter, og CT-varslingen dekker behovet.
-caa_iodef   = ""
+caa_iodef = ""
 
 settings = {
   ssl                      = "full"

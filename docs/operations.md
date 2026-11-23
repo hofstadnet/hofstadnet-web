@@ -24,7 +24,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `production.yml` | Mandager | Lighthouse og tilgjengelighetstestene mot https://hofstad.net |
 | `infra.yml` | Endringer i `infra/`, mandager | OpenTofu: sjekk, plan, apply (med godkjenning) og ukentlig avvikssjekk |
 | `token-expiry.yml` | Mandager | Varsler når Cloudflare-tokenet til OpenTofu har under 30 dager igjen |
-| `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions |
+| `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, unntatt `wrangler`. OpenTofu-provideren og major merges manuelt. |
 
 Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow-security` og CodeQL.
 
@@ -46,7 +46,7 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 |---|---|---|
 | Oppetid for forsiden, `/api/status`, søket og RSS (de norske adressene) | status.hofstad.net, hvert 5. minutt | Issue i `hofstadnet/status` |
 | Besøk og Core Web Vitals | Cloudflare Web Analytics | — |
-| Logger, sporing og feil i Workeren | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
+| Logger og feil i Workeren (én linje per kall, uten IP) | Workers & Pages → hofstadnet-web → Observability | E-post ved ny feiltype |
 | Brudd på CSP og Trusted Types hos besøkende | Workers Logs (`type: csp-violation`) | E-post ved ny feiltype |
 | DDoS-angrep mot sonen | Cloudflare Notifications | E-post |
 | Nye sertifikater for hofstad.net | Certificate Transparency i Cloudflare | E-post |

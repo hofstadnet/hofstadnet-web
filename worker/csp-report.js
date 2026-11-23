@@ -5,9 +5,11 @@
 // Personvern og angrepsflate:
 //  - ingen IP-adresse, nettleserinfo eller spørrestrenger lagres, bare side, direktiv og hvor det blokkerte kom fra
 //  - «sample» (utdrag av blokkert kode) lagres ikke, fordi det kan inneholde tekst fra siden eller skjemaer
-//  - maks 16 kB per forespørsel og maks 10 rapporter per forespørsel
+//  - maks 16 kB per forespørsel, også uten Content-Length (body.js), og maks 10 rapporter per forespørsel
 //  - brudd fra nettleserutvidelser og andre opphav enn siden selv ignoreres, de er ikke feil på siden
-//  - svaret er alltid 204 uten innhold, så endepunktet kan ikke brukes til å hente noe
+//  - svaret er alltid 204 uten innhold, så endepunktet kan ikke brukes til å hente noe (svaret lages i index.js)
+
+import { readLimitedBody } from './body.js';
 
 const MAX_BYTES = 16 * 1024;
 const MAX_REPORTS = 10;
@@ -47,17 +49,26 @@ function parseReports(data) {
   });
 }
 
-/** @param {Request} request */
-export async function cspReport(request) {
-  const empty = new Response(null, { status: 204, headers: { 'Cache-Control': 'no-store' } });
-
+/**
+ * Logger bruddene i forespørselen og gir antallet som ble logget (0 når forespørselen avvises eller ignoreres).
+ * @param {Request} request
+ * @returns {Promise<number>}
+ */
+export async function handleCspReport(request) {
+  // Avviser tidlig når hodet sier at kroppen er for stor. Den harde grensen gjelder når kroppen leses under.
   const length = Number(request.headers.get('Content-Length') ?? 0);
-  if (length > MAX_BYTES) return empty;
-  const text = await request.text();
-  if (text.length > MAX_BYTES) return empty;
+  if (length > MAX_BYTES) return 0;
 
   let data;
-  try { data = JSON.parse(text); } catch { return empty; }
+  try {
+    const body = await readLimitedBody(request, MAX_BYTES);
+    if (body === null) return 0;
+    data = JSON.parse(new TextDecoder().decode(body));
+  } catch {
+    return 0;
+  }
+
+  let logged = 0;
 
   for (const r of parseReports(data)) {
     if (!isFromSite(r.page)) continue;
@@ -74,6 +85,7 @@ export async function cspReport(request) {
       column: Number.isFinite(r.column) ? r.column : undefined,
       disposition: r.disposition === 'report' ? 'report' : 'enforce',
     }));
+    logged += 1;
   }
-  return empty;
+  return logged;
 }

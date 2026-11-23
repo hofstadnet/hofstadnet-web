@@ -41,7 +41,27 @@ stoppet. `worker/csp-report.js` logger side, direktiv, blokkert opphav og kildef
 
 Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag (`sample`). Rapporter fra
 nettleserutvidelser og andre nettsteder ignoreres. Maks 16 kB og 10 rapporter per forespørsel, og svaret er alltid
-204 uten innhold.
+204 uten innhold. Grensen på 16 kB gjelder det som faktisk leses (`worker/body.js`), så den virker også når
+`Content-Length` mangler eller er feil.
+
+## Logger
+
+Workers Logs inneholder bare linjene Workeren skriver selv, og ingen personopplysninger:
+
+| Linje | Eksempel |
+|---|---|
+| Én linje per kall til `/api/` (`console.log`) | `api path=/api/status status=200 result=not-live cache=hit`, `api path=/api/csp status=204 reports=1` |
+| Brudd på CSP og Trusted Types (`console.error`) | Se [Rapporter om brudd](#rapporter-om-brudd) |
+| Ukjent svar fra LiveTrack24 (`console.warn`) | Utdrag av svaret fra LiveTrack24, ikke fra den besøkende |
+
+- Linjen per kall har bare faste verdier fra koden: adressen, statuskoden, resultatet, mellomlageret og antall
+  rapporter. Ukjente adresser under `/api/` logges som `path=other`. Aldri IP, nettleserinfo, spørrestrenger eller
+  innhold fra forespørselen.
+- Cloudflares egen logg per kall (`invocation_logs`) er slått av i `wrangler.jsonc`, fordi den tar med IP-adresse,
+  nettleserinfo og hele adressen.
+- Sporing (`traces`) er slått av, fordi Cloudflare tar med nettleserinfo (`user_agent.original`), hele adressen med
+  spørrestreng (`url.full`) og hoder som `accept-language` i sporene.
+- Loggene lagres hos Cloudflare i inntil 7 dager (gratisplanen).
 
 ## Cloudflare-sonen
 
@@ -91,8 +111,11 @@ Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som r
   stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
   `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret.
-- Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter utgivelse. Patch og minor for npm og
-  Actions merges automatisk når alle sjekker er grønne. Major-versjoner og OpenTofu-provideren merges manuelt.
+- Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter utgivelse, og 30 dager for
+  major-versjoner av npm-pakker.
+  Patch og minor for npm og Actions merges automatisk når alle sjekker er grønne, etter kriteriene i
+  [hofstadnet/guidelines](https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge).
+  `wrangler` (publiserer siden), OpenTofu-provideren (endrer Cloudflare) og major-versjoner merges manuelt.
 - Arbeidsflyter har bare lesetilgang som utgangspunkt og `persist-credentials: false`. Jobber som trenger mer, ber om
   det selv.
 - Secret scanning med push protection, Dependabot-varsler og sikkerhetsoppdateringer er slått på.

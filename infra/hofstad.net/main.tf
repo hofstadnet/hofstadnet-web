@@ -21,11 +21,6 @@ module "zone" {
   alerts           = var.alerts
 }
 
-moved {
-  from = module.sone
-  to   = module.zone
-}
-
 output "dnssec_ds" {
   description = "DS-posten som skal ligge hos registraren."
   value       = module.zone.dnssec_ds

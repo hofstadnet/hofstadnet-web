@@ -21,17 +21,3 @@ resource "cloudflare_bot_management" "zone" {
   enable_js          = var.bot_fight_mode
 }
 
-moved {
-  from = cloudflare_zone_setting.tekst
-  to   = cloudflare_zone_setting.text
-}
-
-moved {
-  from = cloudflare_zone_setting.tall
-  to   = cloudflare_zone_setting.number
-}
-
-moved {
-  from = cloudflare_bot_management.sone
-  to   = cloudflare_bot_management.zone
-}

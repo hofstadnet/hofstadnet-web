@@ -46,7 +46,7 @@ Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.m
 
 - **DNSSEC** med DS-posten hos registraren. TLS 1.2 som minimum, TLS 1.3, «Always Use HTTPS».
 - **CAA:** bare `letsencrypt.org`, `pki.goog` og `ssl.com` kan utstede sertifikater, de tre Cloudflare bruker for
-  Universal SSL. Avviste forsøk meldes til admin@ (`iodef`).
+  Universal SSL. Det er ingen `iodef`-adresse: få utstedere sender slike rapporter, og CT-varslingen dekker behovet.
 - **E-post:** domenet tar bare imot (Email Routing). SPF, DKIM og DMARC med `p=reject` og streng samsvar, så e-post
   som utgir seg for å komme fra `@hofstad.net`, avvises. `www` har «null MX».
 - **GitHub Pages:** domenet er verifisert for organisasjonen hofstadnet, så ingen andre kan ta i bruk
@@ -67,6 +67,7 @@ Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som r
 | `hofstadnet-tofu` (`CLOUDFLARE_API_TOKEN`) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), Zone (Read). Kontoen: Notifications (Edit). | OpenTofu i `infra.yml`, tokenutløp i `token-expiry.yml` |
 | `hofstadnet-tofu-state` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`) | R2-kontotoken | Object Read & Write på bøtta `hofstadnet-tofu` | OpenTofu-state |
 | `TOFU_STATE_PASSPHRASE` | Passfrase | Krypterer og dekrypterer state | OpenTofu |
+| `ALERT_EMAIL` | E-postadresse | Mottaker av varsler fra Cloudflare. Ligger som secret så den ikke står i det offentlige repoet, og er merket `sensitive` så den ikke vises i planer. | OpenTofu |
 | `hofstadnet-web-builds` | Cloudflare-brukertoken, styrt av Workers Builds | Kontoen: Workers Scripts (Edit), Account Settings (Read). hofstad.net: Workers Routes (Edit). Bruker: Memberships og User Details (Read). | Publisering fra `main` og forhåndsvisninger |
 
 - Tokenene for OpenTofu har utløpsdato. `token-expiry.yml` oppretter en issue 30 dager før.

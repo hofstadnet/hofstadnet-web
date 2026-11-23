@@ -41,12 +41,3 @@ resource "cloudflare_zone_dnssec" "zone" {
   status  = "active"
 }
 
-moved {
-  from = cloudflare_dns_record.post
-  to   = cloudflare_dns_record.record
-}
-
-moved {
-  from = cloudflare_zone_dnssec.sone
-  to   = cloudflare_zone_dnssec.zone
-}

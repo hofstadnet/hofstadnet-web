@@ -26,7 +26,8 @@ infra/
   AES-GCM før opplasting. Den legges aldri i git.
 - **Låste versjoner.** OpenTofu-versjonen er låst i `.github/workflows/infra.yml`, provideren i `versions.tf` og
   sjekksummene i `.terraform.lock.hcl`. Dependabot foreslår nye versjoner av provideren.
-- **Ingen hemmeligheter i repoet.** API-tokenet, R2-nøklene og passfrasen ligger som GitHub-secrets.
+- **Ingen hemmeligheter eller e-postadresser i repoet.** API-tokenet, R2-nøklene, passfrasen og adressen for varsler
+  ligger som GitHub-secrets.
 
 ## Flyt
 
@@ -72,6 +73,7 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
    gh secret set R2_ACCESS_KEY_ID
    gh secret set R2_SECRET_ACCESS_KEY
    gh secret set TOFU_STATE_PASSPHRASE
+   gh secret set ALERT_EMAIL
    gh variable set TOFU_ENABLED --body true
    ```
 

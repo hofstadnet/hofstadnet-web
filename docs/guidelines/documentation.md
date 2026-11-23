@@ -35,7 +35,8 @@ En ny arbeidsflyt må inn i tabellen i `docs/operations.md`, ellers stopper kont
 - Nøytral form: «Kjør …», «Tokenet lages i …», ikke «du må» eller «jeg har». Bruk «eier» om personen som har
   tilgangene.
 - Ingen private opplysninger: ingen private e-postadresser, lokale filstier, navn på andre personer, tokenverdier eller
-  hemmeligheter. Konto- og sone-ID, offentlige DNS-poster og admin@hofstad.net er greit.
+  hemmeligheter. Konto- og sone-ID og offentlige DNS-poster er greit. E-postadresser ligger som secrets, ikke i
+  repoet.
 - Ingen omtale av tidligere løsninger eller leverandører som ikke lenger er i bruk.
 - Stier, kommandoer, filnavn og verdier i `kode`. Kontrollen sjekker at stier i `kode` finnes.
 - Korte avsnitt og tabeller. Én ting beskrives ett sted, og andre steder lenker dit.

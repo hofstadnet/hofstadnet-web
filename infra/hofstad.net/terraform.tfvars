@@ -29,7 +29,8 @@ dns_records = {
 }
 
 caa_issuers = ["letsencrypt.org", "pki.goog", "ssl.com"]
-caa_iodef   = "mailto:admin@hofstad.net"
+# Ingen iodef-adresse: få utstedere sender slike rapporter, og CT-varslingen dekker behovet.
+caa_iodef   = ""
 
 settings = {
   ssl                      = "full"
@@ -67,7 +68,7 @@ rate_limit = {
 ai_bots        = "block"
 bot_fight_mode = false
 
-alert_email = "admin@hofstad.net"
+# Adressen for varsler (alert_email) står ikke her, men kommer fra secreten ALERT_EMAIL (TF_VAR_alert_email).
 # Varselet «hofstadnet-web: ny feil i Workeren» (workers_observability_real_time_issue) finnes også, men står
 # utenfor koden: Cloudflare-provideren 5.29.0 godtar ikke den varseltypen ennå. Legg det inn her når den gjør det.
 alerts = {

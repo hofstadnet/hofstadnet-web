@@ -1,5 +1,6 @@
 # Dependabot åpner PR-er når det kommer nye versjoner. Én samlet PR per økosystem per måned.
-# cooldown: nye versjoner foreslås først etter 7 dager, så en kompromittert release rekker å bli oppdaget.
+# cooldown: nye versjoner foreslås først etter 7 dager, så en kompromittert release rekker å bli oppdaget. For npm venter
+# major-versjoner 30 dager. Dependabot støtter ikke semver-major-days for github-actions og opentofu.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -20,6 +21,7 @@ updates:
     labels: ["dependencies"]
     cooldown:
       default-days: 7
+      semver-major-days: 30
     groups:
       npm:
         patterns: ["*"]

@@ -1,0 +1,91 @@
+name: Health check
+
+# Sjekker hofstad.net utenfra hver time: at forsiden og den engelske forsiden svarer med sikkerhetshodene, at
+# sertifikatet ikke er nær utløp, at www videresender til hofstad.net, og at /api/status svarer med gyldig JSON fra
+# Workeren. Åpner en issue (etikett «bug») når noe er galt, kommenterer når feilene endrer seg, og lukker issuen når
+# alt er i orden igjen. Kjøringen feiler så lenge noe er galt.
+# GitHub kan kjøre den litt sent, og slår av tidsplanen etter 60 dager uten commits i repoet (da sendes e-post; slå den
+# på igjen under Actions). Kjører ingen kode fra repoet og trenger ingen hemmeligheter.
+
+on:
+  schedule:
+    - cron: '17 * * * *' # hver time, kl. xx:17
+  workflow_dispatch:
+
+# Ingen tilganger som utgangspunkt. Jobben ber selv om det den trenger.
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Trengs for å åpne, kommentere og lukke issuen
+      issues: write
+    steps:
+      - name: Sjekk hofstad.net
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Helsesjekk: hofstad.net svarer ikke som forventet"
+          problems=""
+          fail() { problems+="- $1"$'\n'; }
+
+          # Forsiden på begge språk: 200 og sikkerhetshodene fra public/_headers
+          for path in / /en/; do
+            headers=$(curl -sS -D - -o /dev/null --max-time 20 --retry 2 "https://hofstad.net$path" || true)
+            echo "$headers" | grep -q "^HTTP/[0-9.]* 200" || fail "https://hofstad.net$path svarte ikke 200"
+            for h in strict-transport-security content-security-policy x-content-type-options x-frame-options referrer-policy permissions-policy cross-origin-opener-policy; do
+              echo "$headers" | grep -qi "^$h:" || fail "https://hofstad.net$path mangler hodet $h"
+            done
+            echo "$headers" | grep -i "^strict-transport-security:" | grep -qi "preload" || fail "HSTS på https://hofstad.net$path mangler preload"
+          done
+
+          # /api/status: JSON fra Workeren med en kjent status
+          body=$(curl -sS --max-time 20 --retry 2 https://hofstad.net/api/status || true)
+          status=$(jq -r '.status // empty' <<<"$body" 2>/dev/null || true)
+          case "$status" in
+            live|not-live|unknown) ;;
+            *) fail "https://hofstad.net/api/status ga ikke gyldig JSON med status (fikk: ${body:0:100})" ;;
+          esac
+
+          # www videresender til hofstad.net
+          r=$(curl -sS -o /dev/null -w "%{http_code} %{redirect_url}" --max-time 20 https://www.hofstad.net/ || echo "000")
+          [[ "$r" =~ ^30[18]\ https://hofstad\.net/ ]] || fail "https://www.hofstad.net/ videresender ikke til https://hofstad.net/ ($r)"
+
+          # Sertifikatet: minst 14 dager igjen
+          end=$(echo | timeout 20 openssl s_client -servername hofstad.net -connect hofstad.net:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+          if [ -z "$end" ]; then fail "Fikk ikke lest sertifikatet til hofstad.net"
+          else
+            days=$(( ($(date -d "$end" +%s) - $(date +%s)) / 86400 ))
+            [ "$days" -ge 14 ] || fail "Sertifikatet til hofstad.net utløper om $days dager ($end)"
+          fi
+
+          problems=${problems%$'\n'}
+          n=$(gh issue list --state open --label bug --search "in:title \"$title\"" --json number,title --jq "map(select(.title == \"$title\")) | .[0].number // empty")
+          if [ -z "$problems" ]; then
+            echo "Alt i orden."
+            if [ -n "$n" ]; then gh issue close "$n" --comment "I orden igjen: $RUN_URL"; fi
+            exit 0
+          fi
+          echo "$problems"
+          if [ -n "$n" ]; then
+            # Bare en ny kommentar når listen har endret seg, så issuen ikke fylles med én kommentar i timen
+            previous=$(gh issue view "$n" --json body,comments --jq '[.body] + (.comments | map(.body)) | last' | grep '^- ' || true)
+            if [ "$previous" = "$problems" ]; then
+              echo "Uendret siden forrige melding på #$n."
+            else
+              gh issue comment "$n" --body "Fortsatt ($RUN_URL):
+
+          $problems"
+            fi
+          else
+            gh issue create --title "$title" --label bug --body "Den timevise helsesjekken fant dette ($RUN_URL):
+
+          $problems
+
+          Se docs/operations.md («Når helsesjekken lager en issue») og loggene i Cloudflare (Workers & Pages → hofstadnet-web → Observability). Issuen lukkes av seg selv når alt er i orden igjen."
+          fi
+          exit 1

@@ -1,21 +1,24 @@
 name: Dependabot automerge
 
-# Slår på automatisk merge for Dependabot-PR-er med patch- eller minor-oppdateringer av npm-pakker og
-# GitHub Actions. PR-en merges først når alle påkrevde sjekker er grønne (regelsettet på main), så en
-# oppdatering som bryter bygget, testene, skjermbildene eller ytelsesbudsjettet blir stående.
+# Slår på automatisk merge for Dependabot-PR-er som oppfyller kriteriene i
+# https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge:
+#  - patch eller minor av npm-pakker og GitHub Actions. Repoet har tester som fanger brudd på det som publiseres
+#    (bygg, enhetstester, ende-til-ende, tilgjengelighet, skjermbilder og Lighthouse), så npm kan tas med.
+#  - aldri wrangler (publiserer siden), OpenTofu-provideren (endrer Cloudflare, og apply skal godkjennes av et
+#    menneske) eller major-oppdateringer (kan ha endringer som ikke fanges av testene). De merges manuelt.
+# PR-en merges først når alle påkrevde sjekker er grønne (regelsettet på main). Dependabot venter 7 dager før nye
+# versjoner foreslås, og 30 dager for major (cooldown i .github/dependabot.yml).
 #
-# Krever fortsatt manuell merge:
-#  - major-oppdateringer (kan ha endringer som ikke fanges av testene)
-#  - OpenTofu-provideren (endrer Cloudflare-oppsettet, og apply skal godkjennes av et menneske)
-#
-# Dependabot venter 7 dager før nye versjoner foreslås (cooldown i .github/dependabot.yml).
+# pull_request_target: arbeidsflyten kjører alltid versjonen fra main og sjekker ikke ut koden i PR-en.
+# GITHUB_TOKEN holder: Workers Builds publiserer fra main via Cloudflares GitHub-app, ikke via en arbeidsflyt, så en
+# merge med GITHUB_TOKEN publiserer siden som vanlig.
 
 on:
-  pull_request:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] ingen checkout, kjører ingen kode fra PR-en
     branches: [main]
 
-permissions:
-  contents: read
+# Ingen tilganger som utgangspunkt. Jobben ber selv om det den trenger.
+permissions: {}
 
 jobs:
   automerge:
@@ -23,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      # Trengs for å slå på automatisk merge (gh pr merge --auto). Regelsettet avgjør når PR-en merges.
       contents: write
       pull-requests: write
     steps:
@@ -31,24 +35,36 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+      # En samlet PR (gruppe) har alle pakkene i dependency-names og den største oppdateringen i update-type
+      - name: Sjekk kriteriene
+        id: criteria
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
+        run: |
+          reason=""
+          case "$UPDATE_TYPE" in
+            version-update:semver-patch|version-update:semver-minor) ;;
+            *) reason="oppdateringstypen er ${UPDATE_TYPE:-ukjent}" ;;
+          esac
+          case "$ECOSYSTEM" in
+            npm_and_yarn|github_actions) ;;
+            *) reason="${reason:+$reason, }økosystemet er ${ECOSYSTEM:-ukjent}" ;;
+          esac
+          if tr ',' '\n' <<<"$DEPENDENCIES" | sed 's/^ *//;s/ *$//' | grep -qx 'wrangler'; then
+            reason="${reason:+$reason, }PR-en oppdaterer wrangler"
+          fi
+          if [ -n "$reason" ]; then
+            echo "::notice::Merges manuelt: $reason."
+            echo "automerge=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "automerge=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Slå på automatisk merge
-        if: >-
-          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-           steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
-          (steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' ||
-           steps.metadata.outputs.package-ecosystem == 'github_actions')
+        if: steps.criteria.outputs.automerge == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --squash "$PR"
-
-      - name: Krever manuell merge
-        if: >-
-          !((steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-             steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
-            (steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' ||
-             steps.metadata.outputs.package-ecosystem == 'github_actions'))
-        env:
-          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
-          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
-        run: echo "::notice::$ECOSYSTEM ($UPDATE_TYPE) merges manuelt."

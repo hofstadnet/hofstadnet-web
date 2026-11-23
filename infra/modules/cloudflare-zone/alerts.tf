@@ -1,5 +1,6 @@
 resource "cloudflare_notification_policy" "alert" {
-  for_each = var.alert_email == "" ? {} : var.alerts
+  # nonsensitive: bare om adressen er tom brukes til for_each, ikke selve adressen
+  for_each = nonsensitive(var.alert_email == "") ? {} : var.alerts
 
   account_id  = var.account_id
   name        = each.value.name
@@ -9,11 +10,6 @@ resource "cloudflare_notification_policy" "alert" {
   mechanisms = {
     email = [{ id = var.alert_email }]
   }
-}
-
-moved {
-  from = cloudflare_notification_policy.varsel
-  to   = cloudflare_notification_policy.alert
 }
 
 output "dnssec_ds" {

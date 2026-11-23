@@ -104,6 +104,7 @@ variable "alert_email" {
   description = "E-postadresse for varsler fra Cloudflare. Tom for ingen varsler."
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "alerts" {

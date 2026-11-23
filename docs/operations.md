@@ -55,7 +55,7 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 | Ytelse og tilgjengelighet i drift | `production.yml`, mandager | Feilet kjøring |
 | Døde eksterne lenker | `link-check.yml`, mandager | Feilet kjøring |
 
-Varsler fra Cloudflare går til admin@hofstad.net.
+Varsler fra Cloudflare går til adressen i secreten `ALERT_EMAIL`. Adressen står ikke i repoet.
 
 ## Fremgangsmåter
 

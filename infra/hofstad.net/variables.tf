@@ -20,5 +20,16 @@ variable "blocked_paths" { type = any }
 variable "rate_limit" { type = any }
 variable "ai_bots" { type = string }
 variable "bot_fight_mode" { type = bool }
-variable "alert_email" { type = string }
+variable "alert_email" {
+  description = "E-postadresse for varsler fra Cloudflare. Settes med TF_VAR_alert_email fra secreten ALERT_EMAIL."
+  type        = string
+  sensitive   = true
+
+  # Uten secreten ville adressen blitt tom, og varslene slettet. Stopp heller planen.
+  validation {
+    condition     = can(regex("^[^@ ]+@[^@ ]+$", var.alert_email))
+    error_message = "ALERT_EMAIL mangler eller er ikke en e-postadresse. Legg den inn som secret i repoet."
+  }
+}
+
 variable "alerts" { type = any }

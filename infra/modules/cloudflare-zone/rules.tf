@@ -66,12 +66,3 @@ resource "cloudflare_ruleset" "rate_limit" {
   }]
 }
 
-moved {
-  from = cloudflare_ruleset.videresending
-  to   = cloudflare_ruleset.redirect
-}
-
-moved {
-  from = cloudflare_ruleset.ratebegrensning
-  to   = cloudflare_ruleset.rate_limit
-}

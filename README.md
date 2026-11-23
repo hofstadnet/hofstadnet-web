@@ -31,7 +31,7 @@ npm run dev
 | `npm run dev` | Lokal utvikling med automatisk oppdatering. Utkast vises. |
 | `npm run build` | Typesjekker, bygger siden til `dist/` og lager søkeindeksen. |
 | `npm run preview` | Viser `dist/` med de samme sikkerhetshodene som i drift, og svarer på `/api/`. |
-| `npm run test:unit` | Enhetstester for logikk uten nettleser (`tests/unit/`), med Node sin testkjører. |
+| `npm run test:unit` | Enhetstester for logikk uten nettleser og for Workeren (`tests/unit/`), med Node sin testkjører. |
 | `npm run test:e2e` | Playwright: tilgjengelighet, CSP, søk, galleri, `/api/csp` og skjermbilder. |
 | `npm run test:lighthouse` | Lighthouse med poenggrenser og ytelsesbudsjett. |
 | `npm run flight-stats` | Regner ut flystatistikken fra IGC-filer (se under). |

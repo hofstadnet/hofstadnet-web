@@ -27,7 +27,7 @@ flowchart LR
     edge["Cloudflare<br/>DNS, TLS, WAF, rate limiting, DDoS"]
     static["Statiske filer<br/>dist/, norsk og /en/"]
     worker["Worker<br/>/api/status, /api/csp"]
-    logs["Workers Logs<br/>anonymiserte CSP-rapporter"]
+    logs["Workers Logs<br/>én linje per kall og CSP-rapporter, uten IP"]
     analytics["Cloudflare Web Analytics"]
   end
   subgraph thirdparty["Tredjeparter"]
@@ -37,12 +37,12 @@ flowchart LR
   edge -->|"HTML, CSS, JS, bilder, søkeindeks"| static
   edge -->|"/api/*"| worker
   worker -->|"henter status"| livetrack
-  worker -->|"rapporter uten IP"| logs
+  worker -->|"logglinjer uten IP"| logs
   visitor -->|"anonyme sidevisninger og lastetider, uten informasjonskapsler"| analytics
 ```
 
 Besøkende når bare Cloudflare. Statiske filer leveres direkte, `/api/` går til Workeren, som henter flystatus fra
-LiveTrack24 og logger CSP-rapporter, og nettleseren sender anonyme måletall til Web Analytics.
+LiveTrack24, tar imot CSP-rapporter og skriver logglinjer uten personopplysninger, og nettleseren sender anonyme måletall til Web Analytics.
 
 ```mermaid
 flowchart LR
@@ -93,7 +93,8 @@ hofstad.net og www.hofstad.net. `workers_dev` er slått av.
 - **`POST /api/csp`** tar imot rapporter når nettleseren stopper noe på grunn av Content-Security-Policy eller
   Trusted Types (`worker/csp-report.js`). Se [security.md](security.md#rapporter-om-brudd).
 
-Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har rate limiting i Cloudflare.
+Workeren har ingen hemmeligheter og tar ingen parametere. Begge adressene har rate limiting i Cloudflare. Hvert kall
+gir én logglinje uten personopplysninger (se [security.md](security.md#logger)).
 
 ### Flystatus og flystatistikk
 

@@ -7,7 +7,7 @@ name: Dependabot automerge
 #  - aldri wrangler (publiserer siden), OpenTofu-provideren (endrer Cloudflare, og apply skal godkjennes av et
 #    menneske) eller major-oppdateringer (kan ha endringer som ikke fanges av testene). De merges manuelt.
 # PR-en merges først når alle påkrevde sjekker er grønne (regelsettet på main). Dependabot venter 7 dager før nye
-# versjoner foreslås, og 30 dager for major (cooldown i .github/dependabot.yml).
+# versjoner foreslås, og 30 dager for major av npm (cooldown i .github/dependabot.yml).
 #
 # pull_request_target: arbeidsflyten kjører alltid versjonen fra main og sjekker ikke ut koden i PR-en.
 # GITHUB_TOKEN holder: Workers Builds publiserer fra main via Cloudflares GitHub-app, ikke via en arbeidsflyt, så en

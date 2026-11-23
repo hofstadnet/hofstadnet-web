@@ -21,8 +21,9 @@ Gå gjennom punktene når en endring legger til, fjerner eller bytter en kompone
 
 - [ ] Tabellen «Oversikt», figuren «Dataflyt» og «Komponenter» i `docs/architecture.md` stemmer.
 - [ ] Nye adresser står i adressetabellen.
-- [ ] Et valg som binder siden for lengre tid (plattform, rammeverk, ny tjeneste), står under «Beslutninger» med
-      alternativene som ble vurdert.
+- [ ] Et valg som binder siden for lengre tid (plattform, rammeverk, ny tjeneste), har et nytt beslutningsnotat i
+      `docs/decisions/` etter `docs/decisions/template.md`, med alternativene som ble vurdert, og står i tabellen
+      «Beslutninger» i `docs/architecture.md`. En beslutning som endres, erstattes av en ny.
 - [ ] Nye tjenester og tredjeparter står i `docs/security.md` og på personvernsiden.
 
 ## Etter endringen

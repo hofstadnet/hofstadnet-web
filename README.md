@@ -6,7 +6,8 @@ med en engelsk versjon under `/en/`.
 
 | Dokument | Innhold |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | Komponenter, dataflyt og beslutninger |
+| [docs/architecture.md](docs/architecture.md) | Komponenter og dataflyt |
+| [docs/decisions/](docs/decisions/README.md) | Beslutningsnotater (ADR): viktige valg og hvorfor |
 | [docs/security.md](docs/security.md) | Sikkerhetsmodell: hoder, Cloudflare, tilganger og forsyningskjede |
 | [docs/operations.md](docs/operations.md) | Publisering, arbeidsflyter, overvåking og fremgangsmåter |
 | [infra/README.md](infra/README.md) | Cloudflare-oppsettet som kode (OpenTofu) |

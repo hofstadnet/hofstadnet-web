@@ -8,7 +8,7 @@ det er satt opp i hofstad.net. Arbeidsflytene og grensene er beskrevet i [docs/o
 
 | Lag | Her | Kommando |
 |---|---|---|
-| Enhetstester | `tests/unit/`: tolkingen av LiveTrack24, IGC-analysen for flystatistikken og logglinjene i Workeren | `npm run test:unit` |
+| Enhetstester | `tests/unit/`: tolkingen av LiveTrack24, IGC-analysen for flystatistikken, og logglinjene og størrelsesgrensen i Workeren | `npm run test:unit` |
 | Statisk kontroll | `astro check` (typer og innholdsmodell), `tofu validate`, zizmor | `npm run build` |
 | Bygg-kontroller | Ingen innebygd kode, gyldig `security.txt`, dokumentasjonen | `node scripts/check-csp.mjs`, `node scripts/check-security-txt.mjs`, `node scripts/check-docs.mjs` |
 | Ende-til-ende og tilgjengelighet | `tests/accessibility.spec.ts`: alle sider i nettstedskartet, mørk og lys, 320 og 1280 px, CSP-brudd og JavaScript-feil, søk, galleri og `/api/csp` | `npm run test:e2e` |

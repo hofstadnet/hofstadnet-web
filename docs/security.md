@@ -41,7 +41,8 @@ stoppet. `worker/csp-report.js` logger side, direktiv, blokkert opphav og kildef
 
 Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag (`sample`). Rapporter fra
 nettleserutvidelser og andre nettsteder ignoreres. Maks 16 kB og 10 rapporter per forespørsel, og svaret er alltid
-204 uten innhold.
+204 uten innhold. Grensen på 16 kB gjelder det som faktisk leses (`worker/body.js`), så den virker også når
+`Content-Length` mangler eller er feil.
 
 ## Logger
 

@@ -42,6 +42,8 @@ export const nb = {
     short: 'Tech, friluft og foto.',
     feedTitle: 'Hofstad.NET',
     otherFeedTitle: 'Hofstad.NET (norsk)',
+    // Delingsbildet for sider uten eget bilde, med taglinjen på sidens språk
+    shareImage: '/og-image-1200x630.png',
   },
   skip: 'Hopp til innhold',
   // Ankere på forsiden. De er en del av adressen (/#lenker) og er derfor på sidens språk.

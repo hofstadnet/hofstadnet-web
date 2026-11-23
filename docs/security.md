@@ -110,7 +110,8 @@ Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som r
   stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
   `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret.
-- Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter utgivelse, og 30 dager for major-versjoner.
+- Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter utgivelse, og 30 dager for
+  major-versjoner av npm-pakker.
   Patch og minor for npm og Actions merges automatisk når alle sjekker er grønne, etter kriteriene i
   [hofstadnet/guidelines](https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge).
   `wrangler` (publiserer siden), OpenTofu-provideren (endrer Cloudflare) og major-versjoner merges manuelt.

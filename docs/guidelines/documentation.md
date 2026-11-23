@@ -17,7 +17,8 @@ Dokumentasjonen beskriver hvordan siden er nå. Den oppdateres i samme pull requ
 | Endring i | Oppdater |
 |---|---|
 | Kommandoer, mappestruktur, innholdsmodell, skriving av innlegg | `README.md` |
-| Sider og adresser, Workeren, søk, flystatus, beslutninger | `docs/architecture.md` |
+| Sider og adresser, Workeren, søk, flystatus | `docs/architecture.md` |
+| Valg som binder siden for lengre tid | Nytt notat i `docs/decisions/`, og tabellen «Beslutninger» i `docs/architecture.md` |
 | `public/_headers`, CSP, Trusted Types, Cloudflare-sonen, tokens og tilganger, regelsett, Dependabot | `docs/security.md`, og `SECURITY.md` når noe av det som står der endres |
 | `.github/workflows/`, tester, grenser i Lighthouse, overvåking, varsler, fremgangsmåter | `docs/operations.md` |
 | `infra/` | `infra/README.md`, og sonebeskrivelsen i `docs/security.md` |

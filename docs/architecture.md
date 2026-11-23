@@ -146,40 +146,17 @@ fungerer under Trusted Types.
 
 ## Beslutninger
 
-### Cloudflare Workers, ikke GitHub Pages eller Cloudflare Pages
+Valg som binder siden for lengre tid, står som beslutningsnotater i [decisions/](decisions/README.md), med bakgrunn,
+konsekvenser og alternativene som ble vurdert.
 
-GitHub Pages bak Cloudflare ville latt `*.github.io` svare direkte på internett, forbi WAF og DDoS-vern, og har ingen
-serverdel for flystatusen. Cloudflare anbefaler Workers med statiske filer fremfor Pages for nye prosjekter. Med
-Workers finnes det ingen origin å beskytte, og statiske filer og API ligger på samme plattform.
-
-### Offentlig repo
-
-Repoet inneholder ingen hemmeligheter. Tokens ligger som GitHub-secrets, og state for OpenTofu er kryptert i R2. Et
-offentlig repo gir gratis CodeQL, dependency review, Scorecard, regelsett og miljøer med påkrevd godkjenning. På
-gratisplanen for organisasjoner mangler flere av disse i private repoer.
-
-Dette er offentlig fordi det uansett er synlig: DNS-poster, konto- og sone-ID (gir ingen tilgang uten token), WAF-
-stier og grenser for rate limiting. Utkast (`draft: true`) er synlige som filer. Det som ikke skal være offentlig,
-holdes utenfor repoet. Det gjelder blant annet videresendingen i Email Routing, IGC-filer og originalbilder med
-posisjonsdata.
-
-### OpenTofu, ikke Terraform
-
-Åpen lisens (MPL-2.0) og innebygd kryptering av state. Språket og Cloudflare-provideren er de samme som for
-Terraform. Detaljer i [infra/README.md](../infra/README.md).
-
-### Engelsk under /en/, med egen samling for innleggene
-
-Norsk er hovedspråket og beholder adressene på rot, så lenker, Upptime-sjekker og videresendinger i
-`public/_redirects` er uendret. Engelsk ligger under `/en/` med engelske adresser. Alternativene var et eget domene
-eller underdomene (mer oppsett i Cloudflare for én forfatter) og samme adresser med språkvalg i nettleseren (krever
-skript eller informasjonskapsler, og søkemotorer ser bare ett språk).
-
-De engelske innleggene er en egen samling med samme filnavn, ikke felt i de norske filene. Hver fil er da et vanlig
-innlegg på ett språk, et innlegg kan stå uten oversettelse, og datoer, bilder og områder skrives bare ett sted.
-
-Siden sender ikke videre ut fra `Accept-Language`. Adressen alene bestemmer språket: det virker likt for alle, også
-for søkemotorer og lenker som deles, og det trengs verken Worker for sidene eller informasjonskapsler.
+| Nr. | Beslutning |
+|---|---|
+| [0001](decisions/0001-cloudflare-workers.md) | Cloudflare Workers med statiske filer, ikke Cloudflare Pages eller GitHub Pages |
+| [0002](decisions/0002-public-repository.md) | Offentlig repo |
+| [0003](decisions/0003-opentofu.md) | OpenTofu for Cloudflare-sonen, ikke Terraform |
+| [0004](decisions/0004-english-under-en.md) | Engelsk under `/en/`, med egen samling og uten videresending etter `Accept-Language` |
+| [0005](decisions/0005-no-forms-or-cookies.md) | Ingen skjemaer og ingen informasjonskapsler |
+| [0006](decisions/0006-logs-without-ip.md) | Logger uten IP og nettleserinfo |
 
 ### Videre utvikling
 

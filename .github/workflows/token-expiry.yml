@@ -1,9 +1,13 @@
 name: Token expiry
 
-# Sjekker hver mandag når Cloudflare-tokenet til OpenTofu (CLOUDFLARE_API_TOKEN) utløper, og om det fortsatt
-# virker. Under 30 dager igjen, eller et token som ikke virker, gir en issue (bare én om gangen). Sjekken bruker
-# tokenet selv (tokens/verify) og trenger ingen nye rettigheter.
-# R2-tokenet (hofstadnet-tofu-state) kan ikke sjekkes på samme måte, men ble laget samme dag med samme utløp.
+# Sjekker hver mandag når lesetokenet til OpenTofu (CLOUDFLARE_API_TOKEN_READ, hofstadnet-tofu-read) utløper, og om
+# det fortsatt virker. Under 30 dager igjen, eller et token som ikke virker, gir en issue (bare én om gangen). Sjekken
+# bruker tokenet selv (tokens/verify) og trenger ingen nye rettigheter.
+#
+# Skrivetokenet (CLOUDFLARE_API_TOKEN, hofstadnet-tofu) ligger bare i miljøet «cloudflare». En jobb som bruker miljøet,
+# venter på godkjenning, så det sjekkes ikke her. Det lages med samme utløpsdato som lesetokenet, og issuen ber om å
+# fornye begge. Et utløpt skrivetoken gir dessuten en feilet apply.
+# R2-tokenet (hofstadnet-tofu-state) kan heller ikke sjekkes på samme måte, og har samme utløpsdato.
 
 on:
   schedule:
@@ -28,7 +32,7 @@ jobs:
     env:
       ACCOUNT_ID: b055719a9337c9d844c7b41ee78fcad9
       WARN_DAYS: ${{ inputs.warn_days || '30' }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READ }}
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
@@ -41,7 +45,7 @@ jobs:
           token_status=$(jq -r '.result.status // "ugyldig"' <<<"$response")
           expires=$(jq -r '.result.expires_on // ""' <<<"$response")
           if [ "$token_status" != "active" ]; then
-            message="Cloudflare-tokenet til OpenTofu virker ikke lenger (status: $token_status)."
+            message="Lesetokenet til OpenTofu (hofstadnet-tofu-read) virker ikke lenger (status: $token_status)."
           elif [ -z "$expires" ]; then
             message=""
             echo "Tokenet er aktivt og har ingen utløpsdato."
@@ -50,7 +54,7 @@ jobs:
             echo "Tokenet er aktivt og utløper $expires (om $days dager)."
             if ! [[ "$WARN_DAYS" =~ ^[0-9]+$ ]]; then WARN_DAYS=30; fi
             if [ "$days" -le "$WARN_DAYS" ]; then
-              message="Cloudflare-tokenet til OpenTofu utløper ${expires%%T*} (om $days dager)."
+              message="Lesetokenet til OpenTofu (hofstadnet-tofu-read) utløper ${expires%%T*} (om $days dager). Skrivetokenet hofstadnet-tofu og R2-tokenet har samme utløpsdato."
             else
               message=""
             fi
@@ -73,9 +77,10 @@ jobs:
           gh issue create --title "$TITLE" --body "$MESSAGE
 
           Slik fornyer du (se også infra/README.md):
-          1. Cloudflare → Manage Account → Account API tokens → \`hofstadnet-tofu\` → Roll, eller lag et nytt med samme rettigheter.
-          2. \`gh secret set CLOUDFLARE_API_TOKEN\`
-          3. Gjør det samme for R2-tokenet \`hofstadnet-tofu-state\` (R2 → Manage API tokens): \`gh secret set R2_ACCESS_KEY_ID\` og \`gh secret set R2_SECRET_ACCESS_KEY\`.
-          4. Kjør Actions → Infrastructure → Run workflow. Planen skal vise «No changes».
+          1. Cloudflare → Manage Account → Account API tokens → \`hofstadnet-tofu-read\` → Roll, eller lag et nytt med samme rettigheter. Velg samme nye utløpsdato for alle tokenene.
+          2. \`gh secret set CLOUDFLARE_API_TOKEN_READ\`
+          3. Gjør det samme for skrivetokenet \`hofstadnet-tofu\`, som ligger i miljøet: \`gh secret set CLOUDFLARE_API_TOKEN --env cloudflare\`
+          4. Gjør det samme for R2-tokenet \`hofstadnet-tofu-state\` (R2 → Manage API tokens): \`gh secret set R2_ACCESS_KEY_ID\` og \`gh secret set R2_SECRET_ACCESS_KEY\`.
+          5. Kjør Actions → Infrastructure → Run workflow. Planen skal vise «No changes».
 
           Byggetokenet \`hofstadnet-web-builds\` har ingen utløpsdato."

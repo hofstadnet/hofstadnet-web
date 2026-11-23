@@ -2,9 +2,13 @@ name: Infrastructure
 
 # Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
 #  - check: formatering og validering på hver endring. Trenger ingen hemmeligheter.
-#  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply.
+#  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply, med et token som
+#    bare kan lese (CLOUDFLARE_API_TOKEN_READ på repoet, tokenet hofstadnet-tofu-read).
 #  - apply: gjennomfører endringene etter merge til main, først etter godkjenning i miljøet «cloudflare».
-#    Se planen i samme kjøring før du godkjenner.
+#    Se planen i samme kjøring før du godkjenner. Tokenet som kan endre sonen (CLOUDFLARE_API_TOKEN, tokenet
+#    hofstadnet-tofu), ligger bare i miljøet «cloudflare», som bare main kan bruke. Ingen branch eller PR kan derfor
+#    endre Cloudflare.
+#  R2-nøklene og passfrasen ligger på repoet, fordi både plan og apply leser state.
 #  - drift: hver mandag kjøres planen mot Cloudflare. Viser den endringer, er noe endret utenfor koden
 #    (f.eks. i dashbordet), og det opprettes en issue. Ingenting endres automatisk.
 
@@ -74,7 +78,8 @@ jobs:
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Bare lesetilgang. Planen kan ikke endre Cloudflare, heller ikke fra en PR.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READ }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       TF_VAR_state_passphrase: ${{ secrets.TOFU_STATE_PASSPHRASE }}
@@ -112,6 +117,7 @@ jobs:
     timeout-minutes: 15
     environment: cloudflare
     env:
+      # Miljøsecret i «cloudflare». Finnes ikke på repoet.
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

@@ -17,7 +17,8 @@ Gå gjennom punktene som gjelder endringen, før pull requesten lages. Bakgrunne
 
 - [ ] Ny adresse under `/api/` tar bare imot metodene den trenger, og avviser resten med 405.
 - [ ] Ingen parametere fra forespørselen brukes til å bestemme hvor Workeren henter data fra.
-- [ ] Størrelsen på innkommende data er begrenset.
+- [ ] Størrelsen på innkommende data er begrenset mens kroppen leses (`readLimitedBody` i `worker/body.js`), ikke bare
+      med `Content-Length`.
 - [ ] Adressen er lagt til i rate limiting i `infra/hofstad.net/terraform.tfvars`.
 - [ ] Logger inneholder ikke IP, nettleserinfo, spørrestrenger eller innhold fra brukeren.
 

@@ -43,6 +43,25 @@ Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag 
 nettleserutvidelser og andre nettsteder ignoreres. Maks 16 kB og 10 rapporter per forespørsel, og svaret er alltid
 204 uten innhold.
 
+## Logger
+
+Workers Logs inneholder bare linjene Workeren skriver selv, og ingen personopplysninger:
+
+| Linje | Eksempel |
+|---|---|
+| Én linje per kall til `/api/` (`console.log`) | `api path=/api/status status=200 result=not-live cache=hit`, `api path=/api/csp status=204 reports=1` |
+| Brudd på CSP og Trusted Types (`console.error`) | Se [Rapporter om brudd](#rapporter-om-brudd) |
+| Ukjent svar fra LiveTrack24 (`console.warn`) | Utdrag av svaret fra LiveTrack24, ikke fra den besøkende |
+
+- Linjen per kall har bare faste verdier fra koden: adressen, statuskoden, resultatet, mellomlageret og antall
+  rapporter. Ukjente adresser under `/api/` logges som `path=other`. Aldri IP, nettleserinfo, spørrestrenger eller
+  innhold fra forespørselen.
+- Cloudflares egen logg per kall (`invocation_logs`) er slått av i `wrangler.jsonc`, fordi den tar med IP-adresse,
+  nettleserinfo og hele adressen.
+- Sporing (`traces`) er slått av, fordi Cloudflare tar med nettleserinfo (`user_agent.original`), hele adressen med
+  spørrestreng (`url.full`) og hoder som `accept-language` i sporene.
+- Loggene lagres hos Cloudflare i inntil 7 dager (gratisplanen).
+
 ## Cloudflare-sonen
 
 Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.md](../infra/README.md).

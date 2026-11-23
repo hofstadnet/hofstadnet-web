@@ -27,13 +27,17 @@
   "workers_dev": false,
   // Wrangler skal ikke sende bruksstatistikk til Cloudflare
   "send_metrics": false,
-  // Logger, sporing og feilgruppering for workeren (Workers & Pages → hofstadnet-web → Observability).
+  // Logger og feilgruppering for workeren (Workers & Pages → hofstadnet-web → Observability).
   // Gjelder bare kall til /api/ – statiske filer kjører ikke workeren. Alle kall tas med (sampling 1),
-  // trafikken er langt under gratisgrensen. Sporing viser bl.a. hvor lang tid kallet til LiveTrack24 tar.
+  // trafikken er langt under gratisgrensen.
+  // invocation_logs: false: bare Workerens egne linjer (console.log og console.error), uten Cloudflares logg per kall,
+  // som tar med IP-adresse, nettleserinfo og hele adressen.
+  // traces: av, fordi sporingen tar med nettleserinfo (user_agent.original), hele adressen med spørrestreng (url.full)
+  // og flere hoder fra forespørselen.
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "invocation_logs": true, "head_sampling_rate": 1 },
-    "traces": { "enabled": true, "head_sampling_rate": 1 },
+    "logs": { "enabled": true, "invocation_logs": false, "head_sampling_rate": 1 },
+    "traces": { "enabled": false },
     "issues": { "enabled": true }
   }
 }

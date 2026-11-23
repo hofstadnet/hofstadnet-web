@@ -39,6 +39,7 @@ export const en: Dictionary = {
     short: 'Tech, outdoors and photography.',
     feedTitle: 'Hofstad.NET (English)',
     otherFeedTitle: 'Hofstad.NET (English)',
+    shareImage: '/og-image-en-1200x630.png',
   },
   skip: 'Skip to content',
   anchors: { links: 'links', flightStatus: 'flight-status', blog: 'blog' },

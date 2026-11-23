@@ -143,3 +143,13 @@ test('CSP-rapporter tas imot uten å svare med innhold', async ({ request }) => 
   const get = await request.get('/api/csp');
   expect(get.status()).toBe(405);
 });
+
+// Sider uten eget bilde deles med standardbildet, med taglinjen på sidens språk
+test('delingsbildet følger språket på siden', async ({ page }) => {
+  await page.goto('/personvern/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og-image-1200x630\.png$/);
+  await page.goto('/en/privacy/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /\/og-image-en-1200x630\.png$/);
+  const response = await page.request.get('/og-image-en-1200x630.png');
+  expect(response.status()).toBe(200);
+});

@@ -172,7 +172,7 @@ Innholdet er ikke omfattet av MIT-lisensen. Alle rettigheter er forbeholdt for:
 - bildene i `src/assets/images/`
 - innleggene i `src/content/posts/` og `src/content/posts-en/`
 - logoen og ikonene med Hofstad.NET-merket i `public/`, `public/assets/logo/` og delingsbildet
-  `public/og-image-1200x630.png`
+  `public/og-image-1200x630.png` og `public/og-image-en-1200x630.png`
 
 © Kristoffer D. Hofstad. Skjermbildene av hpgt.com og flysteder.hpgt.com inneholder bilder fra Harstad Hang og
 Paragliderklubbs bildesamling, og rettighetene til dem tilhører klubben og fotografene.

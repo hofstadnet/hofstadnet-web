@@ -1,5 +1,6 @@
 # Hvem som eier hva. GitHub ber disse om review på PR-er som endrer filene.
-# Workflowene og sikkerhetsoppsettet er de mest følsomme filene.
-*                 @krishofs
-/.github/         @krishofs
-/SECURITY.md      @krishofs
+# Teamet hofstadnet/maintainers har admin på repoet. Workflowene og sikkerhetsoppsettet er de mest følsomme filene.
+*                 @hofstadnet/maintainers
+/.github/         @hofstadnet/maintainers
+/infra/           @hofstadnet/maintainers
+/SECURITY.md      @hofstadnet/maintainers

@@ -26,6 +26,9 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
   `/pagefind/pagefind-worker.js`.
 - **HSTS** i to år med `includeSubDomains` og `preload`, `X-Content-Type-Options`, `X-Frame-Options: DENY`,
   `Referrer-Policy`, `Permissions-Policy` og `Cross-Origin-Opener-Policy`.
+- **HSTS preload:** hofstad.net er meldt inn på preload-listen i nettleserne (hstspreload.org). Nettleserne bruker da
+  alltid HTTPS for domenet og alle underdomener, også ved første besøk. Alle nye underdomener må derfor ha HTTPS fra
+  start, og `includeSubDomains` og `preload` må bli stående i `public/_headers`. Å komme ut av listen tar måneder.
 - **Cross-Origin-Resource-Policy: same-origin**, unntatt `/_astro/*` og `/assets/*` (`cross-origin`), så bilder og
   logoer vises i RSS-lesere og ved deling.
 - Ingen informasjonskapsler. Valget av lys eller mørk visning lagres bare i nettleseren.

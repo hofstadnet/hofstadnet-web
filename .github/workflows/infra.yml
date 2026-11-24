@@ -1,4 +1,4 @@
-name: Infrastructure
+name: Infrastruktur
 
 # Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
 #  - check: formatering og validering på hver endring, også pull requests. Trenger ingen hemmeligheter.
@@ -189,4 +189,4 @@ jobs:
 
           Velg én av to:
           - Endringen skal beholdes: legg den inn i \`infra/\` i en PR, så planen blir «No changes».
-          - Endringen skal bort: kjør Actions → Infrastructure → Run workflow på main og godkjenn apply. Da settes Cloudflare tilbake til koden."
+          - Endringen skal bort: kjør Actions → Infrastruktur → Run workflow på main og godkjenn apply. Da settes Cloudflare tilbake til koden."

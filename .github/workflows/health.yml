@@ -1,4 +1,4 @@
-name: Health check
+name: Helsesjekk
 
 # Sjekker hofstad.net utenfra hver time: at forsiden og den engelske forsiden svarer med sikkerhetshodene, at
 # sertifikatet ikke er nær utløp, at www videresender til hofstad.net, og at /api/status svarer med gyldig JSON fra

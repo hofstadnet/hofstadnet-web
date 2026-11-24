@@ -15,7 +15,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 
 | Arbeidsflyt | Når | Hva |
 |---|---|---|
-| `ci.yml` (Build) | PR og `main` | `npm audit signatures`, enhetstester, bygg med typesjekk, ingen innebygd kode, gyldig `security.txt`, kontroll av dokumentasjonen |
+| `ci.yml` (Bygg) | PR og `main` | `npm audit signatures`, enhetstester, bygg med typesjekk, ingen innebygd kode, gyldig `security.txt`, kontroll av dokumentasjonen |
 | `security.yml` | PR | `dependency-review` og `workflow-security` (zizmor) |
 | `code-scanning.yml` | PR, `main`, mandager | CodeQL for JavaScript, TypeScript og arbeidsflyter |
 | `scorecard.yml` | Mandager | OpenSSF Scorecard |
@@ -28,7 +28,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, unntatt `wrangler`. OpenTofu-provideren og major merges manuelt. |
 
 Påkrevde sjekker før merge til `main`: `build`, `accessibility`, `lighthouse`, `dependency-review`, `workflow-security`
-og CodeQL. Dermed må også Quality være grønn før en Dependabot-oppdatering merges automatisk.
+og CodeQL. Dermed må også Kvalitet være grønn før en Dependabot-oppdatering merges automatisk.
 
 ### Grenser i kvalitetssjekkene
 
@@ -80,7 +80,7 @@ Kjør `npm run flight-stats` med mappen med IGC-filer (se [README](../README.md#
 
 Når en endring skal endre skjermbildene:
 
-1. Kjør Actions → Quality → Run workflow på grenen med «update_screenshots».
+1. Kjør Actions → Kvalitet → Run workflow på grenen med «update_screenshots».
 2. Last ned artefakten «screenshots» og se gjennom bildene.
 3. Legg dem i `tests/screenshots/` i samme PR.
 
@@ -101,14 +101,14 @@ Issuen lister det som er galt. Den oppdateres når listen endrer seg, og lukkes 
   Loggene viser årsaken: `http-error` og `no-response` går som regel over av seg selv; `unknown-format` eller
   `user-missing` betyr at LiveTrack24 har endret siden. Åpne adressen i `SOURCE` i `src/lib/livetrack-status.js`, og
   rett `parseStatus`.
-- **www videresender ikke:** sjekk videresendingsregelen i `infra/` og kjør Infrastructure → Run workflow.
+- **www videresender ikke:** sjekk videresendingsregelen i `infra/` og kjør Infrastruktur → Run workflow.
 - **Sertifikatet utløper snart:** Cloudflare fornyer Universal SSL selv. Sjekk SSL/TLS → Edge Certificates, og at
   CAA-postene i `infra/` tillater utstederne (se [security.md](security.md#cloudflare-sonen)).
 
 ### Når avvikssjekken lager en issue
 
 Les planen i kjøringen som issuen lenker til. Skal endringen beholdes, legges den inn i `infra/`. Skal den bort, kjøres
-Infrastructure → Run workflow på `main`, og apply godkjennes.
+Infrastruktur → Run workflow på `main`, og apply godkjennes.
 
 ### Fornye tokenene
 
@@ -118,7 +118,7 @@ Infrastructure → Run workflow på `main`, og apply godkjennes.
 2. Gjør det samme for R2-tokenene (R2 → Manage API tokens): `hofstadnet-tofu-state-read` med `gh secret set
    R2_ACCESS_KEY_ID --env tofu-plan` og `gh secret set R2_SECRET_ACCESS_KEY --env tofu-plan`, og
    `hofstadnet-tofu-state` med de samme kommandoene og `--env cloudflare`.
-3. Kjør Infrastructure → Run workflow. Planen skal vise «No changes».
+3. Kjør Infrastruktur → Run workflow. Planen skal vise «No changes».
 
 ### Når et CSP-varsel kommer
 

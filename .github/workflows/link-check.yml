@@ -1,4 +1,4 @@
-name: Link check
+name: Lenkesjekk
 
 # Finner døde lenker med lychee.
 #  - På pull requests: bare lenker innad på siden (raskt og stabilt, avhenger ikke av andre nettsteder).

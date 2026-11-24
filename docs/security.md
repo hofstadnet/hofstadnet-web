@@ -113,6 +113,9 @@ krever godkjenning. Repoet har ingen secrets.
 - Byggetokenet er et brukertoken fordi Workers Builds ennå ikke støtter kontotokens. Det har ingen utløpsdato, fordi
   publiseringen ellers ville stoppet.
 - Apply i OpenTofu kjører i miljøet `cloudflare`, som krever godkjenning og bare tillater `main`.
+- Bare `TOFU_STATE_PASSPHRASE` lagres utenfor GitHub (i passordbehandleren), fordi state ikke kan dekrypteres uten
+  den. Tokenene lagres ikke andre steder: trengs en verdi på nytt, rulles tokenet
+  ([operations.md](operations.md#fornye-tokenene)).
 - Kontoene hos GitHub og Cloudflare skal ha passnøkkel eller sikkerhetsnøkkel som tofaktor, med
   gjenopprettingskoder lagret utenfor begge tjenestene.
 

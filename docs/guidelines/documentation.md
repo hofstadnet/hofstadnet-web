@@ -29,7 +29,7 @@ En ny arbeidsflyt må inn i tabellen i `docs/operations.md`, ellers stopper kont
 
 ## Skriveregler
 
-- Dokumentasjon og kommentarer skrives på norsk bokmål. `SECURITY.md` er på engelsk, fordi den leses av folk utenfra.
+- Dokumentasjon og kommentarer skrives på norsk bokmål, også `SECURITY.md`.
   Navn på filer, mapper og alt annet som er identifikatorer, er på engelsk (se [README.md](README.md#navngivning)).
 - Beskriv hvordan det er, ikke hva som er gjort. Ingen datoer for når noe ble gjort, og ingen «nå», «nylig» eller
   «gjenstår». Historikken ligger i git.

@@ -116,8 +116,9 @@ Cloudflare-sonen, bare i miljøet `cloudflare`, og resten på repoet.
 ## Forsyningskjede og endringer
 
 - `main` er sannheten: det som ligger der, er i drift. Tilbakerulling er `git revert`.
-- Regelsettet på `main` krever pull request og grønne sjekker (`build`, `dependency-review`, `workflow-security`),
-  stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
+- Regelsettet på `main` krever pull request og grønne sjekker (`build`, `accessibility`, `lighthouse`,
+  `dependency-review`, `workflow-security`), stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push
+  og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
   `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret. Svarer registeret med
   feil, prøves det tre ganger før bygget stopper.

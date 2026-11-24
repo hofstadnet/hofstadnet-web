@@ -4,10 +4,13 @@ name: Token expiry
 # det fortsatt virker. Under 30 dager igjen, eller et token som ikke virker, gir en issue (bare én om gangen). Sjekken
 # bruker tokenet selv (tokens/verify) og trenger ingen nye rettigheter.
 #
+# Tokenet ligger i miljøet «tofu-plan», som bare main kan bruke og ikke krever godkjenning.
+#
 # Skrivetokenet (CLOUDFLARE_API_TOKEN, hofstadnet-tofu) ligger bare i miljøet «cloudflare». En jobb som bruker miljøet,
 # venter på godkjenning, så det sjekkes ikke her. Det lages med samme utløpsdato som lesetokenet, og issuen ber om å
 # fornye begge. Et utløpt skrivetoken gir dessuten en feilet apply.
-# R2-tokenet (hofstadnet-tofu-state) kan heller ikke sjekkes på samme måte, og har samme utløpsdato.
+# R2-tokenene (hofstadnet-tofu-state og hofstadnet-tofu-state-read) kan heller ikke sjekkes på samme måte, og har samme
+# utløpsdato.
 
 on:
   schedule:
@@ -26,6 +29,7 @@ jobs:
     if: vars.TOFU_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: tofu-plan
     permissions:
       contents: read
       issues: write
@@ -54,7 +58,7 @@ jobs:
             echo "Tokenet er aktivt og utløper $expires (om $days dager)."
             if ! [[ "$WARN_DAYS" =~ ^[0-9]+$ ]]; then WARN_DAYS=30; fi
             if [ "$days" -le "$WARN_DAYS" ]; then
-              message="Lesetokenet til OpenTofu (hofstadnet-tofu-read) utløper ${expires%%T*} (om $days dager). Skrivetokenet hofstadnet-tofu og R2-tokenet har samme utløpsdato."
+              message="Lesetokenet til OpenTofu (hofstadnet-tofu-read) utløper ${expires%%T*} (om $days dager). Skrivetokenet hofstadnet-tofu og R2-tokenene har samme utløpsdato."
             else
               message=""
             fi
@@ -78,9 +82,9 @@ jobs:
 
           Slik fornyer du (se også infra/README.md):
           1. Cloudflare → Manage Account → Account API tokens → \`hofstadnet-tofu-read\` → Roll, eller lag et nytt med samme rettigheter. Velg samme nye utløpsdato for alle tokenene.
-          2. \`gh secret set CLOUDFLARE_API_TOKEN_READ\`
+          2. \`gh secret set CLOUDFLARE_API_TOKEN_READ --env tofu-plan\`
           3. Gjør det samme for skrivetokenet \`hofstadnet-tofu\`, som ligger i miljøet: \`gh secret set CLOUDFLARE_API_TOKEN --env cloudflare\`
-          4. Gjør det samme for R2-tokenet \`hofstadnet-tofu-state\` (R2 → Manage API tokens): \`gh secret set R2_ACCESS_KEY_ID\` og \`gh secret set R2_SECRET_ACCESS_KEY\`.
+          4. Gjør det samme for R2-tokenene (R2 → Manage API tokens): \`hofstadnet-tofu-state-read\` med \`gh secret set R2_ACCESS_KEY_ID --env tofu-plan\` og \`gh secret set R2_SECRET_ACCESS_KEY --env tofu-plan\`, og \`hofstadnet-tofu-state\` med de samme kommandoene og \`--env cloudflare\`.
           5. Kjør Actions → Infrastructure → Run workflow. Planen skal vise «No changes».
 
           Byggetokenet \`hofstadnet-web-builds\` har ingen utløpsdato."

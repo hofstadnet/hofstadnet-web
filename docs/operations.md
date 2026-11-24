@@ -6,8 +6,8 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 
 - **Siden:** Cloudflare Workers Builds bygger med `npm run build` og publiserer med `npx wrangler deploy` hver gang
   `main` endres. Pull requests får en egen forhåndsvisning. Oppsettet ligger i `wrangler.jsonc`.
-- **Cloudflare-sonen:** `infra.yml` kjører OpenTofu. Planen vises på pull requests og før apply, og apply etter merge
-  krever godkjenning i miljøet `cloudflare`. Se [infra/README.md](../infra/README.md).
+- **Cloudflare-sonen:** `infra.yml` kjører OpenTofu. Pull requests får formatering og validering. Etter merge
+  vises planen i kjøringen, og apply krever godkjenning i miljøet `cloudflare`. Se [infra/README.md](../infra/README.md).
 - **Statussiden:** [status.hofstad.net](https://status.hofstad.net) er Upptime i repoet
   [hofstadnet/status](https://github.com/hofstadnet/status), publisert med GitHub Pages.
 
@@ -86,7 +86,8 @@ Når en endring skal endre skjermbildene:
 
 ### Endre Cloudflare-oppsettet
 
-Endre `infra/hofstad.net/terraform.tfvars` (eller modulen) i en PR, les planen, merge, og godkjenn apply. Endringer
+Endre `infra/hofstad.net/terraform.tfvars` (eller modulen) i en PR, merge når `check` er grønn, les
+planen i kjøringen på `main`, og godkjenn apply. Er planen ikke som ventet, avvis apply og rett i en ny PR. Endringer
 gjort direkte i dashbordet blir rapportert av avvikssjekken og overskrevet ved neste apply.
 
 ### Når helsesjekken lager en issue
@@ -109,9 +110,10 @@ Infrastructure → Run workflow på `main`, og apply godkjennes.
 
 1. Rull eller lag `hofstadnet-tofu-read` og `hofstadnet-tofu` på nytt under Manage Account → Account API Tokens, med
    tilgangene i [security.md](security.md#tilganger-og-nøkler) og samme utløpsdato. Legg verdiene inn med
-   `gh secret set CLOUDFLARE_API_TOKEN_READ` og `gh secret set CLOUDFLARE_API_TOKEN --env cloudflare`.
-2. Gjør det samme for R2-tokenet `hofstadnet-tofu-state` (R2 → Manage API tokens), med `gh secret set
-   R2_ACCESS_KEY_ID` og `gh secret set R2_SECRET_ACCESS_KEY`.
+   `gh secret set CLOUDFLARE_API_TOKEN_READ --env tofu-plan` og `gh secret set CLOUDFLARE_API_TOKEN --env cloudflare`.
+2. Gjør det samme for R2-tokenene (R2 → Manage API tokens): `hofstadnet-tofu-state-read` med `gh secret set
+   R2_ACCESS_KEY_ID --env tofu-plan` og `gh secret set R2_SECRET_ACCESS_KEY --env tofu-plan`, og
+   `hofstadnet-tofu-state` med de samme kommandoene og `--env cloudflare`.
 3. Kjør Infrastructure → Run workflow. Planen skal vise «No changes».
 
 ### Når et CSP-varsel kommer

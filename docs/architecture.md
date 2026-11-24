@@ -12,7 +12,7 @@ Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [securi
 | Kode | GitHub, organisasjonen hofstadnet, offentlig repo | Gratis CodeQL, Scorecard og regelsett, og koden kan vises frem. |
 | Hosting | Cloudflare Workers med statiske filer | Ingen egen server og ingen origin som kan nås utenom Cloudflare. |
 | Serverdel | Én Worker for `/api/` | Flystatus og mottak av CSP-rapporter. Alt annet er statiske filer. |
-| Infrastruktur | OpenTofu i `infra/` | Cloudflare-sonen som kode, med plan på PR og godkjent apply. |
+| Infrastruktur | OpenTofu i `infra/` | Cloudflare-sonen som kode, med validering på PR, plan på `main` og godkjent apply. |
 | Søk | [Pagefind](https://pagefind.app/) | Indeks bygges sammen med siden. Søket skjer i nettleseren. |
 | Skrift, ikoner, skript | Ligger i repoet | Siden fungerer selv om andre tjenester er nede. |
 | Visning | Følger systemet, mørk som reserve | Valg i bryteren lagres lokalt i nettleseren. |
@@ -47,7 +47,7 @@ LiveTrack24, tar imot CSP-rapporter og skriver logglinjer uten personopplysninge
 ```mermaid
 flowchart LR
   dependabot["Dependabot"] -->|"oppdateringer"| pr["Pull request"]
-  pr --> actions["GitHub Actions<br/>bygg, tester, sikkerhet, OpenTofu-plan"]
+  pr --> actions["GitHub Actions<br/>bygg, tester, sikkerhet, OpenTofu-validering"]
   actions -->|"grønne sjekker"| main["Merge til main"]
   main --> builds["Workers Builds publiserer siden"]
   main -->|"endringer i infra/"| apply["infra.yml apply<br/>krever godkjenning i miljøet cloudflare"]

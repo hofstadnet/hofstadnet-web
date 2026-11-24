@@ -1,14 +1,13 @@
 name: Infrastructure
 
 # Cloudflare-oppsettet i infra/ (OpenTofu). Se infra/README.md.
-#  - check: formatering og validering på hver endring. Trenger ingen hemmeligheter.
-#  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på PR-er og før hver apply, med et token som
-#    bare kan lese (CLOUDFLARE_API_TOKEN_READ på repoet, tokenet hofstadnet-tofu-read).
-#  - apply: gjennomfører endringene etter merge til main, først etter godkjenning i miljøet «cloudflare».
-#    Se planen i samme kjøring før du godkjenner. Apply bruker den lagrede planen fra plan-jobben, ikke en ny. Tokenet som kan endre sonen (CLOUDFLARE_API_TOKEN, tokenet
-#    hofstadnet-tofu), ligger bare i miljøet «cloudflare», som bare main kan bruke. Ingen branch eller PR kan derfor
-#    endre Cloudflare.
-#  R2-nøklene og passfrasen ligger på repoet, fordi både plan og apply leser state.
+#  - check: formatering og validering på hver endring, også pull requests. Trenger ingen hemmeligheter.
+#  - plan: viser hva som vil endres, i oppsummeringen av kjøringen. Kjører på main (etter merge, Run workflow og
+#    hver mandag), i miljøet «tofu-plan»: lesetokenet til Cloudflare og et R2-token som bare kan lese state.
+#  - apply: gjennomfører den lagrede planen fra plan-jobben, etter godkjenning i miljøet «cloudflare». Skrivetokenet
+#    til Cloudflare og R2-tokenet som kan skrive state, ligger bare der.
+#  Begge miljøene tillater bare main, og repoet har ingen hemmeligheter. En branch eller pull request kan derfor
+#  verken lese state, se passfrasen eller endre Cloudflare.
 #  - drift: hver mandag kjøres planen mot Cloudflare. Viser den endringer, er noe endret utenfor koden
 #    (f.eks. i dashbordet), og det opprettes en issue. Ingenting endres automatisk.
 
@@ -69,16 +68,18 @@ jobs:
           retention-days: 7
       - run: tofu validate
 
-  # plan og apply kjører først når repovariabelen TOFU_ENABLED er «true», etter at nøklene er lagt inn
+  # plan og apply kjører først når repovariabelen TOFU_ENABLED er «true», etter at nøklene er lagt inn.
+  # Ikke på pull requests: miljøet tillater bare main.
   plan:
-    if: vars.TOFU_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true'
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment: tofu-plan
     outputs:
       changes: ${{ steps.plan.outputs.changes }}
     env:
-      # Bare lesetilgang. Planen kan ikke endre Cloudflare, heller ikke fra en PR.
+      # Miljøsecrets i «tofu-plan». Bare lesetilgang til Cloudflare og R2.
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_READ }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -93,6 +94,8 @@ jobs:
           tofu_version: ${{ env.TOFU_VERSION }}
           tofu_wrapper: false
       - run: tofu init -input=false
+      # -lock=false: R2-tokenet kan bare lese, så planen kan ikke lage låsefilen. Planen skriver ikke state, og
+      #   concurrency-gruppen «infra» hindrer at den kjører samtidig med apply.
       # -parallelism=4: færre samtidige kall, så Cloudflare-API-et ikke svarer med rate limiting.
       # -detailed-exitcode: 0 = ingen endringer, 1 = feil, 2 = endringer. Apply kjører bare ved 2.
       # pipefail: uten den ville en feilet plan blitt grønn, fordi tee alltid lykkes.
@@ -100,7 +103,7 @@ jobs:
         run: |
           set -o pipefail
           code=0
-          tofu plan -input=false -lock-timeout=2m -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || code=$?
+          tofu plan -input=false -lock=false -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || code=$?
           if [ "$code" -eq 1 ]; then exit 1; fi
           if [ "$code" -eq 2 ]; then echo "changes=true" >> "$GITHUB_OUTPUT"; else echo "changes=false" >> "$GITHUB_OUTPUT"; fi
           {
@@ -119,13 +122,13 @@ jobs:
           retention-days: 1
 
   apply:
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && vars.TOFU_ENABLED == 'true' && needs.plan.outputs.changes == 'true'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.plan.outputs.changes == 'true'
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: cloudflare
     env:
-      # Miljøsecret i «cloudflare». Finnes ikke på repoet.
+      # Miljøsecrets i «cloudflare». Skrivetokenet og R2-tokenet som kan skrive state.
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

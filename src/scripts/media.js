@@ -81,7 +81,8 @@ import { strings } from '../i18n/client';
       var alt = a.querySelector('img').alt || '';
       var cap = a.dataset.caption || alt;
       var count = (i + 1) + ' / ' + items.length;
-      vImg.src = src; vImg.alt = alt; vText.textContent = cap; vCount.textContent = count;
+      // Visningen i innlegget bruker mellomstørrelsen, fullskjerm det store bildet (href)
+      vImg.src = a.dataset.medium || src; vImg.alt = alt; vText.textContent = cap; vCount.textContent = count;
       if (d.open) { dImg.src = src; dImg.alt = alt; }
       dText.textContent = cap; dCount.textContent = count;
       items.forEach(function (x, k) {

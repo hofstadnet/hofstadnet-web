@@ -32,8 +32,11 @@ Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow
 ### Grenser i kvalitetssjekkene
 
 - **Lighthouse** (`lighthouserc.json`, `lighthouserc.production.json`): tilgjengelighet og SEO minst 95 stopper.
-  Ytelse og beste praksis under 90 gir advarsel. Ytelsesbudsjett per side: JavaScript 40 kB, CSS 25 kB, skrift 60 kB,
-  bilder 400 kB, totalt 600 kB og maks 5 forespørsler til tredjeparter.
+  I pull requests stopper også beste praksis under 95, og ytelse under 90 gir advarsel. Der blokkeres Cloudflare Web
+  Analytics, som ikke kan sende fra `localhost`, og `/api/status`, som bare finnes i Workeren, så målingen gjelder
+  siden selv. Den ukentlige målingen i drift tar med begge, og der gir ytelse og beste praksis under 90 advarsel.
+  Ytelsesbudsjett per side: JavaScript 40 kB, CSS 25 kB, skrift 60 kB, bilder 400 kB, totalt 600 kB og maks 5
+  forespørsler til tredjeparter.
 - **Tilgjengelighet** (`tests/accessibility.spec.ts`): axe mot WCAG 2.2 AA på alle sider i nettstedskartet, på norsk
   og engelsk, i mørk og lys visning, på 320 og 1280 px. Stopper også ved horisontal rulling, CSP-brudd og
   JavaScript-feil. Egne tester søker på begge språk, sjekker språkvelgeren og `<html lang>`, blar i galleriet og

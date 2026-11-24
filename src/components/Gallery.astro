@@ -14,6 +14,9 @@ const { images, label = text.label } = Astro.props;
 const processed = await Promise.all(
   images.map(async (img) => ({
     ...img,
+    // Visningen i innlegget er inntil 720 × 480 px (3:2, hele bildet vises). Dobbel tetthet gir 1440 × 960, så
+    // stående bilder begrenses av høyden. Fullskjerm bruker det store bildet.
+    medium: await getImage({ src: img.src, width: Math.min(img.src.width, 1080, Math.round(960 * img.src.width / img.src.height)), format: 'avif' }),
     large: await getImage({ src: img.src, width: Math.min(1600, img.src.width), format: 'avif' }),
     small: await getImage({ src: img.src, width: 480, height: 320, fit: 'cover', format: 'avif' }),
   })),
@@ -22,7 +25,7 @@ const processed = await Promise.all(
 <ul class="gallery" aria-label={label}>
   {processed.map((img) => (
     <li>
-      <a href={img.large.src} data-caption={img.caption ?? img.alt}>
+      <a href={img.large.src} data-medium={img.medium.src} data-caption={img.caption ?? img.alt}>
         <img src={img.small.src} alt={img.alt} width="480" height="320" loading="lazy" />
       </a>
     </li>

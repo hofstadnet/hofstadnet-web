@@ -66,6 +66,16 @@ test('søk og galleri virker under Trusted Types', async ({ page }) => {
   expect(errors, 'feil i konsollen').toEqual([]);
 });
 
+// Rask skriving rett etter at panelet åpnes, før Pagefind er lastet, skal likevel gi treff og ikke bli stående
+// på «Søker …».
+test('søkefeltet gir treff ved rask skriving før indeksen er lastet', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('[data-search-open]').click();
+  await page.locator('#search-panel input').pressSequentially('paraglid', { delay: 0 });
+  await expect(page.locator('.search-panel-results a').first()).toBeVisible();
+  await expect(page.locator('.search-panel-status')).not.toHaveText(/Søker/);
+});
+
 // Språkvelgeren i menyen lenker til den samme siden på det andre språket, og <html lang> følger språket.
 // Ukjente adresser under /en/ får den engelske 404-siden.
 const translations = [

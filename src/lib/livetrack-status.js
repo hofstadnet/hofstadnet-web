@@ -3,12 +3,37 @@
 //
 // Statusruten er en liten HTML-side. Når sporingen ikke er aktiv, inneholder den teksten
 // «is not live» og ikonet icon_user_not_live. Aktiv sporing godtas bare med en entydig markør
-// («is live» eller icon_user_live). Alt annet gir «unknown» i stedet for en gjetning, og svaret
-// logges (Workers Logs), så formatet kan sjekkes og parseren rettes hvis LiveTrack24 endrer siden.
+// («is live» eller icon_user_live). Alt annet gir «unknown» i stedet for en gjetning.
+//
+// Bare de første 20 kB av svaret leses. Loggene (Workers Logs) har en fast årsakskode og lengden på svaret, aldri
+// innholdet. Endrer LiveTrack24 siden, åpnes SOURCE i en nettleser for å se det nye formatet.
 
 export const USER = 'krishofs';
 export const SOURCE = `https://www.livetrack24.com/user/${USER}/status/map/1`;
 export const MAP = `https://www.livetrack24.com/user/${USER}/2d`;
+
+const MAX_BYTES = 20000;
+
+/**
+ * Leser høyst maxBytes av svaret og avbryter resten.
+ * @param {Response} response @param {number} maxBytes @returns {Promise<string>}
+ */
+export async function readPrefix(response, maxBytes = MAX_BYTES) {
+  if (!response.body) return '';
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+  let total = 0;
+  while (total < maxBytes) {
+    const { done, value } = await reader.read();
+    if (done) return text + decoder.decode();
+    const part = value.subarray(0, maxBytes - total);
+    total += part.byteLength;
+    text += decoder.decode(part, { stream: true });
+  }
+  await reader.cancel();
+  return text + decoder.decode();
+}
 
 /** @param {string} html @returns {'live' | 'not-live' | 'unknown'} */
 export function parseStatus(html) {
@@ -28,15 +53,18 @@ export async function fetchStatus(fetchFn) {
       redirect: 'follow',
     });
     if (response.ok) {
-      const html = (await response.text()).slice(0, 20000);
+      const html = await readPrefix(response);
       status = parseStatus(html);
-      if (status === 'unknown') console.warn('LiveTrack24: ukjent svarformat', html.slice(0, 600));
+      if (status === 'unknown') {
+        const reason = html.toLowerCase().includes(USER) ? 'unknown-format' : 'user-missing';
+        console.warn('LiveTrack24:', reason, `(${html.length} tegn)`);
+      }
     } else {
-      console.warn('LiveTrack24: HTTP', response.status);
+      console.warn('LiveTrack24: http-error', response.status);
     }
   } catch (error) {
-    // Nettverksfeil eller tidsavbrudd gir «unknown»
-    console.warn('LiveTrack24: ingen svar', String(error));
+    // Nettverksfeil eller tidsavbrudd gir «unknown». Bare navnet på feilen logges.
+    console.warn('LiveTrack24: no-response', error instanceof Error ? error.name : 'Error');
   }
   return { status, checked: new Date().toISOString() };
 }

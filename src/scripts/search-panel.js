@@ -6,7 +6,7 @@
 //
 // Tastatur: «/» åpner søket (når man ikke skriver i et felt), Esc lukker og setter fokus tilbake på knappen,
 // pil opp og ned flytter mellom feltet og treffene, Enter går til første treff.
-import { search, resultList } from './search-engine.js';
+import { search, resultList, preload } from './search-engine.js';
 import { strings } from '../i18n/client';
 
 const text = strings().search;
@@ -32,6 +32,7 @@ function position() {
 }
 
 function open() {
+  preload();
   if (!isOpen()) panel.showPopover();
   position();
   button.setAttribute('aria-expanded', 'true');

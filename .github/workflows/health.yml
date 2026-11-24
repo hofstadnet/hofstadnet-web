@@ -2,7 +2,8 @@ name: Health check
 
 # Sjekker hofstad.net utenfra hver time: at forsiden og den engelske forsiden svarer med sikkerhetshodene, at
 # sertifikatet ikke er nær utløp, at www videresender til hofstad.net, og at /api/status svarer med gyldig JSON fra
-# Workeren. Åpner en issue (etikett «bug») når noe er galt, kommenterer når feilene endrer seg, og lukker issuen når
+# Workeren, med et ferskt tidspunkt og en kjent status. «unknown» er en trygg reserve på siden, men betyr at
+# LiveTrack24 ikke svarer eller har endret formatet. Den meldes først når den varer i minst to minutter. Åpner en issue (etikett «bug») når noe er galt, kommenterer når feilene endrer seg, og lukker issuen når
 # alt er i orden igjen. Kjøringen feiler så lenge noe er galt.
 # GitHub kan kjøre den litt sent, og slår av tidsplanen etter 60 dager uten commits i repoet (da sendes e-post; slå den
 # på igjen under Actions). Kjører ingen kode fra repoet og trenger ingen hemmeligheter.
@@ -18,7 +19,7 @@ permissions: {}
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     permissions:
       # Trengs for å åpne, kommentere og lukke issuen
       issues: write
@@ -43,11 +44,20 @@ jobs:
             echo "$headers" | grep -i "^strict-transport-security:" | grep -qi "preload" || fail "HSTS på https://hofstad.net$path mangler preload"
           done
 
-          # /api/status: JSON fra Workeren med en kjent status
-          body=$(curl -sS --max-time 20 --retry 2 https://hofstad.net/api/status || true)
-          status=$(jq -r '.status // empty' <<<"$body" 2>/dev/null || true)
+          # /api/status: JSON fra Workeren med en kjent status og et ferskt tidspunkt. Svaret mellomlagres i 60 s, så
+          # ved «unknown» spørres det igjen to ganger med 70 s mellomrom før det meldes.
+          for attempt in 1 2 3; do
+            body=$(curl -sS --max-time 20 --retry 2 https://hofstad.net/api/status || true)
+            status=$(jq -r '.status // empty' <<<"$body" 2>/dev/null || true)
+            [ "$status" = "unknown" ] && [ "$attempt" -lt 3 ] && { sleep 70; continue; }
+            break
+          done
           case "$status" in
-            live|not-live|unknown) ;;
+            live|not-live)
+              checked=$(jq -r '.checked // empty' <<<"$body")
+              age=$(( $(date +%s) - $(date -d "$checked" +%s 2>/dev/null || echo 0) ))
+              [ "$age" -le 300 ] || fail "https://hofstad.net/api/status har et gammelt eller ugyldig tidspunkt (checked: ${checked:-mangler})" ;;
+            unknown) fail "https://hofstad.net/api/status har gitt «unknown» i over to minutter: LiveTrack24 svarer ikke, eller formatet er endret (se Workers Logs)" ;;
             *) fail "https://hofstad.net/api/status ga ikke gyldig JSON med status (fikk: ${body:0:100})" ;;
           esac
 

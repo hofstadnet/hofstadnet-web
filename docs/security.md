@@ -52,7 +52,7 @@ Workers Logs inneholder bare linjene Workeren skriver selv, og ingen personopply
 |---|---|
 | Én linje per kall til `/api/` (`console.log`) | `api path=/api/status status=200 result=not-live cache=hit`, `api path=/api/csp status=204 reports=1` |
 | Brudd på CSP og Trusted Types (`console.error`) | Se [Rapporter om brudd](#rapporter-om-brudd) |
-| Ukjent svar fra LiveTrack24 (`console.warn`) | Utdrag av svaret fra LiveTrack24, ikke fra den besøkende |
+| Ukjent svar fra LiveTrack24 (`console.warn`) | `LiveTrack24: unknown-format (5120 tegn)`, `LiveTrack24: http-error 503`, `LiveTrack24: no-response TimeoutError`. Fast årsakskode og lengde, aldri innholdet i svaret |
 
 - Linjen per kall har bare faste verdier fra koden: adressen, statuskoden, resultatet, mellomlageret og antall
   rapporter. Ukjente adresser under `/api/` logges som `path=other`. Aldri IP, nettleserinfo, spørrestrenger eller

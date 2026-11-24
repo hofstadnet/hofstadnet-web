@@ -129,7 +129,8 @@ html[data-theme="light"] .post-top .mode .i-sun, html[data-theme="dark"] .post-t
 .rows a.no-img time { grid-column: 2; }
 .rows a.no-img b, .rows a.no-img p { grid-column: 1 / -1; }
 .empty { padding: 28px 0 40px; color: var(--soft); }
-.kicker a { color: inherit; text-decoration: none; }
+/* padding-block gir lenkene en trykkflate på minst 24 px (WCAG 2.5.8) uten å endre linjehøyden */
+.kicker a { color: inherit; text-decoration: none; padding-block: 4px; }
 .kicker a:hover { text-decoration: underline; }
 @media (max-width: 900px) { .rows.archive { grid-template-columns: 1fr; } }
 

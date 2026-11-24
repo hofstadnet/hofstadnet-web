@@ -12,7 +12,7 @@ export const client = {
     unavailable: 'Søket er ikke tilgjengelig akkurat nå.',
   },
   status: {
-    live: ['Sporing aktiv', 'LiveTrack24 sporer en tur akkurat nå, trolig i lufta.'],
+    live: ['Sporing aktiv', 'LiveTrack24 sporer en tur akkurat nå.'],
     'not-live': ['Ingen aktiv sporing', 'LiveTrack24 sporer ingen tur nå. Kanskje under vann eller på tur.'],
     unknown: ['Status utilgjengelig', 'Åpne kartet for å se siste tur.'],
     checked: (time: string) => `Sjekket kl. ${time}.`,

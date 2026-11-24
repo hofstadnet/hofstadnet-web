@@ -76,6 +76,19 @@ test('søkefeltet gir treff ved rask skriving før indeksen er lastet', async ({
   await expect(page.locator('.search-panel-status')).not.toHaveText(/Søker/);
 });
 
+// Enter rett etter at søket er endret skal åpne et treff for den nye teksten, ikke det første treffet fra forrige søk
+test('Enter åpner ikke et treff fra forrige søk', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('[data-search-open]').click();
+  const input = page.locator('#search-panel input');
+  await input.fill('sykkel');
+  await expect(page.locator('.search-panel-results a').first()).toHaveAttribute('href', /clug-roadie/);
+  await input.fill('paraglid');
+  await input.press('Enter');
+  await page.waitForURL((url) => url.pathname !== '/');
+  expect(new URL(page.url()).pathname).not.toMatch(/clug-roadie/);
+});
+
 // Språkvelgeren i menyen lenker til den samme siden på det andre språket, og <html lang> følger språket.
 // Ukjente adresser under /en/ får den engelske 404-siden.
 const translations = [

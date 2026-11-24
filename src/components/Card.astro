@@ -6,17 +6,20 @@ import { areaName } from '../lib/areas';
 interface Props { post: Post; large?: boolean; }
 const { post, large = false } = Astro.props;
 const d = post.data;
+// Miniatyren brukes når innlegget har en; da er motivet allerede midt i bildet
+const thumb = d.thumbnail ?? d.image;
+const focus = d.thumbnail ? 'center' : d.imageFocus;
 ---
 <a class:list={['card', { lead: large, 'has-video': d.hasVideo }]} href={postUrl(post)}>
-  {d.image && (
+  {thumb && (
     <span class="media"><Picture
       formats={['avif', 'webp']}
-      src={d.image}
+      src={thumb}
       alt={d.imageAlt}
       widths={large ? [480, 900] : [360, 720]}
       sizes={large ? '(max-width: 900px) 100vw, 420px' : '(max-width: 620px) 108px, 360px'}
       loading="lazy"
-      class={`focus-${d.imageFocus}`}
+      class={`focus-${focus}`}
     /></span>
   )}
   <div>

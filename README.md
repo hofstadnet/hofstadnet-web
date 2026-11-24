@@ -81,6 +81,7 @@ Teksten skrives i Markdown.
 | `tags` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
 | `image`, `imageAlt` | Nei | Hovedbilde i `src/assets/images/`. Vises øverst i innlegget, på kort og som delingsbilde. Innlegg med `hasVideo` viser det bare som forhåndsbilde til videoen. |
 | `imageFocus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
+| `thumbnail` | Nei | Eget bilde til kort og miniatyrer, når hovedbildet ikke tåler å bli beskåret, for eksempel en logo med tekst. Motivet skal stå midt i bildet, fordi kortene beskjærer til alt fra 2:1 til kvadrat. |
 | `hasVideo` | Nei | `true` gir avspillingsmerke på kort. |
 | `updated` | Nei | Dato for siste endring. Brukes også i nettstedskartet. |
 | `draft` | Nei | `true` holder innlegget utenfor den publiserte siden. Filen er likevel synlig i det offentlige repoet. |

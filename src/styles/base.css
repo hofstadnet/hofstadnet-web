@@ -109,9 +109,21 @@ html[data-status="air"] .status .dot { background: var(--orange); animation: pin
   .top nav a.handle { display: none; }
   .areas em { display: none; }
 }
+/* Søkeknappen på mobil: bare ikonet, i samme pilleform som språkvelgeren, så den ses som en knapp */
+@media (max-width: 620px) {
+  header.top nav a.search-button { justify-content: center; min-width: 32px; min-height: 30px; padding: 0; margin-left: 2px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink); }
+  .hero header.top nav a.search-button { border-color: rgba(255, 255, 255, .4); color: #fff; }
+}
+/* Vanlige telefoner (360–400 px): logo og meny på én linje. «Lenker» skjules, fordi lenkene ligger rett under
+   flystatusen på forsiden. */
+@media (max-width: 400px) {
+  .top { column-gap: 6px; }
+  .top > a img { height: 30px; }
+  .top nav a.links-link { display: none; }
+}
 /* På de smaleste skjermene (ned til 320 px) går menyen ned på en egen rad under logoen,
    så siden aldri blir bredere enn skjermen (WCAG 1.4.10). */
-@media (max-width: 400px) {
+@media (max-width: 350px) {
   .top { flex-wrap: wrap; row-gap: 8px; }
   .top nav { margin-left: auto; }
 }

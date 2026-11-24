@@ -1,5 +1,6 @@
 // Strukturert data (schema.org, JSON-LD) for søkemotorer og forhåndsvisninger.
-// Bare opplysninger som allerede står på siden: kallenavnet, profilene i «Finn meg også her» og innleggene.
+// Bare offentlige opplysninger: navnet (det samme som i commitene i det offentlige repoet), kallenavnet, profilene i
+// «Finn meg også her» og innleggene.
 import type { Post } from './posts';
 import { postUrl } from './posts';
 import { t, urls, type Lang } from '../i18n';
@@ -9,13 +10,14 @@ const SITE = 'https://hofstad.net/';
 export const author = {
   '@type': 'Person',
   '@id': `${SITE}#krishofs`,
-  name: 'krishofs',
+  name: 'Kristoffer D. Hofstad',
+  alternateName: 'krishofs',
   url: SITE,
   sameAs: [
     'https://www.instagram.com/krishofs/',
     'https://www.youtube.com/@krishofs',
     'https://www.livetrack24.com/user/krishofs',
-    'https://pgpilot.app/pilot/krishofs',
+    'https://pgpilot.app/view/krishofs',
     'https://github.com/hofstadnet',
   ],
 };

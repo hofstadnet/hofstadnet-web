@@ -8,8 +8,8 @@ const { post } = Astro.props;
 const d = post.data;
 ---
 <li>
-  <a class:list={[{ 'has-video': d.hasVideo, 'no-img': !d.image }]} href={postUrl(post)}>
-    {d.image && <div class="media"><Picture src={d.image} alt="" formats={['avif', 'webp']} width={240} height={184} fit="cover" position={d.imageFocus} loading="lazy" /></div>}
+  <a class:list={[{ 'has-video': d.hasVideo, 'no-img': !(d.thumbnail ?? d.image) }]} href={postUrl(post)}>
+    {(d.thumbnail ?? d.image) && <div class="media"><Picture src={(d.thumbnail ?? d.image)!} alt="" formats={['avif', 'webp']} width={240} height={184} fit="cover" position={d.thumbnail ? 'center' : d.imageFocus} loading="lazy" /></div>}
     <span>{d.areas.map((a) => areaName(a, post.lang)).join(' · ')}</span>
     <time datetime={formatDateIso(d.published)}>{formatDateShort(d.published, post.lang)}</time>
     <b>{d.title}</b>

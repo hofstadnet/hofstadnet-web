@@ -19,14 +19,17 @@ const processed = await Promise.all(
     medium: await getImage({ src: img.src, width: Math.min(img.src.width, 1080, Math.round(960 * img.src.width / img.src.height)), format: 'avif' }),
     large: await getImage({ src: img.src, width: Math.min(1600, img.src.width), format: 'avif' }),
     small: await getImage({ src: img.src, width: 480, height: 320, fit: 'cover', format: 'avif' }),
+    smaller: await getImage({ src: img.src, width: 320, height: 213, fit: 'cover', format: 'avif' }),
   })),
 );
+// Småbildene deler bredden på innlegget (720 px), og er 42 % av skjermen på mobil
+const thumbSizes = `(max-width: 620px) 42vw, ${Math.ceil(720 / processed.length)}px`;
 ---
 <ul class="gallery" aria-label={label}>
   {processed.map((img) => (
     <li>
       <a href={img.large.src} data-medium={img.medium.src} data-caption={img.caption ?? img.alt}>
-        <img src={img.small.src} alt={img.alt} width="480" height="320" loading="lazy" />
+        <img src={img.small.src} srcset={`${img.smaller.src} 320w, ${img.small.src} 480w`} sizes={thumbSizes} alt={img.alt} width="480" height="320" loading="lazy" />
       </a>
     </li>
   ))}

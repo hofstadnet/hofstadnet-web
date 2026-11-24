@@ -29,7 +29,7 @@ const older = rest.slice(3, 9);
 <Base lang={lang} alternate={alternate} translation structuredData={homePage(lang)}>
   <div class="hero">
     {/* AVIF med WebP som reserve. Kvalitet 60 er godt nok bak tekst og panel, og gjør bildet en brøkdel så stort. */}
-    <Picture class="hero-bg" src={heroImage} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
+    <Picture class="hero-bg" src={heroImage} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1600, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
     <div class="wrap">
       <Header lang={lang} alternate={alternate} variant="hero" />
     </div>

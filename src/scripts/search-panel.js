@@ -48,15 +48,18 @@ function close(returnFocus = true) {
 }
 
 let counter = 0;
+// Søketeksten som treffene i listen hører til. Enter åpner bare et treff når den er lik teksten i feltet.
+let shownFor = '';
 async function run() {
   const current = ++counter;
   const q = input.value.trim();
-  if (!q) { list.replaceChildren(); status.textContent = ''; return; }
+  if (!q) { list.replaceChildren(); status.textContent = ''; shownFor = ''; return; }
   status.textContent = text.searching;
   try {
     const response = await search(q, 8);
     if (response === null || current !== counter) return;
     list.replaceChildren(...resultList(response.results));
+    shownFor = q;
     if (response.count === 0) status.textContent = text.noResults(q);
     else if (response.count > response.results.length) status.textContent = text.showing(response.results.length, response.count);
     else status.textContent = text.results(response.count);
@@ -80,9 +83,13 @@ if (supported && button && panel && menu && input && status && list) {
   });
   closeButton?.addEventListener('click', () => close());
   input.addEventListener('input', run);
-  panel.querySelector('form')?.addEventListener('submit', (e) => {
+  // Enter går til første treff, men bare når treffene hører til teksten i feltet. Står det gamle treff i listen
+  // fordi et nytt søk ikke er ferdig, søkes det først.
+  panel.querySelector('form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const first = list.querySelector('a');
+    const q = input.value.trim();
+    if (q && shownFor !== q) await run();
+    const first = shownFor === q ? list.querySelector('a') : null;
     if (first) location.href = first.href;
   });
 

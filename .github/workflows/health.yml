@@ -55,8 +55,10 @@ jobs:
           case "$status" in
             live|not-live)
               checked=$(jq -r '.checked // empty' <<<"$body")
-              age=$(( $(date +%s) - $(date -d "$checked" +%s 2>/dev/null || echo 0) ))
-              [ "$age" -le 300 ] || fail "https://hofstad.net/api/status har et gammelt eller ugyldig tidspunkt (checked: ${checked:-mangler})" ;;
+              # Gyldig ISO-tidspunkt, høyst 5 minutter gammelt og ikke mer enn 60 s fram i tid (klokkeavvik)
+              ts=$(date -d "$checked" +%s 2>/dev/null || echo "")
+              age=$(( $(date +%s) - ${ts:-0} ))
+              [[ "$checked" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && [ -n "$ts" ] && [ "$age" -ge -60 ] && [ "$age" -le 300 ] || fail "https://hofstad.net/api/status har et gammelt eller ugyldig tidspunkt (checked: ${checked:-mangler})" ;;
             unknown) fail "https://hofstad.net/api/status har gitt «unknown» i over to minutter: LiveTrack24 svarer ikke, eller formatet er endret (se Workers Logs)" ;;
             *) fail "https://hofstad.net/api/status ga ikke gyldig JSON med status (fikk: ${body:0:100})" ;;
           esac

@@ -24,7 +24,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `health.yml` | Hver time | Sikkerhetshoder på `/` og `/en/`, sertifikatets utløp, videresending fra www og JSON fra `/api/status`. Åpner og lukker en issue. |
 | `production.yml` | Mandager | Lighthouse og tilgjengelighetstestene mot https://hofstad.net |
 | `infra.yml` | Endringer i `infra/`, mandager | OpenTofu: sjekk, plan, apply (med godkjenning) og ukentlig avvikssjekk |
-| `token-expiry.yml` | Mandager | Varsler når Cloudflare-tokenet til OpenTofu har under 30 dager igjen |
+| `token-expiry.yml` | Mandager | Varsler når lesetokenet til OpenTofu har under 30 dager igjen. Skrivetokenet har samme utløpsdato. |
 | `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, unntatt `wrangler`. OpenTofu-provideren og major merges manuelt. |
 
 Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow-security` og CodeQL.
@@ -103,8 +103,9 @@ Infrastructure → Run workflow på `main`, og apply godkjennes.
 
 ### Fornye tokenene
 
-1. Rull eller lag `hofstadnet-tofu` på nytt under Manage Account → Account API Tokens, med tilgangene i
-   [security.md](security.md#tilganger-og-nøkler). Legg verdien inn med `gh secret set CLOUDFLARE_API_TOKEN`.
+1. Rull eller lag `hofstadnet-tofu-read` og `hofstadnet-tofu` på nytt under Manage Account → Account API Tokens, med
+   tilgangene i [security.md](security.md#tilganger-og-nøkler) og samme utløpsdato. Legg verdiene inn med
+   `gh secret set CLOUDFLARE_API_TOKEN_READ` og `gh secret set CLOUDFLARE_API_TOKEN --env cloudflare`.
 2. Gjør det samme for R2-tokenet `hofstadnet-tofu-state` (R2 → Manage API tokens), med `gh secret set
    R2_ACCESS_KEY_ID` og `gh secret set R2_SECRET_ACCESS_KEY`.
 3. Kjør Infrastructure → Run workflow. Planen skal vise «No changes».

@@ -90,17 +90,23 @@ Oppsettet er kode i `infra/` og endres bare via pull request. Se [infra/README.m
 
 ## Tilganger og nøkler
 
-Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som repository secrets.
+Ingen nøkler ligger i repoet. Tokens som brukes av GitHub Actions, ligger som GitHub-secrets: tokenet som kan endre
+Cloudflare-sonen, bare i miljøet `cloudflare`, og resten på repoet.
 
 | Nøkkel | Type | Tilgang | Brukes av |
 |---|---|---|---|
-| `hofstadnet-tofu` (`CLOUDFLARE_API_TOKEN`) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), Zone (Read). Kontoen: Notifications (Edit). | OpenTofu i `infra.yml`, tokenutløp i `token-expiry.yml` |
-| `hofstadnet-tofu-state` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`) | R2-kontotoken | Object Read & Write på bøtta `hofstadnet-tofu` | OpenTofu-state |
-| `TOFU_STATE_PASSPHRASE` | Passfrase | Krypterer og dekrypterer state | OpenTofu |
+| `hofstadnet-tofu-read` (`CLOUDFLARE_API_TOKEN_READ`, repoet) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management, Dynamic URL Redirects og Zone (Read). Kontoen: Notifications (Read). | `plan` og `drift` i `infra.yml`, tokenutløp i `token-expiry.yml` |
+| `hofstadnet-tofu` (`CLOUDFLARE_API_TOKEN`, miljøet `cloudflare`) | Cloudflare-kontotoken | hofstad.net: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), Zone (Read). Kontoen: Notifications (Edit). | `apply` i `infra.yml` |
+| `hofstadnet-tofu-state` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, repoet) | R2-kontotoken | Object Read & Write på bøtta `hofstadnet-tofu` | OpenTofu-state, både plan og apply |
+| `TOFU_STATE_PASSPHRASE` (repoet) | Passfrase | Krypterer og dekrypterer state | OpenTofu, både plan og apply |
 | `ALERT_EMAIL` | E-postadresse | Mottaker av varsler fra Cloudflare. Ligger som secret så den ikke står i det offentlige repoet, og er merket `sensitive` så den ikke vises i planer. | OpenTofu |
 | `hofstadnet-web-builds` | Cloudflare-brukertoken, styrt av Workers Builds | Kontoen: Workers Scripts (Edit), Account Settings (Read). hofstad.net: Workers Routes (Edit). Bruker: Memberships og User Details (Read). | Publisering fra `main` og forhåndsvisninger |
 
-- Tokenene for OpenTofu har utløpsdato. `token-expiry.yml` oppretter en issue 30 dager før.
+- Tokenene for OpenTofu har samme utløpsdato. `token-expiry.yml` sjekker lesetokenet og oppretter en issue 30 dager
+  før. Skrivetokenet sjekkes ikke av en planlagt jobb, fordi jobber i miljøet `cloudflare` venter på godkjenning.
+- Pull requests og planen kan bare lese Cloudflare. Bare `apply` i miljøet `cloudflare` har tokenet som kan endre
+  sonen.
+- R2-nøklene og passfrasen ligger på repoet, fordi både plan og apply leser og låser state.
 - Byggetokenet er et brukertoken fordi Workers Builds ennå ikke støtter kontotokens. Det har ingen utløpsdato, fordi
   publiseringen ellers ville stoppet.
 - Apply i OpenTofu kjører i miljøet `cloudflare`, som krever godkjenning og bare tillater `main`.

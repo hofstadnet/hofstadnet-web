@@ -26,16 +26,21 @@ infra/
   AES-GCM før opplasting. Den legges aldri i git.
 - **Låste versjoner.** OpenTofu-versjonen er låst i `.github/workflows/infra.yml`, provideren i `versions.tf` og
   sjekksummene i `.terraform.lock.hcl`. Dependabot foreslår nye versjoner av provideren.
-- **Ingen hemmeligheter eller e-postadresser i repoet.** API-tokenet, R2-nøklene, passfrasen og adressen for varsler
-  ligger som GitHub-secrets.
+- **Ingen hemmeligheter eller e-postadresser i repoet.** API-tokenene, R2-nøklene, passfrasen og adressen for
+  varsler ligger som GitHub-secrets.
+- **To Cloudflare-tokens.** `plan` og `drift` bruker et token som bare kan lese (`CLOUDFLARE_API_TOKEN_READ` på
+  repoet). Tokenet som kan endre sonen (`CLOUDFLARE_API_TOKEN`), ligger bare i miljøet `cloudflare`, som krever
+  godkjenning og bare tillater `main`. Ingen branch eller pull request kan derfor endre Cloudflare. R2-nøklene,
+  passfrasen og `ALERT_EMAIL` ligger på repoet, fordi både plan og apply trenger dem.
 
 ## Flyt
 
 `.github/workflows/infra.yml`:
 
 1. **check** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
-2. **plan** på pull requests og før hver apply. Resultatet står i oppsummeringen av kjøringen.
-3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`.
+2. **plan** på pull requests og før hver apply, med lesetokenet. Resultatet står i oppsummeringen av kjøringen.
+3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`, og
+   bruker skrivetokenet derfra.
 4. **drift** hver mandag: planen kjøres mot Cloudflare. Viser den endringer, er noe endret utenfor koden, og det
    opprettes en issue. Ingenting endres automatisk.
 
@@ -58,18 +63,20 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
 
 1. **R2:** slå på R2 Object Storage og lag en privat bøtte for state, uten offentlig adresse.
 2. **R2-token:** R2 → Manage API tokens → Create Account API token, med *Object Read & Write* på bare den bøtta.
-3. **Cloudflare-token:** Manage Account → Account API Tokens → Create Token, med to policyer:
-   - *Specified Domains* → sonen: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic URL Redirects (Edit), og
-     Zone (Read)
-   - *Entire Account*: Notifications (Edit)
+3. **Cloudflare-tokens:** Manage Account → Account API Tokens → Create Token, to tokens med samme utløpsdato:
+   - `hofstadnet-tofu` (skriv): *Specified Domains* → sonen: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic
+     URL Redirects (Edit), og Zone (Read). *Entire Account*: Notifications (Edit).
+   - `hofstadnet-tofu-read` (les): de samme tilgangene, men alle som Read.
 
-   Sett utløpsdato. `token-expiry.yml` varsler 30 dager før.
+   `token-expiry.yml` sjekker lesetokenet og varsler 30 dager før. Skrivetokenet ligger i miljøet og kan ikke sjekkes
+   av en planlagt jobb uten godkjenning, så det får samme utløpsdato.
 4. **Passfrase** for kryptering av state, minst 16 tegn, lagret i en passordbehandler. Uten den kan state ikke leses,
    og ressursene må importeres på nytt.
 5. **GitHub-secrets og variabel:**
 
    ```bash
-   gh secret set CLOUDFLARE_API_TOKEN
+   gh secret set CLOUDFLARE_API_TOKEN_READ
+   gh secret set CLOUDFLARE_API_TOKEN --env cloudflare
    gh secret set R2_ACCESS_KEY_ID
    gh secret set R2_SECRET_ACCESS_KEY
    gh secret set TOFU_STATE_PASSPHRASE
@@ -84,6 +91,7 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
 
 ```bash
 cd infra/hofstad.net
+# Lesetokenet holder for plan
 export CLOUDFLARE_API_TOKEN=… AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… TF_VAR_state_passphrase=…
 tofu init
 tofu plan

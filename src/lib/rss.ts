@@ -3,7 +3,7 @@ import type { APIContext } from 'astro';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { loadRenderers } from 'astro:container';
 import { render } from 'astro:content';
-import { getContainerRenderer as mdxRenderer } from '@astrojs/mdx';
+import { getContainerRenderer as mdxRenderer } from '@astrojs/mdx/container-renderer';
 import { getPosts, postUrl, shareImage } from './posts';
 import { t, urls, type Lang } from '../i18n';
 

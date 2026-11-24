@@ -5,7 +5,7 @@ import { test, expect, type Page } from '@playwright/test';
 // stopper da i pull requesten.
 //
 // Bildene lages og sammenlignes bare på Linux (CI), fordi skrift tegnes litt ulikt på Windows og macOS.
-// Nye eller endrede bilder: kjør arbeidsflyten Quality manuelt med «update_screenshots», last ned
+// Nye eller endrede bilder: kjør arbeidsflyten Kvalitet manuelt med «update_screenshots», last ned
 // artefakten «screenshots» og legg bildene i tests/screenshots/ i en PR.
 //
 // Ting som endrer seg uten at koden endres, dekkes til (samme størrelse, ensfarget): flystatusen fra

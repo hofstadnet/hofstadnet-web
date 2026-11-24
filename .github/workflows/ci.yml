@@ -1,4 +1,4 @@
-name: Build
+name: Bygg
 
 # Bygger siden på hver pull request og på main. Bygget stopper ved typefeil, ved innlegg som
 # bryter innholdsmodellen og ved innebygd kode som Content-Security-Policy ville blokkert.

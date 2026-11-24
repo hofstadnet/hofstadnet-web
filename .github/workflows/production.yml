@@ -1,4 +1,4 @@
-name: Production
+name: Produksjon
 
 # Ukentlig sjekk av den publiserte siden på https://hofstad.net: Lighthouse og de samme tilgjengelighets- og
 # CSP-testene som kjøres på hver pull request. Fanger opp endringer som skjer utenfor repoet, som

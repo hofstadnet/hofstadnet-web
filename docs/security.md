@@ -119,7 +119,8 @@ Cloudflare-sonen, bare i miljøet `cloudflare`, og resten på repoet.
 - Regelsettet på `main` krever pull request og grønne sjekker (`build`, `dependency-review`, `workflow-security`),
   stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
-  `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret.
+  `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret. Svarer registeret med
+  feil, prøves det tre ganger før bygget stopper.
 - Dependabot foreslår nye versjoner én gang i måneden, tidligst 7 dager etter utgivelse, og 30 dager for
   major-versjoner av npm-pakker.
   Patch og minor for npm og Actions merges automatisk når alle sjekker er grønne, etter kriteriene i

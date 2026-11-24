@@ -79,7 +79,7 @@ Teksten skrives i Markdown.
 | `areas` | Ja | Ett eller flere av `luft`, `natur`, `vann`, `foto-video`, `skjerm`. Det første vises på kort. |
 | `type` | Nei | `post` (standard), `note`, `review`, `video` eller `project`. Vises på innlegget som «notat», «test», «video» eller «prosjekt» (`types` i `src/i18n/nb.ts` og `src/i18n/en.ts`). |
 | `tags` | Nei | Frie stikkord. Hvert får en side under `/stikkord/`, og innlegg med felles stikkord vises under «Les også». |
-| `image`, `imageAlt` | Nei | Hovedbilde i `src/assets/images/`. |
+| `image`, `imageAlt` | Nei | Hovedbilde i `src/assets/images/`. Vises øverst i innlegget, på kort og som delingsbilde. Innlegg med `hasVideo` viser det bare som forhåndsbilde til videoen. |
 | `imageFocus` | Nei | Utsnitt i små bilder: `center` (standard), `left`, `right`, `top` eller `bottom`. |
 | `hasVideo` | Nei | `true` gir avspillingsmerke på kort. |
 | `updated` | Nei | Dato for siste endring. Brukes også i nettstedskartet. |

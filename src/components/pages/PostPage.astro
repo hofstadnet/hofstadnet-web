@@ -1,21 +1,22 @@
 ---
 import { render } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Page from '../../layouts/Page.astro';
 import Arrow from '../Arrow.astro';
 import TableOfContents from '../TableOfContents.astro';
 import Tags from '../Tags.astro';
 import Tile from '../Tile.astro';
-import { formatDateIso, formatDateLong, readingTime, shareImage, typeLabel, type Post } from '../../lib/posts';
+import { formatDateIso, formatDateLong, postUrl, readingTime, shareImage, typeLabel, type Post } from '../../lib/posts';
 import { areaName } from '../../lib/areas';
-import { blogPosting } from '../../lib/structured-data';
+import { postStructuredData } from '../../lib/structured-data';
 import { t, urls, otherLang } from '../../i18n';
 
 // Innholdsfortegnelse vises bare i innlegg med minst så mange hovedoverskrifter (##)
 const MIN_HEADINGS = 3;
 
 // Ett innlegg. Språket følger innlegget. Uten oversettelse lenker språkvelgeren til arkivet på det andre språket.
-interface Props { post: Post; related: Post[]; }
-const { post, related } = Astro.props;
+interface Props { post: Post; related: Post[]; older?: Post; newer?: Post; }
+const { post, related, older, newer } = Astro.props;
 const lang = post.lang;
 const text = t(lang).post;
 const u = urls(lang);
@@ -25,8 +26,10 @@ const d = post.data;
 const { Content, headings } = await render(post.entry);
 const hasToc = headings.filter((h) => h.depth === 2).length >= MIN_HEADINGS;
 const image = await shareImage(post);
+// Hovedbildet vises øverst, unntatt i videoinnlegg: der er det forhåndsbildet til videoen og ville kommet to ganger.
+const showImage = d.image && !d.hasVideo;
 ---
-<Page lang={lang} alternate={alternate} translation={post.translated} title={d.title} description={d.summary} shareImage={image} structuredData={blogPosting(post, image)}>
+<Page lang={lang} alternate={alternate} translation={post.translated} title={d.title} description={d.summary} shareImage={image} structuredData={postStructuredData(post, image)}>
   <div class:list={['post-wrap', { 'has-toc': hasToc }]}>
     <article class="post" data-pagefind-body>
       <a class="back" href={u.posts} data-pagefind-ignore><Arrow type="arrow" flipped /> {text.back}</a>
@@ -43,12 +46,32 @@ const image = await shareImage(post);
         {' · '}{text.readingTime(readingTime(post))}
       </p>
       <p class="summary">{d.summary}</p>
+      {showImage && (
+        <figure class="post-image">
+          <Picture
+            formats={['avif', 'webp']}
+            src={d.image!}
+            alt={d.imageAlt ?? ''}
+            widths={[720, 1080, 1440]}
+            sizes="(max-width: 760px) 100vw, 720px"
+            loading="eager"
+            fetchpriority="high"
+            class={`focus-${d.imageFocus}`}
+          />
+        </figure>
+      )}
       {hasToc && <TableOfContents lang={lang} headings={headings} variant="top" />}
       <Content />
       <div data-pagefind-ignore><Tags lang={lang} list={d.tags.map((name) => ({ name }))} /></div>
     </article>
     {hasToc && <TableOfContents lang={lang} headings={headings} variant="side" />}
   </div>
+  {(older || newer) && (
+    <nav class="adjacent" aria-label={text.adjacentLabel} data-pagefind-ignore>
+      {newer && <a class="newer" href={postUrl(newer)}><span class="eyebrow"><Arrow type="arrow" flipped /> {text.newer}</span><span class="title">{newer.data.title}</span></a>}
+      {older && <a class="older" href={postUrl(older)}><span class="eyebrow">{text.older} <Arrow type="arrow" /></span><span class="title">{older.data.title}</span></a>}
+    </nav>
+  )}
   {related.length > 0 && (
     <section class="related" aria-labelledby="related-title">
       <h2 id="related-title" class="eyebrow">{text.related}</h2>

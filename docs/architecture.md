@@ -143,6 +143,11 @@ Feltene er beskrevet i [README](../README.md#skrive-et-innlegg). Innleggene sort
   prosjekt (`project`).
 - **Stikkord** er frie, gir egne sider og brukes til «Les også».
 
+Under innlegget lenker «Nyere innlegg» og «Eldre innlegg» til nabo-innleggene i tid, på samme språk. Hovedbildet vises
+under ingressen og lastes før resten av bildene. Videoinnlegg (`hasVideo`) viser det ikke der, fordi det er
+forhåndsbildet til videoen. Strukturdataen (`src/lib/structured-data.ts`) har `BlogPosting` og en brødsmulesti
+(`BreadcrumbList`: Hofstad.NET › Alle innlegg › tittelen), så søkeresultatene kan vise stien i stedet for adressen.
+
 ### Språk
 
 Siden er på norsk (`lang="nb"`) på rot og på engelsk (`lang="en"`) under `/en/`, med adresser på sidens språk.

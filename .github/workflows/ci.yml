@@ -35,7 +35,9 @@ jobs:
       # Sjekker at alle pakkene er signert av npm-registeret og har gyldig opphav (provenance),
       # så en manipulert pakke fra et speil eller en mellommann blir stoppet.
       - name: Signaturer på npm-pakkene
-        run: npm audit signatures
+        run: |
+          # Registeret svarer av og til med feil. Prøver tre ganger før bygget stopper.
+          for i in 1 2 3; do npm audit signatures && exit 0; sleep 15; done; exit 1
 
       - name: Enhetstester
         run: npm run test:unit

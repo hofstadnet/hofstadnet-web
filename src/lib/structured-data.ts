@@ -66,3 +66,27 @@ export function blogPosting(p: Post, image?: string) {
     isPartOf: { '@id': websiteId(p.lang) },
   };
 }
+
+// Brødsmulesti for søkeresultatene: Hofstad.NET › Innlegg › tittelen
+export function breadcrumbs(p: Post) {
+  const u = urls(p.lang);
+  const items = [
+    { name: 'Hofstad.NET', url: u.home },
+    { name: t(p.lang).posts.title, url: u.posts },
+    { name: p.data.title, url: postUrl(p) },
+  ];
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: new URL(item.url, SITE).toString(),
+    })),
+  };
+}
+
+// Alt for innleggssiden: selve innlegget og brødsmulestien
+export function postStructuredData(p: Post, image?: string) {
+  return { '@graph': [blogPosting(p, image), breadcrumbs(p)] };
+}

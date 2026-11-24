@@ -27,18 +27,22 @@ infra/
 - **Låste versjoner.** OpenTofu-versjonen er låst i `.github/workflows/infra.yml`, provideren i `versions.tf` og
   sjekksummene i `.terraform.lock.hcl`. Dependabot foreslår nye versjoner av provideren.
 - **Ingen hemmeligheter eller e-postadresser i repoet.** API-tokenene, R2-nøklene, passfrasen og adressen for
-  varsler ligger som GitHub-secrets.
-- **To Cloudflare-tokens.** `plan` og `drift` bruker et token som bare kan lese (`CLOUDFLARE_API_TOKEN_READ` på
-  repoet). Tokenet som kan endre sonen (`CLOUDFLARE_API_TOKEN`), ligger bare i miljøet `cloudflare`, som krever
-  godkjenning og bare tillater `main`. Ingen branch eller pull request kan derfor endre Cloudflare. R2-nøklene,
-  passfrasen og `ALERT_EMAIL` ligger på repoet, fordi både plan og apply trenger dem.
+  varsler ligger som secrets i GitHub-miljøene `tofu-plan` og `cloudflare`, ikke på repoet.
+- **Lesing og skriving er skilt.** `plan` og `drift` kjører i miljøet `tofu-plan`, med et Cloudflare-token og et
+  R2-token som bare kan lese. `apply` kjører i miljøet `cloudflare`, som krever godkjenning, med tokenene som kan
+  endre sonen og skrive state. Begge miljøene tillater bare `main`, så ingen branch eller pull request får nøklene,
+  passfrasen eller `ALERT_EMAIL`. Prisen er at planen ikke vises på pull requests, bare i kjøringen etter merge,
+  før apply godkjennes.
 
 ## Flyt
 
 `.github/workflows/infra.yml`:
 
-1. **check** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
-2. **plan** på pull requests og før hver apply, med lesetokenet. Resultatet står i oppsummeringen av kjøringen.
+1. **check** på alle endringer i `infra/`, også pull requests: `tofu fmt -check` og `tofu validate`. Trenger ingen
+   nøkler.
+2. **plan** på `main`, etter merge, med Run workflow og hver mandag, i miljøet `tofu-plan`. Resultatet står i
+   oppsummeringen av kjøringen. R2-tokenet kan bare lese, så planen kjører med `-lock=false`. Den skriver ikke state,
+   og concurrency-gruppen `infra` hindrer at den kjører samtidig med apply.
 3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`, og
    bruker skrivetokenet derfra. Apply gjennomfører den lagrede planen fra plan-jobben (artefakten `tofu-plan`,
    kryptert med passfrasen og slettet etter ett døgn), så det som godkjennes, er det som utføres. Har state endret
@@ -64,7 +68,10 @@ Endringer gjort i dashbordet blir rapportert av avvikssjekken og overskrevet ved
 Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage tokens, gir nesten full tilgang til kontoen.
 
 1. **R2:** slå på R2 Object Storage og lag en privat bøtte for state, uten offentlig adresse.
-2. **R2-token:** R2 → Manage API tokens → Create Account API token, med *Object Read & Write* på bare den bøtta.
+2. **R2-tokens:** R2 → Manage API tokens → Create Account API token, to tokens på bare den bøtta, med samme
+   utløpsdato som Cloudflare-tokenene:
+   - `hofstadnet-tofu-state` (skriv): *Object Read & Write*.
+   - `hofstadnet-tofu-state-read` (les): *Object Read only*.
 3. **Cloudflare-tokens:** Manage Account → Account API Tokens → Create Token, to tokens med samme utløpsdato:
    - `hofstadnet-tofu` (skriv): *Specified Domains* → sonen: DNS, Zone Settings, Zone WAF, Bot Management og Dynamic
      URL Redirects (Edit), og Zone (Read). *Entire Account*: Notifications (Edit).
@@ -76,13 +83,22 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
    og ressursene må importeres på nytt.
 5. **GitHub-secrets og variabel:**
 
+   Miljøene står i innstillingene i [operations](https://github.com/hofstadnet/operations) og lages derfra. R2-nøklene har samme navn i begge miljøene, men er
+   forskjellige tokens.
+
    ```bash
-   gh secret set CLOUDFLARE_API_TOKEN_READ
+   # tofu-plan: lesetokenene
+   gh secret set CLOUDFLARE_API_TOKEN_READ --env tofu-plan
+   gh secret set R2_ACCESS_KEY_ID --env tofu-plan       # hofstadnet-tofu-state-read
+   gh secret set R2_SECRET_ACCESS_KEY --env tofu-plan
+   gh secret set TOFU_STATE_PASSPHRASE --env tofu-plan
+   gh secret set ALERT_EMAIL --env tofu-plan
+   # cloudflare: skrivetokenene
    gh secret set CLOUDFLARE_API_TOKEN --env cloudflare
-   gh secret set R2_ACCESS_KEY_ID
-   gh secret set R2_SECRET_ACCESS_KEY
-   gh secret set TOFU_STATE_PASSPHRASE
-   gh secret set ALERT_EMAIL
+   gh secret set R2_ACCESS_KEY_ID --env cloudflare      # hofstadnet-tofu-state
+   gh secret set R2_SECRET_ACCESS_KEY --env cloudflare
+   gh secret set TOFU_STATE_PASSPHRASE --env cloudflare
+   gh secret set ALERT_EMAIL --env cloudflare
    gh variable set TOFU_ENABLED --body true
    ```
 
@@ -93,8 +109,8 @@ Nøklene lages manuelt i Cloudflare-dashbordet, fordi et token som kan lage toke
 
 ```bash
 cd infra/hofstad.net
-# Lesetokenet holder for plan
+# Lesetokenene holder for plan, med -lock=false
 export CLOUDFLARE_API_TOKEN=… AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… TF_VAR_state_passphrase=…
 tofu init
-tofu plan
+tofu plan -lock=false
 ```

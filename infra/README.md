@@ -40,8 +40,8 @@ infra/
 
 1. **check** på alle endringer i `infra/`, også pull requests: `tofu fmt -check` og `tofu validate`. Trenger ingen
    nøkler.
-2. **plan** på `main`, etter merge, med Run workflow og hver mandag, i miljøet `tofu-plan`. Resultatet står i
-   oppsummeringen av kjøringen. R2-tokenet kan bare lese, så planen kjører med `-lock=false`. Den skriver ikke state,
+2. **plan** på `main`, etter merge, med Run workflow og hver mandag, i miljøet `tofu-plan`. Oppsummeringen av
+   kjøringen viser antall endringer og hver ressurs med før- og etter-verdier (sensitive verdier er skjult). R2-tokenet kan bare lese, så planen kjører med `-lock=false`. Den skriver ikke state,
    og concurrency-gruppen `infra` hindrer at den kjører samtidig med apply.
 3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`, og
    bruker skrivetokenet derfra. Apply gjennomfører den lagrede planen fra plan-jobben (artefakten `tofu-plan`,

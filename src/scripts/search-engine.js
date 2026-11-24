@@ -17,11 +17,18 @@ if (globalThis.trustedTypes?.createPolicy) {
 }
 
 let pagefind;
-async function load() {
-  // Adressen settes sammen her, så Vite ikke prøver å pakke filen som bare finnes etter bygget
+function load() {
+  // Adressen settes sammen her, så Vite ikke prøver å pakke filen som bare finnes etter bygget.
+  // Løftet lagres, så alle søk venter på den samme innlastingen.
   const path = ['/pagefind', 'pagefind.js'].join('/');
-  pagefind ??= await import(/* @vite-ignore */ path);
+  pagefind ??= import(/* @vite-ignore */ path).then(async (pf) => { await pf.init?.(); return pf; });
+  pagefind.catch(() => { pagefind = undefined; });
   return pagefind;
+}
+
+/** Laster Pagefind og indeksen i bakgrunnen, f.eks. når søkefeltet åpnes, så første søk går raskere. */
+export function preload() {
+  load().catch(() => { /* feilen vises når noen søker */ });
 }
 
 // Utdragene fra Pagefind er tekst med <mark> rundt treffordene. De gjøres om til tekstnoder og <mark>-elementer,
@@ -45,14 +52,22 @@ function excerptNodes(html) {
   return nodes;
 }
 
+// Søket venter 150 ms etter siste tastetrykk. Bare det nyeste søket får svar; de eldre gir null.
+// Ventingen gjøres her og ikke med Pagefind sin debouncedSearch: den kunne gi null også for det siste søket
+// når man skrev veldig raskt mens Pagefind ble lastet, og da ble feltet stående på «Søker …».
+const DELAY = 150;
+let latest = 0;
+
 /**
  * Søker og returnerer { count, results: [{ url, title, excerpt }] }, eller null hvis et nyere søk har tatt over.
  * @param {string} q @param {number} max
  */
 export async function search(q, max = 20) {
-  const pf = await load();
-  const response = await pf.debouncedSearch(q, {}, 150);
-  if (response === null) return null;
+  const id = ++latest;
+  const [pf] = await Promise.all([load(), new Promise((r) => setTimeout(r, DELAY))]);
+  if (id !== latest) return null;
+  const response = await pf.search(q);
+  if (id !== latest) return null;
   const data = await Promise.all(response.results.slice(0, max).map((r) => r.data()));
   return {
     count: response.results.length,

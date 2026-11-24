@@ -106,11 +106,22 @@ jobs:
           tofu plan -input=false -lock=false -parallelism=4 -no-color -detailed-exitcode -out=plan.bin | tee plan.txt || code=$?
           if [ "$code" -eq 1 ]; then exit 1; fi
           if [ "$code" -eq 2 ]; then echo "changes=true" >> "$GITHUB_OUTPUT"; else echo "changes=false" >> "$GITHUB_OUTPUT"; fi
+          # Oppsummeringen viser antallet og hver ressurs med før- og etter-verdier, så godkjenneren ser nøyaktig hva
+          # som endres. Verdier merket sensitive (f.eks. ALERT_EMAIL) skjuler OpenTofu selv. Teksten er den samme som i
+          # loggen, som også er offentlig.
           {
             echo '### OpenTofu-plan'
             echo '```'
-            grep -E '^(Plan:|No changes|  # )' plan.txt || true
+            grep -E '^(Plan:|No changes)' plan.txt || true
             echo '```'
+            if [ "$code" -eq 2 ]; then
+              echo '<details open><summary>Endringene</summary>'
+              echo
+              echo '```diff'
+              sed -n '/^  # /,/^Plan:/p' plan.txt | grep -v '^Plan:' | sed -E 's/^( *)([~+-]) /\2\1 /' | head -c 60000 || true
+              echo '```'
+              echo '</details>'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
       # Planen lastes opp, så apply gjennomfører nøyaktig den planen som ble vist og godkjent. Filen er kryptert
       # med passfrasen (encryption.plan i versions.tf), så artefakten er ikke lesbar uten den.

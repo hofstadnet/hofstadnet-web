@@ -2,7 +2,7 @@
 // Kjøres med «npm run test:unit» (Node sin innebygde testkjører), uten nettverk.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseStatus, fetchStatus, USER, SOURCE } from '../../src/lib/livetrack-status.js';
+import { parseStatus, fetchStatus, readPrefix, USER, SOURCE } from '../../src/lib/livetrack-status.js';
 
 const page = (body) => `<html><body><a href="/user/${USER}">${USER}</a> ${body}</body></html>`;
 
@@ -57,4 +57,32 @@ test('fetchStatus gir unknown ved HTTP-feil, nettverksfeil og tidsavbrudd', asyn
   assert.equal((await fetchStatus(fakeFetch(new Response('', { status: 503 })))).status, 'unknown');
   assert.equal((await fetchStatus(fakeFetch(new TypeError('fetch failed')))).status, 'unknown');
   assert.equal((await fetchStatus(fakeFetch(new DOMException('timeout', 'TimeoutError')))).status, 'unknown');
+});
+
+test('readPrefix leser bare starten av svaret og avbryter resten', async () => {
+  let pulled = 0;
+  let cancelled = false;
+  const chunk = new TextEncoder().encode('a'.repeat(8000));
+  const body = new ReadableStream({
+    pull(controller) { pulled++; controller.enqueue(chunk); },
+    cancel() { cancelled = true; },
+  });
+  const text = await readPrefix(new Response(body), 20000);
+  assert.equal(text.length, 20000);
+  assert.ok(pulled <= 4, `leste ${pulled} biter`);
+  assert.ok(cancelled);
+  assert.equal(await readPrefix(new Response('kort')), 'kort');
+});
+
+test('ukjent svar logges med årsakskode, aldri med innholdet', async (t) => {
+  const warn = t.mock.method(console, 'warn', () => {});
+  const secret = 'hemmelig-innhold-fra-siden';
+  await fetchStatus(fakeFetch(new Response(page(`noe annet ${secret}`), { status: 200 })));
+  await fetchStatus(fakeFetch(new Response(`<p>${secret}</p>`, { status: 200 })));
+  await fetchStatus(fakeFetch(new TypeError(`fetch failed ${secret}`)));
+  const logged = warn.mock.calls.map((c) => c.arguments.join(' '));
+  assert.match(logged[0], /unknown-format/);
+  assert.match(logged[1], /user-missing/);
+  assert.match(logged[2], /no-response TypeError/);
+  for (const line of logged) assert.ok(!line.includes(secret), line);
 });

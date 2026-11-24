@@ -21,7 +21,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `scorecard.yml` | Mandager | OpenSSF Scorecard |
 | `quality.yml` | PR | Lighthouse med poenggrenser og ytelsesbudsjett, Playwright med tilgjengelighet og skjermbilder |
 | `link-check.yml` | PR og mandager | lychee: interne lenker på PR, også eksterne lenker på mandager |
-| `health.yml` | Hver time | Sikkerhetshoder på `/` og `/en/`, sertifikatets utløp, videresending fra www og JSON fra `/api/status`. Åpner og lukker en issue. |
+| `health.yml` | Hver time | Sikkerhetshoder på `/` og `/en/`, sertifikatets utløp, videresending fra www, og at `/api/status` gir en kjent status med ferskt tidspunkt. Åpner og lukker en issue. |
 | `production.yml` | Mandager | Lighthouse og tilgjengelighetstestene mot https://hofstad.net |
 | `infra.yml` | Endringer i `infra/`, mandager | OpenTofu: sjekk, plan, apply (med godkjenning) og ukentlig avvikssjekk |
 | `token-expiry.yml` | Mandager | Varsler når lesetokenet til OpenTofu har under 30 dager igjen. Skrivetokenet har samme utløpsdato. |
@@ -97,6 +97,10 @@ Issuen lister det som er galt. Den oppdateres når listen endrer seg, og lukkes 
 - **Hoder mangler:** sjekk `public/_headers` og siste publisering i Workers & Pages → hofstadnet-web → Deployments.
   Rull tilbake ved behov (se [Rulle tilbake](#rulle-tilbake)).
 - **`/api/status` svarer feil:** se loggene i Workers & Pages → hofstadnet-web → Observability.
+- **`/api/status` gir «unknown»:** siden viser en nøytral tekst, men LiveTrack24 har svart feil i over to minutter.
+  Loggene viser årsaken: `http-error` og `no-response` går som regel over av seg selv; `unknown-format` eller
+  `user-missing` betyr at LiveTrack24 har endret siden. Åpne adressen i `SOURCE` i `src/lib/livetrack-status.js`, og
+  rett `parseStatus`.
 - **www videresender ikke:** sjekk videresendingsregelen i `infra/` og kjør Infrastructure → Run workflow.
 - **Sertifikatet utløper snart:** Cloudflare fornyer Universal SSL selv. Sjekk SSL/TLS → Edge Certificates, og at
   CAA-postene i `infra/` tillater utstederne (se [security.md](security.md#cloudflare-sonen)).

@@ -20,6 +20,9 @@ const posts = defineCollection({
       tags: z.array(z.string()).default([]),
       image: image().optional(),
       imageAlt: z.string().default(''),
+      // Eget bilde til kort og miniatyrer, når hovedbildet ikke tåler å bli beskåret (f.eks. en logo med tekst).
+      // Motivet bør stå midt i bildet, fordi kortene beskjærer til alt fra 2:1 til kvadrat.
+      thumbnail: image().optional(),
       // Hvilken del av hovedbildet som beholdes når det beskjæres til små miniatyrer
       imageFocus: z.enum(['center', 'left', 'right', 'top', 'bottom']).default('center'),
       // Settes når innlegget inneholder video, slik at kort får avspillingsmerke.

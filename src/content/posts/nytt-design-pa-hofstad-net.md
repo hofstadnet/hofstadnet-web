@@ -7,7 +7,7 @@ type: project
 tags: [nettsiden, prosjektlogg]
 image: ../../assets/images/hofstadnet.png
 imageAlt: "Hofstad.NET-logoen på blå bakgrunn"
-imageFocus: left
+thumbnail: ../../assets/images/hofstadnet-emblem.png
 ---
 
 Hofstad.NET har stått nesten urørt siden 2020. Siden lå på WordPress hos et webhotell, og det meste av jobben gikk

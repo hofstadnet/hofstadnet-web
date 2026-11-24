@@ -133,5 +133,7 @@ krever godkjenning. Repoet har ingen secrets.
 - Arbeidsflyter har bare lesetilgang som utgangspunkt og `persist-credentials: false`. Jobber som trenger mer, ber om
   det selv.
 - Secret scanning med push protection, Dependabot-varsler og sikkerhetsoppdateringer er slått på.
+- `.gitleaks.toml` unntar tokenet til Cloudflare Web Analytics, som er offentlig og står i HTML-en, så en kjøring
+  av gitleaks på repoet ikke gir falske treff.
 - CodeQL kjører på pull requests, på `main` og hver uke. OpenSSF Scorecard kjører hver uke.
 - `/.well-known/security.txt` peker til [SECURITY.md](../SECURITY.md). Bygget stopper når den har under 30 dager igjen.

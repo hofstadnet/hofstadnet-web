@@ -28,7 +28,7 @@ const otherText = t(other).language;
   <nav aria-label={text.header.menu}>
     <a href={u.posts}>{text.header.blog}</a>
     {hero && <a class="status-link" href={`#${text.anchors.flightStatus}`}>{text.header.flightStatus}</a>}
-    <a href={`${u.home}#${text.anchors.links}`}>{text.header.links}</a>
+    <a class="links-link" href={`${u.home}#${text.anchors.links}`}>{text.header.links}</a>
     <a class="search-button" href={u.search} data-search-open aria-controls="search-panel" aria-expanded="false" title={text.header.searchTitle}>
       <Icon name="search" class="ico" /><span>{text.header.search}</span>
     </a>

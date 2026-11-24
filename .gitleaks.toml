@@ -1,0 +1,11 @@
+# Oppsett for gitleaks (https://github.com/gitleaks/gitleaks), som leter etter hemmeligheter i repoet og historikken.
+# Standardreglene brukes, med ett unntak.
+
+[extend]
+useDefault = true
+
+# Tokenet til Cloudflare Web Analytics er offentlig: det står i HTML-en på hver side (src/layouts/Base.astro) og gir
+# bare lov til å sende sidevisninger. Unntaket gjelder bare denne verdien, i alle commits, også fremtidige.
+[[allowlists]]
+description = "Offentlig token for Cloudflare Web Analytics"
+regexes = ['''b491f74152bd435d8dff6126e7a1d8e9''']

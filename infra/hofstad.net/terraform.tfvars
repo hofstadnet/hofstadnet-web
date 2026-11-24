@@ -24,7 +24,7 @@ dns_records = {
   # Statussiden på GitHub Pages (repoet hofstadnet/status)
   status = { type = "CNAME", name = "status.hofstad.net", content = "hofstadnet.github.io", comment = "Upptime-statusside (GitHub Pages, repo hofstadnet/status)" }
   # Bekrefter at domenet tilhører GitHub-organisasjonen hofstadnet, og at bare den kan bruke det på GitHub Pages
-  github_org   = { type = "TXT", name = "_gh-hofstadnet-o.hofstad.net", content = "\"b69f21ea56\"" }
+  github_org   = { type = "TXT", name = "_gh-hofstadnet-o.hofstad.net", content = "\"b69f21ea56\"", comment = "Verifisert domene for GitHub-organisasjonen hofstadnet" }
   github_pages = { type = "TXT", name = "_github-pages-challenge-hofstadnet.hofstad.net", content = "\"73a60f8f2c9c365d26f1e369ef24cc\"", ttl = 300, comment = "GitHub Pages domeneverifisering for hofstadnet-organisasjonen" }
   # Bekrefter eierskapet i Google Search Console. Må bli liggende, ellers mister eieren tilgangen der.
   google_site_verification = { type = "TXT", name = "hofstad.net", content = "\"google-site-verification=qoiqwUbeR8SHSSGsJt3NrSprr8z0ZJ8RjY9arfFuvRA\"", ttl = 3600, comment = "Google Search Console" }

@@ -14,6 +14,13 @@ import { readLimitedBody } from './body.js';
 const MAX_BYTES = 16 * 1024;
 const MAX_REPORTS = 10;
 const HOSTS = new Set(['hofstad.net', 'www.hofstad.net', 'localhost', '127.0.0.1']);
+// Direktivet logges bare når det er et kjent navn, så rapporten ikke kan legge fritekst i loggen
+const DIRECTIVES = new Set([
+  'default-src', 'script-src', 'script-src-elem', 'script-src-attr', 'style-src', 'style-src-elem', 'style-src-attr',
+  'img-src', 'font-src', 'connect-src', 'media-src', 'object-src', 'frame-src', 'child-src', 'worker-src',
+  'manifest-src', 'base-uri', 'form-action', 'frame-ancestors', 'upgrade-insecure-requests',
+  'require-trusted-types-for', 'trusted-types',
+]);
 
 // Gjør en adresse om til opphav + sti (uten spørrestreng og fragment), eller et nøkkelord som «inline»
 function shorten(value) {
@@ -78,7 +85,8 @@ export async function handleCspReport(request) {
     console.error(JSON.stringify({
       type: 'csp-violation',
       page: shorten(r.page),
-      directive: typeof r.directive === 'string' ? r.directive.slice(0, 60) : undefined,
+      // Eldre rapporter (violated-directive) kan ha verdiene etter navnet, f.eks. «img-src 'self'»
+      directive: DIRECTIVES.has(String(r.directive ?? '').split(' ')[0]) ? String(r.directive).split(' ')[0] : 'other',
       blocked: shorten(r.blocked),
       source,
       line: Number.isFinite(r.line) ? r.line : undefined,

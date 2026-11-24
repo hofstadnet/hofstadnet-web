@@ -36,7 +36,7 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
 ### Rapporter om brudd
 
 CSP-en har `report-uri /api/csp` og `report-to csp` (`Reporting-Endpoints`), så nettlesere melder fra når noe blir
-stoppet. `worker/csp-report.js` logger side, direktiv, blokkert opphav og kildefil i Workers Logs med
+stoppet. `worker/csp-report.js` logger side, direktiv (bare kjente navn, ellers `other`), blokkert opphav og kildefil i Workers Logs med
 `console.error`, slik at en ny type brudd blir en «issue» og gir varsel på e-post.
 
 Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag (`sample`). Rapporter fra
@@ -116,8 +116,9 @@ Cloudflare-sonen, bare i miljøet `cloudflare`, og resten på repoet.
 ## Forsyningskjede og endringer
 
 - `main` er sannheten: det som ligger der, er i drift. Tilbakerulling er `git revert`.
-- Regelsettet på `main` krever pull request og grønne sjekker (`build`, `dependency-review`, `workflow-security`),
-  stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push og sletting.
+- Regelsettet på `main` krever pull request og grønne sjekker (`build`, `accessibility`, `lighthouse`,
+  `dependency-review`, `workflow-security`), stopper ved CodeQL-funn med høy alvorlighet, og blokkerer force-push
+  og sletting.
 - Actions er låst til commit-SHA. npm-pakker installeres fra låsefil med `npm ci --ignore-scripts`, og
   `npm audit signatures` stopper bygget hvis en pakke mangler gyldig signatur fra registeret. Svarer registeret med
   feil, prøves det tre ganger før bygget stopper.

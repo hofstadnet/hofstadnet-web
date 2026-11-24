@@ -11,7 +11,7 @@ const text = t(lang).video;
 const serviceName = service === 'youtube' ? 'YouTube' : 'Vimeo';
 const link = service === 'youtube' ? `https://www.youtube.com/watch?v=${id}` : `https://vimeo.com/${id}`;
 ---
-<div class="video" data-video={service} data-id={id} data-title={title}>
+<div class="video" data-pagefind-ignore data-video={service} data-id={id} data-title={title}>
   <button type="button" class="video-play" aria-label={text.play(title)}>
     <Picture src={poster} formats={['avif', 'webp']} alt="" widths={[720, 1440]} sizes="(max-width: 760px) 100vw, 720px" />
     <span class="play" aria-hidden="true"></span>

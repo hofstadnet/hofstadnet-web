@@ -71,6 +71,12 @@ if (supported && button && panel && menu && input && status && list) {
     e.preventDefault();
     if (isOpen()) close(); else open();
   });
+  // En lenke med role="button" må også reagere på Mellomrom, slik en vanlig knapp gjør
+  button.addEventListener('keydown', (e) => {
+    if (e.key !== ' ') return;
+    e.preventDefault();
+    if (isOpen()) close(); else open();
+  });
   closeButton?.addEventListener('click', () => close());
   input.addEventListener('input', run);
   panel.querySelector('form')?.addEventListener('submit', (e) => {

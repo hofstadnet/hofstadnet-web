@@ -9,8 +9,8 @@ const text = t(lang);
 const s = text.status;
 // Siste loggførte tur fra IGC-filene (scripts/flight-stats.mjs). Oppdateres når skriptet kjøres etter nye turer.
 const lastFlight = flightStats.lastFlight;
-// Flystatus: grønn prikk og «I lufta nå» når sporingen på LiveTrack24 er aktiv. Det er bare sporingen som
-// kan sjekkes, så teksten under sier det, og når statusen sist ble sjekket. role="status" gjør at
+// Flystatus: grønn prikk og «Sporing aktiv» når sporingen på LiveTrack24 er aktiv. Det er bare sporingen som
+// kan sjekkes, så både overskriften og teksten under handler om sporingen, og når statusen sist ble sjekket. role="status" gjør at
 // skjermlesere leser opp endringer.
 // Statusen hentes fra sidens egen tjeneste (/api/status), så besøkende kontakter ikke LiveTrack24
 // før de selv åpner kartet. Kartet åpnes i ny fane.

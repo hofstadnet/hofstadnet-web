@@ -101,7 +101,7 @@ Adresser:
 | `/sok/` | `/en/search/` | Søk uten JavaScript, brukt av 404-siden og søkefeltet i Google |
 | `/personvern/` | `/en/privacy/` | Hva siden samler inn |
 | `/rss.xml` | `/en/rss.xml` | RSS med hele innleggene |
-| `/404.html` | `/en/404.html` | Vises for ukjente adresser. Cloudflare leverer den nærmeste, så adresser under `/en/` får den engelske. |
+| `/404.html` | `/en/404.html` | Vises for ukjente adresser. Cloudflare leverer den nærmeste, så adresser under `/en/` får den engelske. Har `noindex` og ingen canonical. |
 | `/sitemap-index.xml` | | Nettstedskart for begge språk, med `lastmod` og lenker mellom språkversjonene |
 
 Sidene i `src/pages/` er tynne ruter per språk. Innholdet ligger i `src/components/pages/` og får språket fra ruten.

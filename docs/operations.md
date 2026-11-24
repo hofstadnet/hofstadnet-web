@@ -27,7 +27,8 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `token-expiry.yml` | Mandager | Varsler når lesetokenet til OpenTofu har under 30 dager igjen. Skrivetokenet har samme utløpsdato. |
 | `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, unntatt `wrangler`. OpenTofu-provideren og major merges manuelt. |
 
-Påkrevde sjekker før merge til `main`: `build`, `dependency-review`, `workflow-security` og CodeQL.
+Påkrevde sjekker før merge til `main`: `build`, `accessibility`, `lighthouse`, `dependency-review`, `workflow-security`
+og CodeQL. Dermed må også Quality være grønn før en Dependabot-oppdatering merges automatisk.
 
 ### Grenser i kvalitetssjekkene
 

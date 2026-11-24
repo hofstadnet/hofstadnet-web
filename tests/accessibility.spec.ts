@@ -122,6 +122,21 @@ test('søket finner innlegg på språket til siden', async ({ page }) => {
   expect(await norwegian.evaluateAll((links) => links.every((a) => a.getAttribute('href')?.startsWith('/innlegg/')))).toBe(true);
 });
 
+// Søkeknappen er en lenke med role="button" og skal åpnes med både Enter og Mellomrom, som en vanlig knapp
+test('søkeknappen åpnes med Mellomrom og Enter', async ({ page }) => {
+  await page.goto('/');
+  const button = page.locator('[data-search-open]');
+  const panel = page.locator('#search-panel');
+  await button.focus();
+  await page.keyboard.press('Space');
+  await expect(panel).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(panel).toBeHidden();
+  await button.focus();
+  await page.keyboard.press('Enter');
+  await expect(panel).toBeVisible();
+});
+
 // /api/csp tar bare imot POST, svarer alltid 204 uten innhold, og tåler både Reporting API og report-uri
 test('CSP-rapporter tas imot uten å svare med innhold', async ({ request }) => {
   const reporting = await request.post('/api/csp', {

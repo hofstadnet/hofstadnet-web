@@ -57,3 +57,17 @@ test('/api/csp avviser rapporter over 16 kB uten Content-Length', async () => {
   }
   assert.equal(errors.length, 1);
 });
+
+test('/api/csp logger bare kjente direktivnavn, aldri fritekst', async () => {
+  const report = (directive) => JSON.stringify({ 'csp-report': { 'document-uri': 'https://hofstad.net/', 'violated-directive': directive, 'blocked-uri': 'inline' } });
+  const lines = [];
+  const original = console.error;
+  console.error = (line) => lines.push(JSON.parse(line));
+  try {
+    await handleCspReport(chunked([report("img-src 'self'")]));
+    await handleCspReport(chunked([report('hei, dette er fritekst')]));
+  } finally {
+    console.error = original;
+  }
+  assert.deepEqual(lines.map((l) => l.directive), ['img-src', 'other']);
+});

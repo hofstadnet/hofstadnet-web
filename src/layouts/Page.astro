@@ -10,11 +10,11 @@ import '../styles/post.css';
 // Språk og lenken til det andre språket er beskrevet i Base.astro.
 interface Props {
   lang: Lang; alternate: string; translation?: boolean;
-  title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>;
+  title: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>; noindex?: boolean;
 }
-const { lang, alternate, translation, title, description, shareImage, structuredData } = Astro.props;
+const { lang, alternate, translation, title, description, shareImage, structuredData, noindex } = Astro.props;
 ---
-<Base lang={lang} alternate={alternate} translation={translation} title={title} description={description} shareImage={shareImage} structuredData={structuredData}>
+<Base lang={lang} alternate={alternate} translation={translation} title={title} description={description} shareImage={shareImage} structuredData={structuredData} noindex={noindex}>
   <div class="wrap">
     <Header lang={lang} alternate={alternate} />
     <main id="content">

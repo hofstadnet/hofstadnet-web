@@ -1,4 +1,4 @@
-# Sikkerhetshoder for alle sider (Cloudflare Pages).
+# Sikkerhetshoder for alle sider (Cloudflare Workers, statiske filer).
 # Skrift, bilder, stilark og skript kommer bare fra siden selv. Eneste unntak er videorammer
 # (frame-src) fra YouTube og Vimeo, som lastes først når den besøkende trykker på spill av.
 # Flystatus hentes fra sidens egen tjeneste /api/status, ikke direkte fra LiveTrack24.
@@ -21,7 +21,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=(), browsing-topics=()
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Speculation-Rules: "/speculationrules.json"

@@ -40,7 +40,9 @@ infra/
 1. **check** på alle endringer i `infra/`: `tofu fmt -check` og `tofu validate`. Trenger ingen nøkler.
 2. **plan** på pull requests og før hver apply, med lesetokenet. Resultatet står i oppsummeringen av kjøringen.
 3. **apply** etter merge til `main`, bare når planen har endringer. Krever godkjenning i miljøet `cloudflare`, og
-   bruker skrivetokenet derfra.
+   bruker skrivetokenet derfra. Apply gjennomfører den lagrede planen fra plan-jobben (artefakten `tofu-plan`,
+   kryptert med passfrasen og slettet etter ett døgn), så det som godkjennes, er det som utføres. Har state endret
+   seg i mellomtiden, stopper OpenTofu, og kjøringen må startes på nytt for en ny plan.
 4. **drift** hver mandag: planen kjøres mot Cloudflare. Viser den endringer, er noe endret utenfor koden, og det
    opprettes en issue. Ingenting endres automatisk.
 

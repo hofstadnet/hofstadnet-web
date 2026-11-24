@@ -36,7 +36,7 @@ Hodene ligger i `public/_headers` og følger med hver publisering. Workeren sett
 ### Rapporter om brudd
 
 CSP-en har `report-uri /api/csp` og `report-to csp` (`Reporting-Endpoints`), så nettlesere melder fra når noe blir
-stoppet. `worker/csp-report.js` logger side, direktiv, blokkert opphav og kildefil i Workers Logs med
+stoppet. `worker/csp-report.js` logger side, direktiv (bare kjente navn, ellers `other`), blokkert opphav og kildefil i Workers Logs med
 `console.error`, slik at en ny type brudd blir en «issue» og gir varsel på e-post.
 
 Det lagres ikke IP, nettleserinfo, spørrestrenger, fragmenter eller kodeutdrag (`sample`). Rapporter fra

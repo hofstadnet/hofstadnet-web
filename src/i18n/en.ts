@@ -12,8 +12,8 @@ export const client: ClientDictionary = {
     unavailable: 'Search is not available right now.',
   },
   status: {
-    live: ['In the air now', 'Tracking on LiveTrack24 is active.'],
-    'not-live': ['No active tracking', 'Not in the air right now – maybe under water or out hiking.'],
+    live: ['Tracking active', 'LiveTrack24 is tracking a flight right now, probably in the air.'],
+    'not-live': ['No active tracking', 'LiveTrack24 is not tracking anything now. Maybe under water or out hiking.'],
     unknown: ['Status unavailable', 'Open the map to see the latest flight.'],
     checked: (time) => `Checked at ${time}.`,
   },

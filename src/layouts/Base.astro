@@ -9,8 +9,10 @@ import { t, urls, otherLang, type Lang } from '../i18n';
 interface Props {
   lang: Lang; alternate: string; translation?: boolean;
   title?: string; description?: string; shareImage?: string; structuredData?: Record<string, unknown>;
+  // noindex: siden skal ikke i søkemotorer og får ingen canonical (404-siden)
+  noindex?: boolean;
 }
-const { lang, alternate, translation = false, title, structuredData } = Astro.props;
+const { lang, alternate, translation = false, title, structuredData, noindex = false } = Astro.props;
 const text = t(lang);
 const other = otherLang(lang);
 const { description = text.site.description, shareImage = text.site.shareImage } = Astro.props;
@@ -29,7 +31,7 @@ const versions = { [lang]: canonical, [other]: alternateUrl } as Record<Lang, UR
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     {translation && (
       <>
         <link rel="alternate" hreflang="nb" href={versions.nb} />

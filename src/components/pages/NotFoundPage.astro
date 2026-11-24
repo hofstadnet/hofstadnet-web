@@ -15,7 +15,7 @@ const text = t(lang).notFound;
 const u = urls(lang);
 const latest = (await getPosts(lang)).slice(0, 4);
 ---
-<Page lang={lang} alternate={urls(otherLang(lang)).home} title={text.title}>
+<Page lang={lang} alternate={urls(otherLang(lang)).home} title={text.title} noindex>
   <div class="page-head">
     <p class="eyebrow">404</p>
     <h1>{text.heading}</h1>

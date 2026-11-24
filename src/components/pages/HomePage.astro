@@ -27,17 +27,17 @@ const cards = rest.slice(0, 3);
 const older = rest.slice(3, 9);
 ---
 <Base lang={lang} alternate={alternate} translation structuredData={homePage(lang)}>
-  <div class="hero">
+  <section class="hero" aria-labelledby="hero-title">
     {/* AVIF med WebP som reserve. Kvalitet 60 er godt nok bak tekst og panel, og gjør bildet en brøkdel så stort. */}
     <Picture class="hero-bg" src={heroImage} alt="" formats={['avif', 'webp']} quality={60} widths={[768, 1280, 1600, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />
     <div class="wrap">
       <Header lang={lang} alternate={alternate} variant="hero" />
     </div>
     <div class="wrap hero-foot">
-      <h1>{home.title[0]}<br /><em>{home.title[1]}</em></h1>
+      <h1 id="hero-title">{home.title[0]}<br /><em>{home.title[1]}</em></h1>
       <p class="hero-tag">{home.tagline[0]} <span aria-hidden="true">·</span> {home.tagline[1]} <span aria-hidden="true">·</span> {home.tagline[2]}</p>
     </div>
-  </div>
+  </section>
 
   <main class="wrap" id="content">
     <div class="deck">

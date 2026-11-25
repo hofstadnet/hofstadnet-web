@@ -25,7 +25,7 @@ Publisering, automatiske kontroller, overvåking og fremgangsmåter for vanlige 
 | `production.yml` | Mandager | Lighthouse og tilgjengelighetstestene mot https://hofstad.net |
 | `infra.yml` | Endringer i `infra/`, mandager | OpenTofu: sjekk, plan, apply (med godkjenning) og ukentlig avvikssjekk |
 | `token-expiry.yml` | Mandager | Varsler når lesetokenet til OpenTofu har under 30 dager igjen. Skrivetokenet har samme utløpsdato. |
-| `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, unntatt `wrangler`. OpenTofu-provideren og major merges manuelt. |
+| `dependabot-automerge.yml` | Dependabot-PR | Automatisk merge av patch og minor for npm og Actions, også `wrangler` (bygget pakker Workeren med den). OpenTofu-provideren og major merges manuelt. |
 
 Påkrevde sjekker før merge til `main`: `build`, `accessibility`, `lighthouse`, `dependency-review`, `workflow-security`
 og CodeQL. Dermed må også Kvalitet være grønn før en Dependabot-oppdatering merges automatisk.

@@ -44,6 +44,13 @@ jobs:
 
       - run: npm run build
 
+      # Workeren pakkes av wrangler uten å publisere, så en ny wrangler-versjon eller en feil i wrangler.jsonc blir
+      # funnet her og ikke av Workers Builds etter merge. Ingen hemmeligheter.
+      - name: Workeren pakkes av wrangler
+        run: npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+        env:
+          WRANGLER_SEND_METRICS: "false"
+
       - name: Ingen innebygd kode i HTML
         run: node scripts/check-csp.mjs
 

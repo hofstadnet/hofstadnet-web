@@ -40,8 +40,8 @@ og CodeQL. Dermed må også Kvalitet være grønn før en Dependabot-oppdatering
   forespørsler til tredjeparter.
 - **Tilgjengelighet** (`tests/accessibility.spec.ts`): axe mot WCAG 2.2 AA på alle sider i nettstedskartet, på norsk
   og engelsk, i mørk og lys visning, på 320 og 1280 px. Stopper også ved horisontal rulling, CSP-brudd og
-  JavaScript-feil. Egne tester søker på begge språk, sjekker språkvelgeren og `<html lang>`, blar i galleriet og
-  sender rapporter til `/api/csp`.
+  JavaScript-feil. Egne tester søker på begge språk, sjekker språkvelgeren og `<html lang>`, blar i galleriet,
+  sjekker at mørk visning er standard også når systemet er lyst, og sender rapporter til `/api/csp`.
 - **Skjermbilder** (`tests/visual.spec.ts`): forside, innlegg og «I lufta» i mørk og lys visning på pc og mobil,
   den engelske forsiden i mørk visning på pc, og søkepanelet. Flystatus og tall som endres med nye turer, er dekket til. Maks 1 % avvik.
 

@@ -15,7 +15,7 @@ Hvordan hofstad.net er satt sammen, og hvorfor. Sikkerhet er beskrevet i [securi
 | Infrastruktur | OpenTofu i `infra/` | Cloudflare-sonen som kode, med validering på PR, plan på `main` og godkjent apply. |
 | Søk | [Pagefind](https://pagefind.app/) | Indeks bygges sammen med siden. Søket skjer i nettleseren. |
 | Skrift, ikoner, skript | Ligger i repoet | Siden fungerer selv om andre tjenester er nede. |
-| Visning | Følger systemet, mørk som reserve | Valg i bryteren lagres lokalt i nettleseren. |
+| Visning | Mørk som standard, uansett systemet | Valg i bryteren lagres lokalt i nettleseren. |
 | Språk | Norsk på rot, engelsk under `/en/` | Adressen bestemmer språket. Ingen videresending og ingenting lagres. |
 
 ## Dataflyt

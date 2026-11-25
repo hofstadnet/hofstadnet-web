@@ -191,3 +191,20 @@ test('delingsbildet følger språket på siden', async ({ page }) => {
   const response = await page.request.get('/og-image-en-1200x630.png');
   expect(response.status()).toBe(200);
 });
+
+// Mørk visning er standard, også når operativsystemet er satt til lys. Bare valget i bryteren gir lys visning,
+// og det huskes til neste side.
+test('mørk som standard, også med lys visning i systemet', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('[data-theme-toggle]').first()).toHaveAttribute('aria-checked', 'true');
+});
+
+test('bryteren gir lys visning, og valget huskes', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('[data-theme-toggle]:visible').first().click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.goto('/en/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+});

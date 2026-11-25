@@ -132,7 +132,8 @@ krever godkjenning. Repoet har ingen secrets.
   major-versjoner av npm-pakker.
   Patch og minor for npm og Actions merges automatisk når alle sjekker er grønne, etter kriteriene i
   [hofstadnet/guidelines](https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge).
-  `wrangler` (publiserer siden), OpenTofu-provideren (endrer Cloudflare) og major-versjoner merges manuelt.
+  `wrangler` er med, fordi bygget pakker Workeren med den uten å publisere. OpenTofu-provideren (endrer Cloudflare)
+  og major-versjoner merges manuelt.
 - Arbeidsflyter har bare lesetilgang som utgangspunkt og `persist-credentials: false`. Jobber som trenger mer, ber om
   det selv.
 - Secret scanning med push protection, Dependabot-varsler og sikkerhetsoppdateringer er slått på.

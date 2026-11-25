@@ -4,8 +4,9 @@ name: Automatisk merge av Dependabot
 # https://github.com/hofstadnet/guidelines/blob/main/github-security.md#automatisk-merge:
 #  - patch eller minor av npm-pakker og GitHub Actions. Repoet har tester som fanger brudd på det som publiseres
 #    (bygg, enhetstester, ende-til-ende, tilgjengelighet, skjermbilder og Lighthouse), så npm kan tas med.
-#  - aldri wrangler (publiserer siden), OpenTofu-provideren (endrer Cloudflare, og apply skal godkjennes av et
-#    menneske) eller major-oppdateringer (kan ha endringer som ikke fanges av testene). De merges manuelt.
+#  - wrangler er med, fordi bygget (ci.yml) pakker Workeren med wrangler uten å publisere.
+#  - aldri OpenTofu-provideren (endrer Cloudflare, og apply skal godkjennes av et menneske) eller major-oppdateringer
+#    (kan ha endringer som ikke fanges av testene). De merges manuelt.
 # PR-en merges først når alle påkrevde sjekker er grønne (regelsettet på main). Dependabot venter 7 dager før nye
 # versjoner foreslås, og 30 dager for major av npm (cooldown i .github/dependabot.yml).
 #
@@ -52,9 +53,6 @@ jobs:
             npm_and_yarn|github_actions) ;;
             *) reason="${reason:+$reason, }økosystemet er ${ECOSYSTEM:-ukjent}" ;;
           esac
-          if tr ',' '\n' <<<"$DEPENDENCIES" | sed 's/^ *//;s/ *$//' | grep -qx 'wrangler'; then
-            reason="${reason:+$reason, }PR-en oppdaterer wrangler"
-          fi
           if [ -n "$reason" ]; then
             echo "::notice::Merges manuelt: $reason."
             echo "automerge=false" >> "$GITHUB_OUTPUT"

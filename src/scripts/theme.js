@@ -1,6 +1,6 @@
 // Bryteren for lys/mørk visning. Valget lagres lokalt i nettleseren, uten cookies eller nettverkskall.
 // Selve temaet settes av /theme.js før siden tegnes; her holdes bryteren i takt og valget lagres.
-// Har man ikke valgt selv, følger siden operativsystemet, også når innstillingen endres mens siden er åpen.
+// Har man ikke valgt selv, er visningen mørk, uansett innstillingen i operativsystemet.
 import { strings } from '../i18n/client';
 
 const root = document.documentElement;
@@ -20,15 +20,6 @@ document.addEventListener('click', (e) => {
   if (!b) return;
   root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem(KEY, root.dataset.theme); } catch {}
-  sync();
-});
-
-const system = window.matchMedia?.('(prefers-color-scheme: light)');
-system?.addEventListener('change', (e) => {
-  let stored = null;
-  try { stored = localStorage.getItem(KEY); } catch {}
-  if (stored === 'light' || stored === 'dark') return;
-  root.dataset.theme = e.matches ? 'light' : 'dark';
   sync();
 });
 
